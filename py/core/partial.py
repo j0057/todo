@@ -22,8 +22,8 @@ class partial(basedec.BaseDecorator):
             debug(request, 'Range: {0}/{1} {2}'.format(`request.range`, `result.content_length`, `dir(request.range)`))
         else:
             debug(request, 'Range: None')
-        if request.range and len(request.range.ranges) == 1:
-            start, stop = request.range.ranges[0]
+        if request.range: # and len(request.range.ranges) == 1:
+            start, stop = request.start, request.stop
             if stop is None:
                 stop = size
             result.status_int = 206
