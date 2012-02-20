@@ -21,7 +21,7 @@ CLEAN = $(addprefix clean-,$(LIB))
 
 all: dist/$(NAME).zip $(LIB_TGT)
 
-clean: $(LIB_SRC)
+clean: $(CLEAN)
 	@rm -rfv dist
 	@find py -name '*.pyc' -exec rm -v '{}' ';'
 
