@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>mp3</title>
+        <link type="text/css" rel="stylesheet" href="mp3.css"/>
+    </head>
+
+    <body class="background1 color3">
+
+        <div id="library"/>
+
+        <div id="playlist"/>
+
+        <div id="cover" class="background2 border4">
+            <img id="coverimg"/>
+        </div>
+
+        <div id="main" class="background2 border4">
+            <div class="tabcontrol">
+                <div class="names">
+                    <span class="selected">Chat</span>
+                    <span>Debug</span>
+                    <span>Settings</span>
+                </div>
+                <div class="content">
+                    <div class="selected" id="chattab">
+                        Chat tab
+                    </div>
+                    <div id="debugtab">
+                        Debug tab
+                    </div>
+                    <div id="settingstab">
+                        Settings tab
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="player" class="background2 border4"/>
+        
+        <!--script src="soundmanager2-nodebug-jsmin.js"></script-->
+
+        <script src="mp3.global.js"></script>
+        <script src="mp3.extensions.js"></script>
+        <script src="mp3.component.Object.js"></script>
+        <script src="mp3.component.HorizontalSlider.js"></script>
+        <script src="mp3.component.Observable.js"></script>
+        <script src="mp3.component.VerticalScrollbar.js"></script>
+        <script src="mp3.component.TabControl.js"></script>
+        <script src="mp3.engine.Base.js"></script>
+        <script src="mp3.engine.Audio.js"></script>
+        <script src="mp3.engine.Flash.js"></script>
+        <script src="mp3.engine.QuickTime.js"></script>
+        <script src="mp3.view.Library.js"></script>
+        <script src="mp3.view.Player.js"></script>
+        <script src="mp3.view.Players.js"></script>
+        <script src="mp3.view.Playlist.js"></script>
+        <script src="mp3.view.PlaylistItem.js"></script>
+        <script src="mp3.view.Stats.js"></script>
+        <script src="mp3.view.TitleScroller.js"></script>
+        <script src="mp3.Main.js"></script>
+
+        <!-- playlistItemTemplate -->
+        <script type="application/xhtml+xml" id="playlistItemTemplate">
+            <div id="{id}">
+                <a href="{url}">{descr}</a> <span class="status color1"/>
+            </div>
+        </script>
+
+        <!-- verticalScrollbarTemplate -->
+        <script type="application/xhtml+xml" id="verticalScrollbarTemplate">
+            <div id="{id}" class="background2 border4">
+                <div id="{id}-content"/>
+                <div id="{id}-scrollbar" class="scroll v-dragdealer rounded">
+                    <div id="{id}-slider" class="scrollslider v-handle handle rounded background5 color1"/>
+                </div>
+            </div>
+        </script>
+
+        <!-- horizontalSliderTemplate -->
+        <script type="application/xhtml+xml" id="horizontalSliderTemplate">
+            <div class="{className} h-dragdealer rounded background1">
+                <div class="{className}-slider h-handle handle rounded background5 color1">{initText}</div>
+            </div>
+        </script>
+
+        <!-- libraryArtistTemplate -->
+        <script type="application/xhtml+xml" id="libraryArtistTemplate">
+            <div class="artist">
+                <span class="arrow">&#x25B6;</span>
+                <span class="artist-name">{artist}</span>
+            </div>
+        </script>
+
+        <!-- libraryAlbumTemplate -->
+        <script type="application/xhtml+xml" id="libraryAlbumTemplate">
+            <div class="album {visibility}">
+                <span class="arrow">&#x25B6;</span>
+                <a class="album-name" href="{url}">{album}</a>
+            </div>
+        </script>
+
+        <!-- libraryTrackTemplate -->
+        <script type="application/xhtml+xml" id="libraryTrackTemplate">
+            <div class="track {visibility}">
+                <span class="track-num">{trackNum}</span>. <a class="track-name" href="{url}">{trackName}</a>
+            </div>
+        </script>
+
+        <!-- playerTemplate -->
+        <script type="application/xhtml+xml" id="playerTemplate">
+            <div id="{id}" class="player">
+                <div class="icons">
+                    <span class="icon-prev">Prev</span>
+                    <span class="icon-stop">Stop</span>
+                    <span class="icon-play">Play</span>
+                    <span class="icon-next">Next</span> (<span class="player-state"></span>)
+                </div>
+                <div class="time"/>
+                <div class="volume"/>
+                <div class="info">
+                    <div class="color1">Artist: <span class="artist-name color4"/></div>
+                    <div class="color1">Album: <span class="album-name color4"/></div>
+                    <div class="color1">Track: <span class="track-name color4"/></div>
+                </div>
+            </div>
+        </script>
+
+        <!-- tabControlTemplate -->
+        <script type="application/xhtml+xml" id="tabControlTemplate">
+            <div id="{id}" class="tabcontrol">
+                <div class="tabnames"/>
+                <div class="tabcontent"/>
+            </div>
+        </script>
+
+        <!-- quickTimeTemplate -->
+        <script type="application/xhtml+xml" id="quickTimeTemplate">
+            <object id="{id}-object" type="application/x-quicktimeplayer" width="25" height="25">
+                <param name="src" value="{url}"/>
+                <param name="autoplay" value="false"/>
+                <param name="controller" value="false"/>
+                <param name="postdomevents" value="true"/>
+            </object>
+        </script>
+
+        <!-- windowsMediaTemplate -->
+        <script type="application/xhtml+xml" id="windowsMediaTemplate">
+            <object id="{id}-player" type="application/x-ms-wmp" width="25" height="25">
+                <param name="url" value="{url}"/>
+                <param name="sendplaystatechangeevents" value="true"/>
+                <param name="autostart" value="false"/>
+                <param name="uimode" value="none"/>
+                <param name="playcount" value="1"/>
+            </object>
+        </script>
+
+        <!-- vlcTemplate -->
+        <script type="application/xhtml+xml" id="vlcTemplate">
+            <object id="{id}-player" type="application/x-vlc-plugin" width="25" height="25">
+                <param name="target" value="{url}"/>
+                <param name="autoplay" value="no"/>
+                <param name="loop" value="no"/>
+            </object>
+        </script>
+    </body>
+</html>

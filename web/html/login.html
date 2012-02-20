@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Login to MP3 server</title>
+		<link rel="stylesheet" href="mp3.css"/>
+		<script type="text/javascript" src="/util.js"/>
+		<script type="text/javascript">//<![CDATA[
+			addEventListener('DOMContentLoaded', function(e) {
+				get = decodeGET(window.location.search.substr(1));
+				document.getElementById('redirect').value = get.url;
+			});
+		//]]></script>
+	</head>
+	<body id="login">
+		<h1>Login to MP3 server</h1>
+		<form action="login" method="POST">
+			<input name="username" placeholder="Username" type="text" autofocus="autofocus"/>
+			<input name="password" placeholder="Password" type="password"/>
+			<input name="redirect" id="redirect" type="hidden"/>
+			<input type="submit" value="Login"/>
+		</form>
+	</body>
+</html>
