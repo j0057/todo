@@ -3,7 +3,7 @@
 # LIB = dist/lib1.zip dist/lib2.zip
 # PKG = env/pip-pkg1
 
-.PHONY: clean really-clean test 
+.PHONY: clean really-clean test runtime vars
 
 PP = $(LIB: =:)
 
@@ -23,10 +23,12 @@ really-clean: clean
 env:
 	virtualenv env
 
-env/pip-%: env
+env/pip-%:
 	@echo "pip install $*"
 	@bash -c ". env/bin/activate ; pip install $*"
 	@touch env/pip-$*
+
+runtime: env $(PKG)
 
 dist:
 	@mkdir -vp dist
@@ -39,7 +41,12 @@ dist/lib/%.zip: dist
 	@make -C lib/$* dist/$*.zip
 	@cp -v lib/$*/dist/$*.zip dist/lib/$*.zip
 
-test: env env/pip-webob $(LIB)
+test: $(LIB) runtime
 	@echo "PYTHONPATH=$(PP) python py/$(NAME)/__init__.py"
 	@bash -c ". env/bin/activate ; PYTHONPATH=$(PP) python py/$(NAME)/__init__.py"
 
+vars:
+	@echo "NAME: $(NAME)"
+	@echo "LIB : $(LIB)"
+	@echo "PKG : $(PKG)"
+	@echo "PP  : $(PP)"
