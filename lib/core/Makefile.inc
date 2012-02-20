@@ -1,12 +1,4 @@
 
-# PKG = pkgname
-# LIB = dist/lib1.zip dist/lib2.zip
-# PKG = env/pip-pkg1
-
-# NAME = mp3
-# LIB = core
-# PKG = webob mutagen
-
 LIB_TGT = $(addsuffix .zip,$(addprefix dist/lib/,$(LIB)))
 LIB_SRC = $(addprefix lib/,$(LIB))
 
@@ -14,10 +6,13 @@ PP = $(subst ,:,$(LIB_TGT))
 
 PKG_FULL = $(addprefix env/pip-,$(PKG))
 
+SRC_FILES = $(shell find py/$(NAME) -name '*.py')
+
 CLEAN = $(addprefix clean-,$(LIB))
 
+.PHONY: default all clean really-clean test runtime vars
 
-.PHONY: clean really-clean test runtime vars
+default: all test
 
 all: dist/$(NAME).zip $(LIB_TGT)
 
@@ -36,8 +31,8 @@ env:
 	virtualenv env
 
 env/pip-%:
-	@echo "pip install $*"
-	@bash -c ". env/bin/activate ; pip install $*"
+	@echo "pip -v install $*"
+	@bash -c ". env/bin/activate ; pip -v install $*"
 	@touch env/pip-$*
 
 runtime: env $(PKG_FULL)
@@ -46,16 +41,16 @@ dist:
 	@mkdir -vp dist
 	@mkdir -vp dist/lib
 
-dist/%.zip: dist py/%/*.py
-	cd py ; zip -r ../dist/$*.zip $*/*.py
-
 dist/lib/%.zip: dist
 	@make -C lib/$* dist/$*.zip
 	@cp -v lib/$*/dist/$*.zip dist/lib/$*.zip
 
+dist/%.zip: dist $(SRC_FILES)
+	cd py ; zip -r ../dist/$*.zip $* -i '*.py'
+
 test: $(LIB_TGT) runtime
 	@echo "PYTHONPATH=$(PP) python py/$(NAME)/__init__.py"
-	@bash -c ". env/bin/activate ; PYTHONPATH=$(PP) python py/$(NAME)/__init__.py"
+	@bash -c ". env/bin/activate ; PYTHONPATH=py:$(PP) python -m $(MAIN)"
 
 vars:
 	@echo "NAME     : $(NAME)"
@@ -66,3 +61,5 @@ vars:
 	@echo "PKG      : $(PKG)"
 	@echo "PKG_FULL : $(PKG_FULL)"
 	@echo "CLEAN    : $(CLEAN)"
+	@echo "SRC_FILES: $(SRC_FILES)"
+
