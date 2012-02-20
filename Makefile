@@ -2,6 +2,6 @@ NAME = core
 PKG = env/pip-webob
 LIB = 
 
-CLEAN = clean-testapp
+CLEAN = 
 
 include Makefile.inc
