@@ -14,7 +14,7 @@ clean: $(CLEAN)
 	@find py -name '*.pyc' -exec rm -v '{}' ';'
 
 clean-%:
-	make -C lib/$* clean
+	@make -C lib/$* clean
 
 really-clean: clean
 	@rm -rf env/*
@@ -36,7 +36,7 @@ dist/%.zip: dist py/%/*.py
 	cd py ; zip -r ../dist/$*.zip $*/*.py
 
 dist/lib/%.zip: dist
-	make -C lib/$* dist/$*.zip
+	@make -C lib/$* dist/$*.zip
 	@cp -v lib/$*/dist/$*.zip dist/lib/$*.zip
 
 test: env env/pip-webob $(LIB)
