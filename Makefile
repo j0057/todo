@@ -1,7 +1,7 @@
 NAME = core
-PKG = env/pip-webob
+PKG = webob
 LIB = 
 
-CLEAN = 
+MAIN = core.main
 
 include Makefile.inc
