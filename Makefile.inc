@@ -3,13 +3,25 @@
 # LIB = dist/lib1.zip dist/lib2.zip
 # PKG = env/pip-pkg1
 
+# NAME = mp3
+# LIB = core
+# PKG = webob mutagen
+
+LIB_TGT = $(addsuffix .zip,$(addprefix dist/lib/,$(LIB)))
+LIB_SRC = $(addprefix lib/,$(LIB))
+
+PP = $(subst ,:,$(LIB_TGT))
+
+PKG_FULL = $(addprefix env/pip-,$(PKG))
+
+CLEAN = $(addprefix clean-,$(LIB))
+
+
 .PHONY: clean really-clean test runtime vars
 
-PP = $(LIB: =:)
+all: dist/$(NAME).zip $(LIB_TGT)
 
-all: dist/$(NAME).zip $(LIB)
-
-clean: $(CLEAN)
+clean: $(LIB_SRC)
 	@rm -rfv dist
 	@find py -name '*.pyc' -exec rm -v '{}' ';'
 
@@ -28,7 +40,7 @@ env/pip-%:
 	@bash -c ". env/bin/activate ; pip install $*"
 	@touch env/pip-$*
 
-runtime: env $(PKG)
+runtime: env $(PKG_FULL)
 
 dist:
 	@mkdir -vp dist
@@ -41,12 +53,16 @@ dist/lib/%.zip: dist
 	@make -C lib/$* dist/$*.zip
 	@cp -v lib/$*/dist/$*.zip dist/lib/$*.zip
 
-test: $(LIB) runtime
+test: $(LIB_TGT) runtime
 	@echo "PYTHONPATH=$(PP) python py/$(NAME)/__init__.py"
 	@bash -c ". env/bin/activate ; PYTHONPATH=$(PP) python py/$(NAME)/__init__.py"
 
 vars:
-	@echo "NAME: $(NAME)"
-	@echo "LIB : $(LIB)"
-	@echo "PKG : $(PKG)"
-	@echo "PP  : $(PP)"
+	@echo "NAME     : $(NAME)"
+	@echo "LIB      : $(LIB)"
+	@echo "LIB_SRC  : $(LIB_SRC)"
+	@echo "LIB_TGT  : $(LIB_TGT)"
+	@echo "PP       : $(PP)"
+	@echo "PKG      : $(PKG)"
+	@echo "PKG_FULL : $(PKG_FULL)"
+	@echo "CLEAN    : $(CLEAN)"
