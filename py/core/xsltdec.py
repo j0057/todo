@@ -33,7 +33,7 @@ class xslt(basedec.BaseDecorator):
     def apply_stylesheet(self, request, response):
         import lxml.etree
         self.serialize_xml(response)
-        xsl = lxml.etree.XSLT(lxml.etree.parse(request.environ['DOCUMENT_ROOT'] + '/web' + request.GET['xslt']))
+        xsl = lxml.etree.XSLT(lxml.etree.parse(request.environ['DOCUMENT_ROOT'] + '/web/' + request.GET['xslt']))
         xml = lxml.etree.parse(StringIO.StringIO(response.body))
         response.body = str(xsl(xml))
 
