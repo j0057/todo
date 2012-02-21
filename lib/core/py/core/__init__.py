@@ -33,18 +33,13 @@ del inifile
 def run_server(app):
     def fix_wsgiref(app):
         def fixed_app(request, start_response):
-            # add REQUEST_URI environment variable
             if 'REQUEST_URI' not in request:
                 request['REQUEST_URI'] = request['PATH_INFO']
                 if request['QUERY_STRING']:
                     request['REQUEST_URI'] += '?'
                     request['REQUEST_URI'] += request['QUERY_STRING']
-
-            # add DOCUMENT_ROOT to environment
             import os
             request['DOCUMENT_ROOT'] = os.getcwd()
-
-            # call app
             return app(request, start_response)
         return fixed_app
 

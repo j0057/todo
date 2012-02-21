@@ -25,15 +25,15 @@ class xslt(basedec.BaseDecorator):
 
     def link_stylesheet(self, request, response):
         response.body = xml.serialize_ws(
-            [core.xml.FRAGMENT,
-                [core.xml.PROCINC, 'xml', ('version', '1.0'), ('encoding', 'UTF-8')],
-                [core.xml.PROCINC, 'xml-stylesheet', ('type', 'text/xsl'), ('href', request.GET['xsl'])],
+            [xml.FRAGMENT,
+                [xml.PROCINC, 'xml', ('version', '1.0'), ('encoding', 'UTF-8')],
+                [xml.PROCINC, 'xml-stylesheet', ('type', 'text/xsl'), ('href', request.GET['xsl'])],
                 response.body]).encode('utf8')
 
     def apply_stylesheet(self, request, response):
         import lxml.etree
         self.serialize_xml(response)
-        xsl = lxml.etree.XSLT(lxml.etree.parse('/home/joost/www/musicdb/static/' + request.GET['xslt']))
+        xsl = lxml.etree.XSLT(lxml.etree.parse(request.environ['DOCUMENT_ROOT'] + '/web/' + request.GET['xslt']))
         xml = lxml.etree.parse(StringIO.StringIO(response.body))
         response.body = str(xsl(xml))
 
