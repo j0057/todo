@@ -23,7 +23,7 @@ class partial(basedec.BaseDecorator):
         else:
             debug(request, 'Range: None')
         if request.range: # and len(request.range.ranges) == 1:
-            start, stop = request.start, request.stop
+            start, stop = request.range.start, request.range.stop
             if stop is None:
                 stop = size
             result.status_int = 206
