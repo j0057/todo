@@ -1,6 +1,8 @@
 
-DEPLOY_CODE = env/lib/python2.7/site-packages/local
-DEPLOY_WEB = env/web
+ENV = env
+
+DEPLOY_CODE = $(ENV)/lib/python2.7/site-packages/local
+DEPLOY_WEB = $(ENV)/web
 
 LIB_TGT = $(addsuffix .zip,$(addprefix dist/lib/,$(LIB)))
 LIB_SRC = $(addprefix lib/,$(LIB))
@@ -16,73 +18,55 @@ CLEAN = $(addprefix clean-,$(LIB))
 .PHONY: default all clean really-clean test runtime vars
 
 default: all test
-	@echo "# $@"
 
 all: dist/$(NAME).zip $(LIB_TGT)
-	@echo "# $@"
 
 clean: deploy-clean $(CLEAN)
-	@echo "# $@"
-	@rm -rfv dist
-	@find py -name '*.pyc' -exec rm -v '{}' ';'
+	rm -rf dist
+	find py -name '*.pyc' -delete
 
 clean-%:
-	@echo "# $@"
 	@make -C lib/$* clean
 
 really-clean: clean
-	@echo "# $@"
-	@rm -rf env/*
-	@rm -rfv env
+	rm -rf $(ENV)
 
-env:
-	@echo "# $@"
-	virtualenv env
+$(ENV):
+	virtualenv -q $(ENV)
 
-env/pip-%:
-	@echo "# $@"
-	@echo "pip -v install $*"
-	@bash -c ". env/bin/activate ; pip -v install $*"
-	@touch env/pip-$*
+$(ENV)/pip-%:
+	$(ENV)/bin/pip install -q $*
+	@touch $(ENV)/pip-$*
 
-runtime: env $(PKG_FULL)
-	@echo "# $@"
+runtime: $(ENV) $(PKG_FULL)
 
 dist:
-	@echo "# $@"
-	@mkdir -vp dist
-	@mkdir -vp dist/lib
+	mkdir -p dist dist/lib
 
-dist/lib/%.zip: dist
-	@echo "# $@"
+dist/lib/%.zip: dist lib/%
 	@make -C lib/$* dist/$*.zip
-	@cp -v lib/$*/dist/$*.zip dist/lib/$*.zip
+	cp lib/$*/dist/$*.zip dist/lib/$*.zip
 
 dist/%.zip: dist $(SRC_FILES)
-	@echo "# $@"
-	cd py ; zip -r ../dist/$*.zip $* -i '*.py'
+	cd py; zip -r ../dist/$*.zip $* -i '*.py'
 
 test: $(LIB_TGT) runtime
-	@echo "# $@"
-	PYTHONPATH=py:$(PP) env/bin/python -m $(MAIN)
+	PYTHONPATH=py:$(PP) $(ENV)/bin/python -m $(MAIN)
 
 deploy: dist/$(NAME).zip $(LIB_TGT) runtime
-	@echo "# $@"
-	rm -rf $(DEPLOY_CODE)
-	cp -r dist $(DEPLOY_CODE)
-	cd $(DEPLOY_CODE) ; cd .. ; find $(notdir $(DEPLOY_CODE)) -name '*.zip' > $(notdir $(DEPLOY_CODE)).pth
-	rm -rf $(DEPLOY_WEB)
+	@rm -rf $(DEPLOY_WEB)
 	cp -r web $(DEPLOY_WEB)
+	@rm -rf $(DEPLOY_CODE)
+	cp -r dist $(DEPLOY_CODE)
+	cd $(DEPLOY_CODE); cd ..; find $(notdir $(DEPLOY_CODE)) -name '*.zip' > $(notdir $(DEPLOY_CODE)).pth
 
 deploy-clean:
-	@echo "# $@"
 	rm -rf $(DEPLOY_CODE)
 	rm -rf $(DEPLOY_CODE).pth
 	rm -rf $(DEPLOY_WEB)
 
-run: runtime deploy
-	@echo "# $@"
-	cd env ; bin/python -m $(MAIN)
+run: deploy
+	cd $(ENV); bin/python -m $(MAIN)
 
 vars:
 	@echo "NAME     : $(NAME)"
