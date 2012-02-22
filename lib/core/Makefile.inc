@@ -47,9 +47,9 @@ dist:
 
 dist/lib/%.zip: dist lib/%
 	@make -C lib/$* dist/$*.zip
-	cp lib/$*/dist/$*.zip dist/lib/$*.zip
+	cp -u lib/$*/dist/$*.zip dist/lib/$*.zip
 
-dist/%.zip: dist $(OBJ_FILES)
+dist/%.zip: $(OBJ_FILES)
 	cd py; zip -rq ../dist/$*.zip $* -i '*.pyc'
 
 test: $(LIB_TGT) 
