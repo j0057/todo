@@ -21,18 +21,15 @@ default: all test
 
 all: $(LIB_TGT) dist/$(NAME).zip 
 
-clean: clean-msg $(CLEAN) deploy-clean
-	@rm -rf dist
-	@find py -name '*.pyc' -delete
-
-clean-msg:
-	@echo "cleaning..."
+clean: $(CLEAN) deploy-clean
+	rm -rf dist
+	find py -name '*.pyc' -delete
 
 clean-%:
 	@make -C lib/$* clean
 
 really-clean: clean
-	@rm -rf $(ENV)
+	rm -rf $(ENV)
 
 $(ENV):
 	virtualenv -q $(ENV)
@@ -64,8 +61,8 @@ deploy: all runtime
 	cd $(DEPLOY_CODE); cd ..; find $(notdir $(DEPLOY_CODE)) -name '*.zip' > $(notdir $(DEPLOY_CODE)).pth
 
 deploy-clean:
-	@rm -rf $(DEPLOY_CODE) $(DEPLOY_CODE).pth
-	@rm -rf $(DEPLOY_WEB)
+	rm -rf $(DEPLOY_CODE) $(DEPLOY_CODE).pth
+	rm -rf $(DEPLOY_WEB)
 
 run: deploy
 	cd $(ENV); bin/python -m $(MAIN)
