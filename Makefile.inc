@@ -26,7 +26,7 @@ clean: clean-msg $(CLEAN) deploy-clean
 	@find py -name '*.pyc' -delete
 
 clean-msg:
-	@echo "Cleaning"
+	@echo "cleaning..."
 
 clean-%:
 	@make -C lib/$* clean
