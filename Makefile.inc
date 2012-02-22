@@ -19,17 +19,17 @@ CLEAN = $(addprefix clean-,$(LIB))
 
 default: all test
 
-all: dist/$(NAME).zip $(LIB_TGT)
+all: $(LIB_TGT) dist/$(NAME).zip 
 
 clean: $(CLEAN) deploy-clean
-	rm -rf dist
-	find py -name '*.pyc' -delete
+	@rm -rf dist
+	@find py -name '*.pyc' -delete
 
 clean-%:
 	@make -C lib/$* clean
 
 really-clean: clean
-	rm -rf $(ENV)
+	@rm -rf $(ENV)
 
 $(ENV):
 	virtualenv -q $(ENV)
@@ -41,7 +41,7 @@ $(ENV)/pip-%:
 runtime: $(ENV) $(PKG_FULL)
 
 dist:
-	mkdir -p dist dist/lib
+	@mkdir -p dist dist/lib
 
 dist/lib/%.zip: dist lib/%
 	@make -C lib/$* dist/$*.zip
@@ -53,7 +53,7 @@ dist/%.zip: dist $(SRC_FILES)
 test: $(LIB_TGT) runtime
 	PYTHONPATH=py:$(PP) $(ENV)/bin/python -m $(MAIN)
 
-deploy: dist/$(NAME).zip $(LIB_TGT) runtime
+deploy: all runtime
 	@rm -rf $(DEPLOY_WEB)
 	cp -r web $(DEPLOY_WEB)
 	@rm -rf $(DEPLOY_CODE)
@@ -61,9 +61,8 @@ deploy: dist/$(NAME).zip $(LIB_TGT) runtime
 	cd $(DEPLOY_CODE); cd ..; find $(notdir $(DEPLOY_CODE)) -name '*.zip' > $(notdir $(DEPLOY_CODE)).pth
 
 deploy-clean:
-	rm -rf $(DEPLOY_CODE)
-	rm -rf $(DEPLOY_CODE).pth
-	rm -rf $(DEPLOY_WEB)
+	@rm -rf $(DEPLOY_CODE) $(DEPLOY_CODE).pth
+	@rm -rf $(DEPLOY_WEB)
 
 run: deploy
 	cd $(ENV); bin/python -m $(MAIN)
