@@ -48,7 +48,7 @@ dist/lib/%.zip: dist lib/%
 	cp lib/$*/dist/$*.zip dist/lib/$*.zip
 
 dist/%.zip: dist $(SRC_FILES)
-	cd py; zip -r ../dist/$*.zip $* -i '*.py'
+	cd py; zip -rq ../dist/$*.zip $* -i '*.py'
 
 test: $(LIB_TGT) runtime
 	PYTHONPATH=py:$(PP) $(ENV)/bin/python -m $(MAIN)
