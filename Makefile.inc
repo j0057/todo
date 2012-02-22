@@ -21,9 +21,12 @@ default: all test
 
 all: $(LIB_TGT) dist/$(NAME).zip 
 
-clean: $(CLEAN) deploy-clean
+clean: clean-msg $(CLEAN) deploy-clean
 	@rm -rf dist
 	@find py -name '*.pyc' -delete
+
+clean-msg:
+	@echo "Cleaning"
 
 clean-%:
 	@make -C lib/$* clean
