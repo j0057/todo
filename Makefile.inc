@@ -31,7 +31,7 @@ really-clean: clean
 	rm -rf $(ENV)
 
 %.pyc: %.py
-	$(ENV)/bin/python -c "from py_compile import compile as c; c(\"$*.py\")"
+	python -c "from py_compile import compile as c; c(\"$*.py\")"
 
 $(ENV):
 	virtualenv -q $(ENV)
