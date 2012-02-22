@@ -1,6 +1,6 @@
 NAME = mp3
 
-PKG = webob mutagen 
+PKG = webob mutagen uwsgi
 LIB = core
 
 MAIN = mp3.main
