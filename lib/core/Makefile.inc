@@ -12,12 +12,11 @@ PP = $(subst ,:,$(LIB_TGT))
 PKG_FULL = $(addprefix env/pip-,$(PKG))
 
 SRC_FILES = $(shell find py/$(NAME) -name '*.py')
+OBJ_FILES = $(SRC_FILES:.py=.pyc)
 
 CLEAN = $(addprefix clean-,$(LIB))
 
 .PHONY: default all clean really-clean test runtime vars
-
-default: all test
 
 all: $(LIB_TGT) dist/$(NAME).zip 
 
@@ -30,6 +29,9 @@ clean-%:
 
 really-clean: clean
 	rm -rf $(ENV)
+
+%.pyc: %.py
+	$(ENV)/bin/python -c "from py_compile import compile as c; c(\"$*.py\")"
 
 $(ENV):
 	virtualenv -q $(ENV)
@@ -47,13 +49,13 @@ dist/lib/%.zip: dist lib/%
 	@make -C lib/$* dist/$*.zip
 	cp lib/$*/dist/$*.zip dist/lib/$*.zip
 
-dist/%.zip: dist $(SRC_FILES)
-	cd py; zip -rq ../dist/$*.zip $* -i '*.py'
+dist/%.zip: dist $(OBJ_FILES)
+	cd py; zip -rq ../dist/$*.zip $* -i '*.pyc'
 
-test: $(LIB_TGT) runtime
+test: $(LIB_TGT) 
 	PYTHONPATH=py:$(PP) $(ENV)/bin/python -m $(MAIN)
 
-deploy: all runtime
+deploy: all 
 	@rm -rf $(DEPLOY_WEB)
 	cp -r web $(DEPLOY_WEB)
 	@rm -rf $(DEPLOY_CODE)
