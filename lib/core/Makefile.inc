@@ -53,11 +53,15 @@ dist/lib/%.zip: dist lib/%
 	@make -C lib/$* dist/$*.zip
 	cp -u lib/$*/dist/$*.zip dist/lib/$*.zip
 
-dist/%.zip: dist $(OBJ_FILES)
-	cd py; zip -rq ../dist/$*.zip $* -i '*.pyc'
+dist/%.zip: dist $(SRC_FILES)
+	cd py; zip -rq ../dist/$*.zip $* -i '*.py'
 
 test: $(LIB_TGT) 
 	PYTHONPATH=py:$(PP) $(ENV)/bin/python -m $(MAIN)
+
+test-uwsgi: $(LIB_TGT)
+
+test-uwsgi-http: $(LIB_TGT)
 
 deploy: all 
 	@rm -rf $(DEPLOY_WEB)
@@ -72,6 +76,12 @@ deploy-clean:
 
 run: deploy
 	cd $(ENV); bin/python -m $(MAIN)
+
+run-uwsgi: deploy
+	cd $(ENV); bin/uwsgi --ini ../conf/uwsgi/$(NAME).ini
+
+run-uwsgi-http: deploy
+	cd $(ENV); bin/uwsgi --ini ../conf/uwsgi/$(NAME).ini --protocol http --socket :8000
 
 vars:
 	@echo "NAME     : $(NAME)"
