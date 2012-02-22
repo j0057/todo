@@ -21,7 +21,7 @@ default: all test
 
 all: dist/$(NAME).zip $(LIB_TGT)
 
-clean: deploy-clean $(CLEAN)
+clean: $(CLEAN) deploy-clean
 	rm -rf dist
 	find py -name '*.pyc' -delete
 
