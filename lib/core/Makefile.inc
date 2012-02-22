@@ -31,7 +31,9 @@ really-clean: clean
 	rm -rf $(ENV)
 
 %.pyc: %.py
-	python -c "from py_compile import compile as c; c(\"$*.py\")"
+	python -c "from py_compile import compile as c; c('$*.py')"
+
+build: $(OBJ_FILES)
 
 $(ENV):
 	virtualenv -q $(ENV)
@@ -42,6 +44,8 @@ $(ENV)/pip-%:
 
 runtime: $(ENV) $(PKG_FULL)
 
+.VOLATILE: dist
+
 dist:
 	@mkdir -p dist dist/lib
 
@@ -49,7 +53,7 @@ dist/lib/%.zip: dist lib/%
 	@make -C lib/$* dist/$*.zip
 	cp -u lib/$*/dist/$*.zip dist/lib/$*.zip
 
-dist/%.zip: $(OBJ_FILES)
+dist/%.zip: dist $(OBJ_FILES)
 	cd py; zip -rq ../dist/$*.zip $* -i '*.pyc'
 
 test: $(LIB_TGT) 
