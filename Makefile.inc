@@ -1,5 +1,18 @@
+# in: NAME PKG LIB MAIN
 
-ENV = /srv/www-$(NAME)
+# build dist/$NAME.zip
+# build dist/lib/*.zip
+
+# intialize runtime environment
+
+# deploy python code
+# deploy web files
+# deploy configuration
+
+# test: run code from source
+# run: run code from dist
+
+ENV ?= /srv/www-$(NAME)
 
 DEPLOY_CODE = $(ENV)/lib/python2.7/site-packages/local
 DEPLOY_WEB = $(ENV)/web
@@ -16,6 +29,8 @@ SRC_FILES = $(shell find py/$(NAME) -name '*.py')
 OBJ_FILES = $(SRC_FILES:.py=.pyc)
 
 CLEAN = $(addprefix clean-,$(LIB))
+
+DEPLOY_TARGETS = deploy-code deploy-web deploy-conf
 
 .PHONY: default all clean really-clean test runtime vars
 
@@ -92,7 +107,7 @@ test-uwsgi-http: $(LIB_TGT)
 # deploy
 #
 
-deploy: all deploy-code deploy-web deploy-conf
+deploy: all $(DEPLOY_TARGETS)
 
 deploy-web:
 	@rm -rf $(DEPLOY_WEB)
