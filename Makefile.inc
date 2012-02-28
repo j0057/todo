@@ -1,15 +1,16 @@
 
-ENV = env
+ENV = /srv/www-mp3
 
 DEPLOY_CODE = $(ENV)/lib/python2.7/site-packages/local
 DEPLOY_WEB = $(ENV)/web
+DEPLOY_CONF = $(ENV)/conf
 
 LIB_TGT = $(addsuffix .zip,$(addprefix dist/lib/,$(LIB)))
 LIB_SRC = $(addprefix lib/,$(LIB))
 
 PP = $(subst ,:,$(LIB_TGT))
 
-PKG_FULL = $(addprefix env/pip-,$(PKG))
+PKG_FULL = $(addprefix $(ENV)/pip-,$(PKG))
 
 SRC_FILES = $(shell find py/$(NAME) -name '*.py')
 OBJ_FILES = $(SRC_FILES:.py=.pyc)
@@ -18,7 +19,24 @@ CLEAN = $(addprefix clean-,$(LIB))
 
 .PHONY: default all clean really-clean test runtime vars
 
+#PHONY: all
+
 all: $(LIB_TGT) dist/$(NAME).zip 
+
+#
+# build
+#
+
+#.PHONY: build
+
+build: $(OBJ_FILES)
+
+%.pyc: %.py
+	python -c "from py_compile import compile as c; c('$*.py')"
+
+#
+# clean
+#
 
 clean: $(CLEAN) deploy-clean
 	rm -rf dist
@@ -30,19 +48,22 @@ clean-%:
 really-clean: clean
 	rm -rf $(ENV)
 
-%.pyc: %.py
-	python -c "from py_compile import compile as c; c('$*.py')"
-
-build: $(OBJ_FILES)
-
-$(ENV):
-	virtualenv -q $(ENV)
-
-$(ENV)/pip-%:
-	$(ENV)/bin/pip install -q $*
-	@touch $(ENV)/pip-$*
+#
+# virtualenv
+#
 
 runtime: $(ENV) $(PKG_FULL)
+
+$(ENV):
+	virtualenv $(ENV)
+
+$(ENV)/pip-%:
+	$(ENV)/bin/pip install $*
+	@touch $(ENV)/pip-$*
+
+#
+# dist
+#
 
 .VOLATILE: dist
 
@@ -56,6 +77,10 @@ dist/lib/%.zip: dist lib/%
 dist/%.zip: dist $(SRC_FILES)
 	cd py; zip -rq ../dist/$*.zip $* -i '*.py'
 
+#
+# test
+#
+
 test: $(LIB_TGT) 
 	PYTHONPATH=py:$(PP) $(ENV)/bin/python -m $(MAIN)
 
@@ -63,16 +88,33 @@ test-uwsgi: $(LIB_TGT)
 
 test-uwsgi-http: $(LIB_TGT)
 
-deploy: all 
+#
+# deploy
+#
+
+deploy: all deploy-code deploy-web deploy-conf
+
+deploy-web:
 	@rm -rf $(DEPLOY_WEB)
 	cp -r web $(DEPLOY_WEB)
+
+deploy-code:
 	@rm -rf $(DEPLOY_CODE)
 	cp -r dist $(DEPLOY_CODE)
 	cd $(DEPLOY_CODE); cd ..; find $(notdir $(DEPLOY_CODE)) -name '*.zip' > $(notdir $(DEPLOY_CODE)).pth
 
+deploy-conf:
+	@rm -rf $(DEPLOY_CONF)
+	cp -r conf $(DEPLOY_CONF)
+	ls $(DEPLOY_CONF)/uwsgi/* &> /dev/null && touch $(DEPLOY_CONF)/uwsgi/*
+
 deploy-clean:
 	rm -rf $(DEPLOY_CODE) $(DEPLOY_CODE).pth
 	rm -rf $(DEPLOY_WEB)
+
+#
+# run
+#
 
 run: deploy
 	cd $(ENV); bin/python -m $(MAIN)
@@ -82,6 +124,10 @@ run-uwsgi: deploy
 
 run-uwsgi-http: deploy
 	cd $(ENV); bin/uwsgi --ini ../conf/uwsgi/$(NAME).ini --protocol http --socket :8000
+
+#
+# debug
+#
 
 vars:
 	@echo "NAME     : $(NAME)"
