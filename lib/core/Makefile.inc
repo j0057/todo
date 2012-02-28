@@ -70,6 +70,8 @@ really-clean: clean deploy-clean
 runtime: $(ENV) $(PKG_FULL)
 
 $(ENV):
+	mkdir -p $(ENV)
+	sudo chown joost.joost $(ENV)
 	virtualenv $(ENV)
 
 $(ENV)/pip-%:
