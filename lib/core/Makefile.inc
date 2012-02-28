@@ -38,14 +38,14 @@ build: $(OBJ_FILES)
 # clean
 #
 
-clean: $(CLEAN) deploy-clean
+clean: $(CLEAN) 
 	rm -rf dist
 	find py -name '*.pyc' -delete
 
 clean-%:
 	@make -C lib/$* clean
 
-really-clean: clean
+really-clean: clean deploy-clean
 	rm -rf $(ENV)
 
 #
