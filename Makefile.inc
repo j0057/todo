@@ -1,5 +1,5 @@
 
-ENV = /srv/www-mp3
+ENV = /srv/www-$(NAME)
 
 DEPLOY_CODE = $(ENV)/lib/python2.7/site-packages/local
 DEPLOY_WEB = $(ENV)/web
@@ -106,7 +106,7 @@ deploy-code:
 deploy-conf:
 	@rm -rf $(DEPLOY_CONF)
 	cp -r conf $(DEPLOY_CONF)
-	ls $(DEPLOY_CONF)/uwsgi/* &> /dev/null && touch $(DEPLOY_CONF)/uwsgi/*
+	ls $(DEPLOY_CONF)/uwsgi/* > /dev/null 2>&1 && touch $(DEPLOY_CONF)/uwsgi/*
 
 deploy-clean:
 	rm -rf $(DEPLOY_CODE) $(DEPLOY_CODE).pth
