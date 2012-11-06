@@ -74,6 +74,7 @@ mp3.component.Object.extend(window.Object, {
                         // deserialize result
                         var response = null;
                         switch (request.getResponseHeader('Content-Type')) {
+                            case 'application/json; charset=UTF-8':
                             case 'application/json':
                                 response = JSON.parse(request.responseText);
                                 break;

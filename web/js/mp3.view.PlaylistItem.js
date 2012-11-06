@@ -22,9 +22,9 @@ mp3.view.PlaylistItem.extend(mp3.component.Object, {
     
     updateStatus: function() {
         this.status.innerText = this.engine.state;
-        if ((this.engine.state == 'loading' || this.engine.state == 'ready')
+        if ((this.engine.state == 'loading' || this.engine.state == 'ready' || this.engine.state == 'playing')
             && this.engine.timeLoaded < this.engine.timeTotal) {
-            this.status.innerText += ' {0}%'.format(
+            this.status.innerText += ' ({0}% loaded)'.format(
                 Math.round(this.engine.timeLoaded / this.engine.timeTotal * 100));
         }
     }

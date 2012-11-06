@@ -12,7 +12,7 @@
 # test: run code from source
 # run: run code from dist
 
-ENV ?= /srv/www-$(NAME)
+ENV ?= /srv/$(NAME)
 
 DEPLOY_CODE = $(ENV)/lib/python2.7/site-packages/local
 DEPLOY_WEB = $(ENV)/web
@@ -34,15 +34,11 @@ DEPLOY_TARGETS = deploy-code deploy-web deploy-conf
 
 .PHONY: default all clean really-clean test runtime vars
 
-#PHONY: all
-
 all: $(LIB_TGT) dist/$(NAME).zip 
 
 #
 # build
 #
-
-#.PHONY: build
 
 build: $(OBJ_FILES)
 
@@ -64,7 +60,7 @@ really-clean: clean deploy-clean
 	rm -rf $(ENV)
 
 #
-# virtualenv
+# runtime
 #
 
 runtime: $(ENV) $(PKG_FULL)

@@ -81,7 +81,7 @@ mp3.view.Playlist.extend(mp3.component.Object, {
     },
 
     loadNext: function(item) {
-        var firstLoading = this.getFirst(['loading', 'ready'], function(item) { return item.engine.isLoading; });
+        var firstLoading = this.getFirst(['loading', 'ready', 'playing'], function(item) { return item.engine.isLoading; });
         var firstIdle = this.getFirst(['idle']);
 
         if (firstLoading == null || !firstLoading.engine.isLoading) {

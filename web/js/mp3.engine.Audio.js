@@ -5,9 +5,9 @@ mp3.engine.Audio = function(id, target) {
 };
 
 /*
-https://developer.mozilla.org/en/using_audio_and_video_in_firefox
-http://dev.w3.org/html5/spec/video.html#audio
-*/
+ * https://developer.mozilla.org/en/using_audio_and_video_in_firefox
+ * http://dev.w3.org/html5/spec/video.html#audio
+ */
 
 mp3.engine.Audio.extend(mp3.engine.Base, {
     CLASSNAME: 'mp3.engine.Audio',
