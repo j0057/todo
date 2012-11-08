@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import hashlib
 import json
 import os
 import re
@@ -13,6 +14,10 @@ import mutagen.mp3
 from unidecode import unidecode
 
 import core.sh
+
+# TODO: don't use os.chdir
+# TODO: scan for updated/new/missing files
+# TODO: move dependency on core.sh to sh after splitting core.sh to own package
 
 mutagen.id3.pedantic = False
 
@@ -80,7 +85,30 @@ class Track(object):
         mtime = os.stat(fn).st_mtime
         mtime = int(mtime)
 
-        return Track(fn, mtime, artist, album, track, title, **extra_props)
+        extra_props['bitrate'] = t.info.bitrate
+        extra_props['length'] = t.info.length
+        try:
+            extra_props['year'] = str(t['TDRC'].text[0])
+            extra_props['year'] = int(extra_props['year'])
+        except:
+            extra_props['year'] = None
+
+        try:
+            extra_props['image_type'] = t['APIC:'].mime
+            extra_props['image_hash'] = hashlib.sha256(t['APIC:'].data).hexdigest()
+            extra_props['image_size'] = len(t['APIC:'].data)
+        except:
+            extra_props['image_type'] = None
+            extra_props['image_hash'] = None
+            extra_props['image_size'] = None
+
+        # t.info.bitrate
+        # t.info.length
+        # t['APIC:].mime
+        # t['APIC:].data
+        # t['TDRC'].text[0]
+
+        return Track(fn, mtime, artist, album, track, title, **extra_props) 
 
     @staticmethod
     def try_from_file(fn, **extra_props):
@@ -94,7 +122,13 @@ class Track(object):
 
     @staticmethod
     def from_obj(t):
-        return Track(fn=t['fn'], mtime=t['mtime'], artist=t['artist'], album=t['album'], track=t['track'], title=t['title'])
+        fn = t.pop('fn')
+        mtime = t.pop('mtime')
+        artist = t.pop('artist')
+        album = t.pop('album')
+        track = t.pop('track')
+        title = t.pop('title')
+        return Track(fn, mtime, artist, album, track, title, **t)
 
     def obj(self):
         return dict(fn=self.fn 
@@ -103,6 +137,12 @@ class Track(object):
             , album=self.album
             , track=self.track
             , title=self.title
+            , bitrate=self.bitrate
+            , length=self.length
+            , year=self.year
+            , image_type=self.image_type
+            , image_hash=self.image_hash
+            , image_size=self.image_size
             )
 
 #
@@ -160,6 +200,9 @@ class Collection(TrackList):
 
         super(Collection, self).__init__(files_generator(self))
 
+    def __repr__(self):
+        return '<Collection "{0}">'.format(self.name)
+
     def find_mp3s(self):
         return [ os.path.relpath(fn.decode('utf8'), self.path) for fn in core.sh.findf('.', '*.mp3') ]
 
@@ -168,7 +211,7 @@ class Collection(TrackList):
         curdir = os.getcwd()
         try:
             os.chdir(path)
-            files_gen = lambda self: (Track.try_from_file(fn, collection=self.name, collection_url=self.name_url) for fn in self.find_mp3s())
+            files_gen = lambda self: (Track.try_from_file(fn, library=self.name, library_url=self.name_url) for fn in self.find_mp3s()) 
             return Collection(path, files_gen)
         finally:
             os.chdir(curdir)
