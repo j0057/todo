@@ -4,6 +4,5 @@ env
 run
 dist
 .cache
-
-
+*.swp
 
