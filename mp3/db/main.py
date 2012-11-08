@@ -121,14 +121,15 @@ class Track(object):
             return None
 
     @staticmethod
-    def from_obj(t):
-        fn = t.pop('fn')
-        mtime = t.pop('mtime')
-        artist = t.pop('artist')
-        album = t.pop('album')
-        track = t.pop('track')
-        title = t.pop('title')
-        return Track(fn, mtime, artist, album, track, title, **t)
+    def from_obj(obj, **extra_props):
+        obj.update(extra_props)
+        fn = obj.pop('fn')
+        mtime = obj.pop('mtime')
+        artist = obj.pop('artist')
+        album = obj.pop('album')
+        track = obj.pop('track')
+        title = obj.pop('title')
+        return Track(fn, mtime, artist, album, track, title, **obj)
 
     def obj(self):
         return dict(fn=self.fn 
@@ -221,7 +222,7 @@ class Collection(TrackList):
 
     @staticmethod
     def from_obj(obj, **x):
-        result = Collection(obj['path'], lambda self: (Track.from_obj(track) for track in obj['tracks']))
+        result = Collection(obj['path'], lambda self: (Track.from_obj(track, library=self.name, library_url=self.name_url) for track in obj['tracks']))
         result.__dict__.update(x)
         return result
 
