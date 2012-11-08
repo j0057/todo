@@ -32,6 +32,22 @@ def _clean_url(name, s="-"):
     name = re.sub(s + '$', '', name)
     return name
 
+def _index_dict(attr_name, list=list):
+    @property
+    def getter(self):
+        attr_idx_name = attr_name + '_idx'
+        if hasattr(self, attr_idx_name):
+            attr_idx = getattr(self, attr_idx_name)
+        else:
+            attr_idx = groupby(self.items, lambda track: getattr(track, attr_name))
+            attr_idx = { name: list(tracks) for (name, tracks) in attr_idx }
+            setattr(self, attr_idx_name, attr_idx)
+        return attr_idx
+    return getter
+
+def _tracklist_index_dict(attr_name):
+    return _index_dict(attr_name, list=lambda items: TrackList(items))
+
 #
 # Track
 #
@@ -149,22 +165,6 @@ class Track(object):
 #
 # TrackList
 #
-
-def _index_dict(attr_name, list=list):
-    @property
-    def getter(self):
-        attr_idx_name = attr_name + '_idx'
-        if hasattr(self, attr_idx_name):
-            attr_idx = getattr(self, attr_idx_name)
-        else:
-            attr_idx = groupby(self.items, lambda track: getattr(track, attr_name))
-            attr_idx = { name: list(tracks) for (name, tracks) in attr_idx }
-            setattr(self, attr_idx_name, attr_idx)
-        return attr_idx
-    return getter
-
-def _tracklist_index_dict(attr_name):
-    return _index_dict(attr_name, list=lambda items: TrackList(items))
 
 class TrackList(object):
     fn          = _tracklist_index_dict('fn')
