@@ -4,7 +4,7 @@ import httplib
 import re
 import urllib
 
-import core
+from jjm import core
 
 from mp3server import *
 

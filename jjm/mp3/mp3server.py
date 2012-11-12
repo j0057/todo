@@ -10,7 +10,7 @@ import webob.exc
 import mutagen
 import mutagen.mp3
 
-import core
+from jjm import core
 
 class authorized(core.BaseDecorator):
     def __init__(self, func):

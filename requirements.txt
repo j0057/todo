@@ -3,5 +3,4 @@ webob==1.2.3
 mutagen==1.20
 pytz==2012g
 unidecode==0.04.9
-file:///home/joost/git/core
 

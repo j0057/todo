@@ -15,7 +15,7 @@ import mutagen.mp3
 
 import sh
 
-mutagen.id3.id3.pedantic = false
+mutagen.id3.pedantic = False
 
 stdout = codecs.getwriter('utf8')(sys.stdout)
 stderr = codecs.getwriter('utf8')(sys.stderr)
