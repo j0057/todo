@@ -10,6 +10,6 @@ PKG = jjm jjm.core jjm.sh
 
 STATIC_DIRS = conf web run
 
-run-db: runtime unlink-code deploy-code
-	cd $(ENV) ; bin/python -m jjm.mp3.db
+test-db: MAIN=jjm.mp3.db
+test-db: test
 

@@ -11,85 +11,103 @@ QUIET ?= --quiet
 
 PIP_CACHE = .cache
 
+SITE_PACKAGES = $(ENV)/lib/python2.7/site-packages
+
 .PHONY: run
 
-run: runtime undeploy-code link-code
-	@echo '--> $@'
+#
+# run the code
+#
+
+test: runtime-test
 	cd $(ENV) ; bin/python -m $(MAIN)
 
-run-pkg: unlink-code deploy deploy-code 
-	@echo '--> $@'
+run: runtime-live
 	cd $(ENV) ; bin/python -m $(MAIN)
 
-deploy-live: deploy
-	@echo '--> $@'
+#
+# deploy
+#
+
+deploy: runtime-live
 	virtualenv --relocatable $(ENV) > /dev/null
 	sudo chown -R $(TARGET_USER).$(TARGET_GROUP) $(ENV)
 	sudo rm -rf $(TARGET)
 	sudo mv $(ENV) $(TARGET)
 
-deploy: runtime deploy-code deploy-data
-	@echo '--> $@'
+#
+# runtime
+#
 
-runtime: $(ENV) deploy-pkgs
-	@echo '--> $@'
+runtime-live: $(ENV) deploy-pkgs unlink-code unlink-data deploy-code deploy-data
+
+runtime-test: $(ENV) deploy-pkgs undeploy-code undeploy-data link-code link-data
 
 $(ENV): 
-	@echo '--> $@'
 	virtualenv $(ENV) $(QUIET)
 	$(ENV)/bin/pip install --upgrade --download-cache $(PIP_CACHE) 'distribute>=0.6.30' $(QUIET)
 	$(ENV)/bin/pip install --upgrade --download-cache $(PIP_CACHE) --requirement $(PIP_REQ) $(QUIET)
 
-deploy-pkgs: $(addprefix deploy-pkg-,$(PKG))
-	@echo '--> $@'
+#
+# packages
+#
 
-deploy-code: deploy-pkg-$(PIP_NAME)
-	@echo '--> $@'
+deploy-pkgs: $(addprefix $(ENV)/lib/python2.7/site-packages/.egg-,$(PKG))
 
-deploy-pkg-%:
-	@echo '--> $@'
-	$(ENV)/bin/pip install --upgrade $(PKG_BASE)/$(subst deploy-pkg-,,$@) $(QUIET)
-	@find $(ENV) -name top_level.txt -path '*$(subst deploy-pkg-,,$@)-*' -exec sh -c 'echo $(subst deploy-pkg-,,$@) > {}' ';'
+$(ENV)/lib/python2.7/site-packages/.egg-%:
+	$(ENV)/bin/pip install --upgrade $(PKG_BASE)/$* $(QUIET)
+	@find $(ENV) -name top_level.txt -path '*$*-*' -exec sh -c 'echo $* > {}' ';'
+	@touch $@
+
+#
+# code
+#
+
+deploy-code:
+	$(ENV)/bin/pip install --upgrade $(PKG_BASE)/$(PIP_NAME) $(QUIET)
+	@find $(ENV) -name top_level.txt -path '*$(PIP_NAME)-*' -exec sh -c 'echo $(PIP_NAME) > {}' ';'
 
 undeploy-code:
-	@echo '--> $@'
-	$(ENV)/bin/pip uninstall $(PIP_NAME) --yes $(QUIET) || true
+	$(ENV)/bin/pip uninstall --yes $(PIP_NAME) $(QUIET) || true
 
 link-code:
-	@echo '--> $@'
-	ln -sn $(shell pwd)/$(subst .,/,$(PIP_NAME)) $(ENV)/lib/python2.7/site-packages/$(subst .,/,$(PIP_NAME)) || true
+	ln -snf $(shell pwd)/$(subst .,/,$(PIP_NAME)) $(SITE_PACKAGES)/$(subst .,/,$(PIP_NAME))
 
 unlink-code:
-	@echo '--> $@'
-	rm -f $(ENV)/lib/python2.7/site-packages/$(subst .,/,$(PIP_NAME)) || true
+	@test -L $(SITE_PACKAGES)/$(subst .,/,$(PIP_NAME)) && rm $(SITE_PACKAGES)/$(subst .,/,$(PIP_NAME)) || true
+
+#
+# data
+#
 
 deploy-data: $(addprefix deploy-dir-,$(STATIC_DIRS))
 
+undeploy-data: $(addprefix undeploy-dir-,$(STATIC_DIRS))
+
 deploy-dir-%:
-	@echo '--> $@'
-	cp -r $(subst deploy-dir-,,$@) $(ENV)
+	cp -r $* $(ENV)
 
-#deploy-web:
-#	@echo '--> $@'
-#	@rm -rf $(DEPLOY_WEB)
-#	cp -r web $(DEPLOY_WEB)
+undeploy-dir-%:
+	@rm -rf $(ENV)/$*
 
-#deploy-conf:
-#	@echo '--> $@'
-#	@rm -rf $(DEPLOY_CONF)
-#	cp -r conf $(DEPLOY_CONF)
+link-data: $(addprefix link-dir-,$(STATIC_DIRS))
 
-#touch-conf:
-#	@echo '--> $@'
-#	ls $(DEPLOY_CONF)/uwsgi/* > /dev/null 2>&1 && touch $(DEPLOY_CONF)/uwsgi/* || true
+unlink-data: $(addprefix unlink-dir-,$(STATIC_DIRS))
+
+link-dir-%:
+	ln -snf $(shell pwd)/$(subst link-dir-,,$@) $(ENV)
+
+unlink-dir-%:
+	@test -L $(ENV)/$* && rm -f $(ENV)/$* || true
+
+#
+# clean
+#
 
 clean:
-	@echo '--> $@'
 	rm -rf $(ENV)
 
 really-clean: clean
-	@echo '--> $@'
 	rm -rf $(PIP_CACHE)
 
-# XXX: rename web to static
 

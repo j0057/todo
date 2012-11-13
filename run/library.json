@@ -1,0 +1,36 @@
+{
+    "items": {
+        "dub-reggae.json": {
+            "name": "Dub & Reggae", 
+            "path": "/home/joost/shared/Music/Dub & Reggae"
+        }, 
+        "dubstep.json": {
+            "name": "Dubstep", 
+            "path": "/home/joost/shared/Music/Dubstep"
+        }, 
+        "electronic.json": {
+            "name": "Electronic", 
+            "path": "/home/joost/shared/Music/Electronic"
+        }, 
+        "exotic.json": {
+            "name": "Exotic", 
+            "path": "/home/joost/shared/Music/Exotic"
+        }, 
+        "hip-hop.json": {
+            "name": "Hip-Hop", 
+            "path": "/home/joost/shared/Music/Hip-Hop"
+        }, 
+        "metal-punk-surf.json": {
+            "name": "Metal & Punk & Surf", 
+            "path": "/home/joost/shared/Music/Metal & Punk & Surf"
+        }, 
+        "trip-hop-turntables.json": {
+            "name": "Trip-Hop & Turntables", 
+            "path": "/home/joost/shared/Music/Trip-Hop & Turntables"
+        }, 
+        "weird-pop.json": {
+            "name": "Weird & Pop", 
+            "path": "/home/joost/shared/Music/Weird & Pop"
+        }
+    }
+}
