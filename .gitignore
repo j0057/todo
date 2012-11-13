@@ -1,7 +1,6 @@
 *.pyc
 *.zip
 env
-run
 dist
 .cache
 *.swp

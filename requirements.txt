@@ -1,6 +1,5 @@
-distribute>=0.6.30
 webob==1.2.3
 mutagen==1.20
-pytz==2012g
+pytz
 unidecode==0.04.9
 

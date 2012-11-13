@@ -7,11 +7,6 @@ TARGET = /srv/$(NAME)
 TARGET_USER ?= www-data
 TARGET_GROUP ?= www-data
 
-DEPLOY_WEB = $(ENV)/web
-DEPLOY_CONF = $(ENV)/conf
-
-SRC = file://$(shell pwd)
-
 QUIET ?= --quiet
 
 PIP_CACHE = .cache
@@ -33,7 +28,7 @@ deploy-live: deploy
 	sudo rm -rf $(TARGET)
 	sudo mv $(ENV) $(TARGET)
 
-deploy: runtime deploy-code deploy-web deploy-conf touch-conf
+deploy: runtime deploy-code deploy-data
 	@echo '--> $@'
 
 runtime: $(ENV) deploy-pkgs
@@ -68,19 +63,25 @@ unlink-code:
 	@echo '--> $@'
 	rm -f $(ENV)/lib/python2.7/site-packages/$(subst .,/,$(PIP_NAME)) || true
 
-deploy-web:
-	@echo '--> $@'
-	@rm -rf $(DEPLOY_WEB)
-	cp -r web $(DEPLOY_WEB)
+deploy-data: $(addprefix deploy-dir-,$(STATIC_DIRS))
 
-deploy-conf:
+deploy-dir-%:
 	@echo '--> $@'
-	@rm -rf $(DEPLOY_CONF)
-	cp -r conf $(DEPLOY_CONF)
+	cp -r $(subst deploy-dir-,,$@) $(ENV)
 
-touch-conf:
-	@echo '--> $@'
-	ls $(DEPLOY_CONF)/uwsgi/* > /dev/null 2>&1 && touch $(DEPLOY_CONF)/uwsgi/* || true
+#deploy-web:
+#	@echo '--> $@'
+#	@rm -rf $(DEPLOY_WEB)
+#	cp -r web $(DEPLOY_WEB)
+
+#deploy-conf:
+#	@echo '--> $@'
+#	@rm -rf $(DEPLOY_CONF)
+#	cp -r conf $(DEPLOY_CONF)
+
+#touch-conf:
+#	@echo '--> $@'
+#	ls $(DEPLOY_CONF)/uwsgi/* > /dev/null 2>&1 && touch $(DEPLOY_CONF)/uwsgi/* || true
 
 clean:
 	@echo '--> $@'
@@ -90,7 +91,5 @@ really-clean: clean
 	@echo '--> $@'
 	rm -rf $(PIP_CACHE)
 
-# - rename web to static
-# - make repo's relative or something ... referring to file:///home/joost/git/... is not useful in other situations
-# - patch up top_level.txt
+# XXX: rename web to static
 
