@@ -31,7 +31,7 @@ run: runtime-live
 
 deploy: runtime-live
 	cp -r $(ENV) staging
-	virtualenv --relocatable staging $(QUIET)
+	virtualenv --relocatable staging $(QUIET) >/dev/null
 	sudo chown -R $(TARGET_USER).$(TARGET_GROUP) staging
 	sudo rm -rf $(TARGET)
 	sudo mv staging $(TARGET)
