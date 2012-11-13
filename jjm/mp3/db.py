@@ -13,7 +13,7 @@ import mutagen.mp3
 
 from unidecode import unidecode
 
-import core.sh
+import jjm.sh
 
 # TODO: don't use os.chdir
 # TODO: scan for updated/new/missing files
@@ -205,14 +205,15 @@ class Collection(TrackList):
         return '<Collection "{0}">'.format(self.name)
 
     def find_mp3s(self):
-        return [ os.path.relpath(fn.decode('utf8'), self.path) for fn in core.sh.findf('.', '*.mp3') ]
+        return [ os.path.relpath(fn.decode('utf8'), self.path) for fn in jjm.sh.findf('.', '*.mp3') ]
 
     @staticmethod
     def scan(path):
         curdir = os.getcwd()
         try:
             os.chdir(path)
-            files_gen = lambda self: (Track.try_from_file(fn, library=self.name, library_url=self.name_url) for fn in self.find_mp3s()) 
+            files_gen = lambda self: (Track.try_from_file(fn, library=self.name, library_url=self.name_url) 
+                                      for fn in self.find_mp3s()) 
             return Collection(path, files_gen)
         finally:
             os.chdir(curdir)
@@ -222,7 +223,9 @@ class Collection(TrackList):
 
     @staticmethod
     def from_obj(obj, **x):
-        result = Collection(obj['path'], lambda self: (Track.from_obj(track, library=self.name, library_url=self.name_url) for track in obj['tracks']))
+        files_gen = lambda self: (Track.from_obj(track, library=self.name, library_url=self.name_url) 
+                                  for track in obj['tracks'])
+        result = Collection(obj['path'], files_gen)
         result.__dict__.update(x)
         return result
 
@@ -309,31 +312,4 @@ if __name__ == '__main__':
     os.chdir('run')
     L.save('library.json')
     os.chdir('..')
-
-    #a1, a2 = 'Orb', 'Adventures Beyond The Ultraworld'
-    #b1, b2 = 'orb', 'adventures-beyond-the-ultraworld'
-
-    #a1, a2 = 'Beck', 'Mellow Gold'
-    #b1, b2 = 'beck', 'mellow-gold'
-
-    #for t in library.artist[a1]:
-        #print unicode(t)
-
-    #print
-    #for t in library.artist_url[b1]:
-        #print unicode(t)
-
-    #print 
-    #for t in library.artist[a1].album[a2]:
-        #print unicode(t)
-
-    #print
-    #for t in library.artist_url[b1].album_url[b2]:
-        #print unicode(t)
-
-    #print
-    #for t in lib:
-        #print unicode(t)
-
-    #print obj_to_json(L.to_obj())
 

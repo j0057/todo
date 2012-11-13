@@ -4,27 +4,26 @@ import httplib
 import re
 import urllib
 
-from jjm import core
+import jjm.core
+import jjm.mp3.server
 
-from mp3server import *
-
-class MP3Router(core.Router):
+class MP3Router(jjm.core.Router):
     dispatch = [
-        (r"^/mp3/$",                                        Mp3Server()), 
-        (r"^/mp3/(login\.xhtml)$",                          core.FileServer("/web/html", "application/xhtml+xml")),
-        (r"^/mp3/(mp3\.xhtml)$",                            AuthFileServer("/web/html", "application/xhtml+xml")),
-        (r"^/mp3/(.*\.swf)$",                               AuthFileServer("/web/swf", "application/x-shockwave-flash")),
-        (r"^/mp3/(.*\.js)$",                                AuthFileServer("/web/js", "application/javascript")),
-        (r"^/mp3/(.*\.css)$",                               AuthFileServer("/web/css", "text/css")),
-        (r"^/mp3/(.*\.png)$",                               AuthFileServer("/web/images", "image/png")),
-        (r"^/mp3/(.+)/(.+)/([0-9]+)/(.+)\.mp3$",            TrackDownload()),
-        (r"^/mp3/(.+)/(.+)/([0-9]+)/(.+)\.json$",           TrackInfo()),
-        (r"^/mp3/(.+)/(.+)/([0-9]+)/(.+)\.jpg$",            TrackCover()),
-        (r"^/mp3/(.+)/(.+)\.zip$",                          AlbumDownload()),
-        (r"^/mp3/(.+)/(.+)\.json",                          AlbumInfo()),
-        (r"^/mp3/mp3\.json$",                               Artists()), # fuck artists named mp3
-        (r"^/mp3/(.+)\.json$",                              ArtistInfo()), 
-        (r"^/mp3/$",                                        Login())
+        (r"^/mp3/$",                              jjm.mp3.server.Mp3Server()), 
+        (r"^/mp3/(login\.xhtml)$",                jjm.core.FileServer("/web/html", "application/xhtml+xml")),
+        (r"^/mp3/(mp3\.xhtml)$",                  jjm.mp3.server.AuthFileServer("/web/html", "application/xhtml+xml")),
+        (r"^/mp3/(.*\.swf)$",                     jjm.mp3.server.AuthFileServer("/web/swf", "application/x-shockwave-flash")),
+        (r"^/mp3/(.*\.js)$",                      jjm.mp3.server.AuthFileServer("/web/js", "application/javascript")),
+        (r"^/mp3/(.*\.css)$",                     jjm.mp3.server.AuthFileServer("/web/css", "text/css")),
+        (r"^/mp3/(.*\.png)$",                     jjm.mp3.server.AuthFileServer("/web/images", "image/png")),
+        (r"^/mp3/(.+)/(.+)/([0-9]+)/(.+)\.mp3$",  jjm.mp3.server.TrackDownload()),
+        (r"^/mp3/(.+)/(.+)/([0-9]+)/(.+)\.json$", jjm.mp3.server.TrackInfo()),
+        (r"^/mp3/(.+)/(.+)/([0-9]+)/(.+)\.jpg$",  jjm.mp3.server.TrackCover()),
+        (r"^/mp3/(.+)/(.+)\.zip$",                jjm.mp3.server.AlbumDownload()),
+        (r"^/mp3/(.+)/(.+)\.json",                jjm.mp3.server.AlbumInfo()),
+        (r"^/mp3/mp3\.json$",                     jjm.mp3.server.Artists()), # fuck artists named mp3
+        (r"^/mp3/(.+)\.json$",                    jjm.mp3.server.ArtistInfo()), 
+        (r"^/mp3/$",                              jjm.mp3.server.Login())
     ]
 
 def debug(app, filter_func=None):
@@ -56,7 +55,7 @@ app = debug(app, filter_func=lambda uri: uri.startswith('/mp3') and uri.endswith
 
 if __name__ == "__main__":
     try:
-        core.run_server(app)
+        jjm.core.run_server(app)
     except KeyboardInterrupt:
         pass
 
