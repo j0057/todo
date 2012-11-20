@@ -81,7 +81,7 @@ mp3.engine.Audio.extend(mp3.engine.Base, {
         var freq = 1000/10;
         window.setTimeout(function(e) {
             this.timeChanged.notify();
-            if (this.timeLoaded >= this.timeTotal) {
+            if ((this.timeLoaded >= this.timeTotal) && (this.timeCurrent >= (this.timeTotal - 30))) {
                 this.log('{0} fullyLoaded'.format(this.id));
                 this.fullyLoaded.notify();
             } else {

@@ -128,7 +128,7 @@ class TrackDownload(core.Resource):
         response = webob.Response(content_type='audio/mpeg')
         response.body_stream = open(filename, 'rb')
         response.content_length = filesize
-        response.headers['X-Accel-Limit-Rate'] = str(50 * 1024);
+        #response.headers['X-Accel-Limit-Rate'] = str(50 * 1024);
         return response
 
 class AlbumDownload(core.Resource):
