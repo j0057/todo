@@ -7,6 +7,12 @@ TARGET = /srv/$(NAME)
 TARGET_USER ?= www-data
 TARGET_GROUP ?= www-data
 
+ifeq ($(shell id -n -u),root)
+    SUDO =
+else
+    SUDO = sudo
+endif
+
 QUIET ?= --quiet
 
 PIP_CACHE = .cache
@@ -32,9 +38,9 @@ run: runtime-live
 deploy: runtime-live
 	cp -r $(ENV) staging
 	virtualenv --relocatable staging $(QUIET) >/dev/null
-	sudo chown -R $(TARGET_USER).$(TARGET_GROUP) staging
-	sudo rm -rf $(TARGET)
-	sudo mv staging $(TARGET)
+	$(SUDO) chown -R $(TARGET_USER).$(TARGET_GROUP) staging
+	$(SUDO) rm -rf $(TARGET)
+	$(SUDO) mv staging $(TARGET)
 
 #
 # runtime
