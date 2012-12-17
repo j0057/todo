@@ -179,6 +179,16 @@ class Mp3Server(core.Resource):
     #authorized
     def GET(self, request):
         raise webob.exc.HTTPFound(location='mp3.xhtml')
-        
-MODEL = Model('/home/joost/www/mp3/mp3.json')
+
+try:
+    mp3_json = os.environ["MP3_JSON"]
+except KeyError:
+    mp3_json = "/home/joost/www/mp3/mp3.json"
+
+print "# enviroment: {0!r}".format(os.environ)
+print "# current dir: {0!r}".format(os.getcwd())
+print "# mp3.json: {0!r} ({1!r})".format(mp3_json, os.path.abspath(mp3_json))
+
+MODEL = Model(mp3_json)
+
 

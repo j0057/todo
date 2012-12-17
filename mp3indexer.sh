@@ -1,11 +1,15 @@
 #!/bin/bash
 
-paths=/home/joost/shared/Music/{Ambient,Dub*,Electro*,Exotic,Hip-Hop,Metal*,Trip*,Weird*}
-outfile=web/mp3.json
+outfile=mp3.json
 
+cd web
 if [ "$1" == "--check" ]; then
 	eval "./mp3lint.py $paths"
 else
-	eval "PYTHONPATH=py env/bin/python -m jjm.mp3.mp3indexer $paths" > $outfile.tmp
+    if [ "$1" = "" ]; then
+        echo "Error: No directory specified as first argument"
+        exit 1
+    fi
+	eval "../env/bin/python -m jjm.mp3.indexer $1" > $outfile.tmp
 	mv $outfile.tmp $outfile
 fi

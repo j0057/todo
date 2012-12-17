@@ -51,7 +51,7 @@ def debug(app, filter_func=None):
     return wsgi_app
 
 app = MP3Router()
-app = debug(app, filter_func=lambda uri: uri.startswith('/mp3') and uri.endswith('.mp3'))
+#app = debug(app, filter_func=lambda uri: uri.startswith('/mp3') and uri.endswith('.mp3'))
 
 if __name__ == "__main__":
     try:
