@@ -103,7 +103,7 @@ def load_current(fn):
         return ({}, {})
     
 def main(paths):
-    current, current_files = load_current('web/mp3.json')
+    current, current_files = load_current('mp3.json')
 
     filenames = ((fn, int(os.stat(fn).st_mtime)) for fn in scan_paths(paths))
 
