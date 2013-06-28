@@ -10,3 +10,6 @@ STATIC_DIRS = conf static
 
 MAIN ?= oauth.main
 
+include Makefile.keys
+
+

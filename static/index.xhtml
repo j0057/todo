@@ -2,28 +2,35 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <title>Fun with oAuth</title>
+        <script src="funwithoauth.js"></script>
     </head>
     <body>
         <h1>Fun with oAuth</h1>
 
-        <!--
-        <h2>Login</h2>
-        <form method="post" action="/oauth/login/">
-            <input type="text" value="" name="username"/>
-            <input type="text" value="" name="password"/>
-            <input type="submit" value="submit" name="submit"/>
-        </form>
-        -->
-
+        <h2>Session</h2>
         <p>
-            Session:
-            <a href="/oauth/session/initialize/">Initialize</a>
-            <a href="/oauth/session/delete">Reset</a>
+            <a href="/oauth/session/start/">Initialize</a>;
+            <a href="/oauth/session/delete/">Reset</a>
         </p>
 
+        <p>Current cookie: [<span id="session_id"/>]</p>
+
+        <h2>Github</h2>
         <ul>
             <li>
-                <a href="/oauth/github/">Github</a>
+                <a href="/oauth/github/authorize/">authorize</a>
+            </li>
+            <li>
+                <a id="github_user" href="/oauth/github/request/user">https://api.github.com/user</a>
+                <div id="github_user_result"/>
+            </li>
+            <li>
+                <a id="github_following" href="/oauth/github/request/user/following">https://api.github.com/user/following</a>
+                <div id="github_following_result"/>
+            </li>
+            <li>
+                <a id="github_followers" href="/oauth/github/request/user/followers">https://api.github.com/user/followers</a>
+                <div id="github_followers_result"/>
             </li>
         </ul>
     </body>

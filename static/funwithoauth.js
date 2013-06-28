@@ -1,0 +1,55 @@
+function request(method, url, handler) {
+    var xhr = new XMLHttpRequest();
+    xhr.open(method, url, true);
+    xhr.send();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == xhr.DONE) {
+            if (200 <= xhr.status && xhr.status < 300)
+                handler(xhr);
+            else
+                alert(xhr.status + ": " + xhr.responseText);
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function(e) {
+    request('GET', '/oauth/session/check/', function(xhr) {
+        document.querySelector('#session_id').textContent = document.cookie;
+    });
+
+    document.querySelector('#github_user').addEventListener('click', function(e) {
+        e.preventDefault();
+        request('GET', e.target.href, function(xhr) {
+            var user = JSON.parse(xhr.response);
+            document.querySelector('#github_user_result').innerHTML = "" 
+                + "<img src=\"" + user.avatar_url + "\" title=\"" + user.login + "\"/>"
+                ;
+        });
+    });
+
+    document.querySelector('#github_following').addEventListener('click', function(e) {
+        e.preventDefault();
+        request('GET', e.target.href, function(xhr) {
+            var following = JSON.parse(xhr.response);
+            for (var i = 0; i < following.length; i++) {
+                var user = following[i];
+                document.querySelector('#github_following_result').innerHTML += ""
+                    + "<img src=\"" + user.avatar_url + "\" title=\"" + user.login + "\" width=\"80\" height=\"80\"/>"
+                    ;
+            }
+        });
+    });
+
+    document.querySelector('#github_followers').addEventListener('click', function(e) {
+        e.preventDefault();
+        request('GET', e.target.href, function(xhr) {
+            var following = JSON.parse(xhr.response);
+            for (var i = 0; i < following.length; i++) {
+                var user = following[i];
+                document.querySelector('#github_followers_result').innerHTML += ""
+                    + "<img src=\"" + user.avatar_url + "\" title=\"" + user.login + "\" width=\"80\" height=\"80\"/>"
+                    ;
+            }
+        });
+    });
+});

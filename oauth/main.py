@@ -1,31 +1,43 @@
+import os
 import uuid
 
 import requests
 
-import jjm.xhttp
+from jjm import xhttp
 
 SESSIONS = {}
 
-GITHUB_CLIENT_ID = '92b6d47b724dc8d2628d'
-GITHUB_CLIENT_SECRET = '9a3def19ec3f8bbe92cad64e46b5b55e10c4518b'
+GITHUB_CLIENT_ID = os.environ.get('GITHUB_CLIENT_ID', '')
+GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET', '')
 
-def parse_cookie(request):
-    if 'cookie' in request:
-        return { parts[0]: parts[1]
-                 for parts in request['cookie'].split('; ') }
-    else:
-        return {}
+print 'GITHUB_CLIENT_ID = {0!r}'.format(GITHUB_CLIENT_ID)
+print 'GITHUB_CLIENT_SECRET = {0!r}'.format(GITHUB_CLIENT_SECRET)
 
-class GithubRedirect(jjm.xhttp.Resource):
+#
+# /oauth/github
+#
+
+class GithubAuthorize(xhttp.Resource):
+    @xhttp.cookie({ 'session_id': '^(.+)$' })
     def GET(self, request):
-        raise jjm.xhttp.HTTPException(jjm.xhttp.status.SEE_OTHER, {
-            'location': 'https://github.com/login/oauth/authorize?client_id={0}&redirect_uri=http://dev.j0057.nl/oauth/github_callback/&scope=&state='.format(GITHUB_CLIENT_ID),
+        nonce = str(uuid.uuid4())
+        SESSIONS[request['x-cookie']['session_id']]['github_nonce'] = nonce
+        print SESSIONS
+        raise xhttp.HTTPException(xhttp.status.SEE_OTHER, {
+            'location': 'https://github.com/login/oauth/authorize?client_id={0}&redirect_uri=http://dev.j0057.nl/oauth/github/callback/&scope=&state={1}'.format(GITHUB_CLIENT_ID, nonce),
             'x-detail': 'Redirecting you to Github...'
         })
 
-class GithubCallback(jjm.xhttp.Resource):
-    @jjm.xhttp.get({ 'code': r'^([0-9a-z]+)$' })
+class GithubCallback(xhttp.Resource):
+    @xhttp.cookie({ 'session_id': '^(.+)$' })
+    @xhttp.get({ 'code': r'^([0-9a-z]+)$', 'state': r'^[-0-9a-f]+$' })
     def GET(self, request):
+        session_id = request['x-cookie']['session_id']
+        session = SESSIONS[session_id]
+        state = request['x-get']['state']
+        nonce = session.pop('github_nonce')
+        if state != nonce:
+            raise xhttp.HTTPException(xhttp.BAD_REQUEST, { 'x-detail': 'Bad state {0}'.format(state) })
         code = request['x-get']['code']
         r = requests.post('https://github.com/login/oauth/access_token',
             params={ 
@@ -37,46 +49,99 @@ class GithubCallback(jjm.xhttp.Resource):
                 'accept': 'application/json'
             })
         data = r.json()
+        session['github_token'] = data['access_token']
+        print SESSIONS
         return {
-            'x-status': jjm.xhttp.status.SEE_OTHER,
-            'set-cookie': 'github={0}; Path=/oauth'.format(data['access_token']),
+            'x-status': xhttp.status.SEE_OTHER,
             'location': '/oauth/index.xhtml'
         }
 
-class SessionInitialize(jjm.xhttp.Resource):
+class GithubRequest(xhttp.Resource):
+    @xhttp.cookie({ 'session_id': '^(.+)$' })
+    def GET(self, request, path):
+        session_id = request['x-cookie']['session_id']
+        session = SESSIONS[session_id]
+        path = 'https://api.github.com/' + path
+        print path
+        r = requests.get(
+            path,
+            params={
+                'access_token': session.get('github_token', '')
+            },
+            headers={
+                'accept': 'application/json'
+            })
+        return {
+            'x-status': r.status_code,
+            'content-type': r.headers['content-type'],
+            'x-content': r.content
+        }
+        
+
+#
+# /oauth/session/
+#
+
+class SessionStart(xhttp.Resource):
     def GET(self, request):
-        session_id = uuid.uuid4()
+        session_id = str(uuid.uuid4())
         SESSIONS[session_id] = {}
+        print SESSIONS
         return {
-            'x-status': jjm.xhttp.status.SEE_OTHER,
+            'x-status': xhttp.status.SEE_OTHER,
             'location': '/oauth/index.xhtml',
-            'set-cookie': 'session_id={0}; Path=/oauth'.format(session_id)
+            'set-cookie': 'session_id={0}; Path=/oauth/'.format(session_id)
         }
 
-class SessionDelete(jjm.xhttp.Resource):
+class SessionDelete(xhttp.Resource):
+    @xhttp.cookie({ 'session_id?': '^(.+)$' })
     def GET(self, request):
+        session_id = request['x-cookie'].get('session_id', '')
+        if session_id and session_id in SESSIONS:
+            del SESSIONS[request['x-cookie']['session_id']]
+        print SESSIONS
         return {
-            'x-status': jjm.xhttp.status.SEE_OTHER,
+            'x-status': xhttp.status.SEE_OTHER,
             'location': '/oauth/index.xhtml',
-            'set_cookie': 'session_id=X; Path=/oauth; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
+            'set-cookie': 'session_id=; Path=/oauth/; Expires=Sat, 01 Jan 2000 00:00:00 GMT'
         }
 
-class OauthRouter(jjm.xhttp.Router):
+class SessionCheck(xhttp.Resource):
+    @xhttp.cookie({ 'session_id?': '^(.+)$' })
+    def GET(self, request):
+        session_id = request['x-cookie'].get('session_id', None)
+        if session_id and session_id not in SESSIONS:
+            return {
+                'x-status': xhttp.status.NO_CONTENT,
+                'set-cookie': 'session_id=; Path=/oauth/; Expires=Sat, 01 Jan 2000 00:00:00 GMT'
+            }
+        else:
+            return {
+                'x-status': xhttp.status.NO_CONTENT
+            }
+
+#
+# /
+#
+
+class OauthRouter(xhttp.Router):
     def __init__(self):
         super(OauthRouter, self).__init__(
-            (r'^/$',                            jjm.xhttp.Redirector('/oauth')),
-            (r'^/oauth/$',                      jjm.xhttp.Redirector('index.xhtml')),
-            (r'^/oauth/(.*\.xhtml)$',           jjm.xhttp.FileServer('static', 'application/xhtml+xml')),
-            (r'^/oauth/github_callback/$',      GithubCallback()),
-            (r'^/oauth/github/$',               GithubRedirect()),
-            (r'^/oauth/session/initialize/$',   SessionInitialize()),
+            (r'^/$',                            xhttp.Redirector('/oauth')),
+            (r'^/oauth/$',                      xhttp.Redirector('index.xhtml')),
+            (r'^/oauth/(.*\.xhtml)$',           xhttp.FileServer('static', 'application/xhtml+xml')),
+            (r'^/oauth/(.*\.js)$',              xhttp.FileServer('static', 'application/javascript')),
+            (r'^/oauth/github/callback/$',      GithubCallback()),
+            (r'^/oauth/github/authorize/$',     GithubAuthorize()),
+            (r'^/oauth/github/request/(.*)$',   GithubRequest()),
+            (r'^/oauth/session/start/$',        SessionStart()),
             (r'^/oauth/session/delete/$',       SessionDelete()),
-            
+            (r'^/oauth/session/check/$',        SessionCheck())
         )
 
 app = OauthRouter()
-app = jjm.xhttp.catcher(app)
-app = jjm.xhttp.xhttp_app(app)
+app = xhttp.catcher(app)
+app = xhttp.xhttp_app(app)
 
 if __name__ == '__main__':
-    jjm.xhttp.run_server(app)
+    xhttp.run_server(app)
