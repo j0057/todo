@@ -58,7 +58,7 @@ class SessionDelete(jjm.xhttp.Resource):
         return {
             'x-status': jjm.xhttp.status.SEE_OTHER,
             'location': '/oauth/index.xhtml',
-            'set_cookie': 'session_id=; Path=/oauth; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
+            'set_cookie': 'session_id=X; Path=/oauth; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
         }
 
 class OauthRouter(jjm.xhttp.Router):
@@ -70,6 +70,8 @@ class OauthRouter(jjm.xhttp.Router):
             (r'^/oauth/github_callback/$',      GithubCallback()),
             (r'^/oauth/github/$',               GithubRedirect()),
             (r'^/oauth/session/initialize/$',   SessionInitialize()),
+            (r'^/oauth/session/delete/$',       SessionDelete()),
+            
         )
 
 app = OauthRouter()
