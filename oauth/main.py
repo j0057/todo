@@ -5,13 +5,59 @@ import requests
 
 from jjm import xhttp
 
+#
+# session store: a dict
+#
+
 SESSIONS = {}
+
+#
+# keys come from configuration/environment
+#
 
 GITHUB_CLIENT_ID = os.environ.get('GITHUB_CLIENT_ID', '')
 GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET', '')
 
+FACEBOOK_CLIENT_ID = os.environ.get('FACEBOOK_CLIENT_ID', '')
+FACEBOOK_CLIENT_SECRET = os.environ.get('FACEBOOK_CLIENT_SECRET', '')
+
 print 'GITHUB_CLIENT_ID = {0!r}'.format(GITHUB_CLIENT_ID)
 print 'GITHUB_CLIENT_SECRET = {0!r}'.format(GITHUB_CLIENT_SECRET)
+
+print 'FACEBOOK_CLIENT_ID = {0!r}'.format(FACEBOOK_CLIENT_ID)
+print 'FACEBOOK_CLIENT_SECRET = {0!r}'.format(FACEBOOK_CLIENT_SECRET)
+
+#
+# /oauth/facebook
+#
+
+class FacebookAuthorize(xhttp.Resource):
+    @xhttp.cookie({ 'session_id': '^(.+)$' })
+    def GET(self, request):
+        nonce = str(uuid.uuid4())
+        SESSIONS[request['x-cookie']['session_id']]['facebook_nonce'] = nonce
+        print SESSIONS
+        raise xhttp.HTTPException(xhttp.status.SEE_OTHER, {
+            'location': 'https://www.facebook.com/dialog/oauth?client_id={0}&redirect_uri=http://dev.j0057.nl/oauth/facebook/callback/&scope=&state={1}'.format(FACEBOOK_CLIENT_ID, nonce),
+            'x-detail': 'Redirecting you to Facebook...'
+        })
+
+class FacebookCallback(xhttp.Resource):
+    @xhttp.cookie({ 'session_id': '^(.+)$' })
+    @xhttp.get({ 'code': r'^([-_0-9a-zA-Z]+)$', 'state': r'^[-0-9a-f]+$' })
+    def GET(self, request):
+        session_id = request['x-cookie']['session_id']
+        session = SESSIONS[session_id]
+        state = request['x-get']['state']
+        nonce = session.pop('facebook_nonce')
+        if state != nonce:
+            raise xhttp.HTTPException(xhttp.BAD_REQUEST, { 'x-detail': 'Bad state {0}'.format(state) })
+        code = request['x-get']['code']
+
+        return { 
+            'x-status': xhttp.status.SEE_OTHER,
+            'location': '/oauth/index.xhtml'
+        }
 
 #
 # /oauth/github
@@ -111,11 +157,13 @@ class SessionCheck(xhttp.Resource):
     def GET(self, request):
         session_id = request['x-cookie'].get('session_id', None)
         if session_id and session_id not in SESSIONS:
+            print '## Session not found, unsetting'
             return {
                 'x-status': xhttp.status.NO_CONTENT,
                 'set-cookie': 'session_id=; Path=/oauth/; Expires=Sat, 01 Jan 2000 00:00:00 GMT'
             }
         else:
+            print '## Session OK: {0!r}'.format(session_id)
             return {
                 'x-status': xhttp.status.NO_CONTENT
             }
@@ -131,8 +179,10 @@ class OauthRouter(xhttp.Router):
             (r'^/oauth/$',                      xhttp.Redirector('index.xhtml')),
             (r'^/oauth/(.*\.xhtml)$',           xhttp.FileServer('static', 'application/xhtml+xml')),
             (r'^/oauth/(.*\.js)$',              xhttp.FileServer('static', 'application/javascript')),
-            (r'^/oauth/github/callback/$',      GithubCallback()),
+            (r'^/oauth/facebook/authorize/$',   FacebookAuthorize()),
+            (r'^/oauth/facebook/callback/$',    FacebookCallback()),
             (r'^/oauth/github/authorize/$',     GithubAuthorize()),
+            (r'^/oauth/github/callback/$',      GithubCallback()),
             (r'^/oauth/github/request/(.*)$',   GithubRequest()),
             (r'^/oauth/session/start/$',        SessionStart()),
             (r'^/oauth/session/delete/$',       SessionDelete()),
