@@ -1,5 +1,6 @@
 import os
 import uuid
+import urlparse
 
 import requests
 
@@ -53,11 +54,48 @@ class FacebookCallback(xhttp.Resource):
         if state != nonce:
             raise xhttp.HTTPException(xhttp.BAD_REQUEST, { 'x-detail': 'Bad state {0}'.format(state) })
         code = request['x-get']['code']
-
+        r = requests.post(
+            'https://graph.facebook.com/oauth/access_token',
+            params={
+                'client_id': FACEBOOK_CLIENT_ID,
+                'redirect_uri': 'http://dev.j0057.nl/oauth/facebook/callback/',
+                'client_secret': FACEBOOK_CLIENT_SECRET,
+                'code': code
+            },
+            headers={
+                'accept': 'application/json'
+            })
+        data = urlparse.parse_qs(r.content)
+        session['facebook_token'] = data['access_token'][0]
+        print SESSIONS
         return { 
             'x-status': xhttp.status.SEE_OTHER,
             'location': '/oauth/index.xhtml'
         }
+
+class FacebookRequest(xhttp.Resource):
+    @xhttp.cookie({ 'session_id': '^(.+)$' })
+    @xhttp.get({ 'fields?': r'^.*$' })
+    def GET(self, request, path):
+        session_id = request['x-cookie']['session_id']
+        session = SESSIONS[session_id]
+        path = 'https://graph.facebook.com/' + path
+        params = { 'access_token': session.get('facebook_token', '') }
+        params.update(request['x-get'])
+        r = requests.get(
+            path,
+            params=params,
+            headers={
+                'accept': 'application/json'
+            })
+        return {
+            'x-status': r.status_code,
+            'content-type': r.headers['content-type'],
+            'x-content': r.content
+        }
+
+
+# /me?fields=name,friends.fields(name,username),username
 
 #
 # /oauth/github
@@ -181,6 +219,7 @@ class OauthRouter(xhttp.Router):
             (r'^/oauth/(.*\.js)$',              xhttp.FileServer('static', 'application/javascript')),
             (r'^/oauth/facebook/authorize/$',   FacebookAuthorize()),
             (r'^/oauth/facebook/callback/$',    FacebookCallback()),
+            (r'^/oauth/facebook/request/(.*)$', FacebookRequest()),
             (r'^/oauth/github/authorize/$',     GithubAuthorize()),
             (r'^/oauth/github/callback/$',      GithubCallback()),
             (r'^/oauth/github/request/(.*)$',   GithubRequest()),

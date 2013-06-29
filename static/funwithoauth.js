@@ -52,4 +52,16 @@ document.addEventListener('DOMContentLoaded', function(e) {
             }
         });
     });
+
+    document.querySelector('#facebook_me').addEventListener('click', function(e) {
+        e.preventDefault();
+        request('GET', e.target.href, function(xhr) {
+            var me = JSON.parse(xhr.response);
+            me.friends.data.map(function(user) {
+                document.querySelector('#facebook_me_result').innerHTML += ''
+                    + '<img src="https://graph.facebook.com/' + user.id + '/picture" title="' + user.name + '"/>'
+                    ;
+            })
+        });
+    });
 });
