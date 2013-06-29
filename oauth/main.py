@@ -22,11 +22,86 @@ GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET', '')
 FACEBOOK_CLIENT_ID = os.environ.get('FACEBOOK_CLIENT_ID', '')
 FACEBOOK_CLIENT_SECRET = os.environ.get('FACEBOOK_CLIENT_SECRET', '')
 
+SKYDRIVE_CLIENT_ID = os.environ.get('SKYDRIVE_CLIENT_ID', '')
+SKYDRIVE_CLIENT_SECRET = os.environ.get('SKYDRIVE_CLIENT_SECRET', '')
+
 print 'GITHUB_CLIENT_ID = {0!r}'.format(GITHUB_CLIENT_ID)
 print 'GITHUB_CLIENT_SECRET = {0!r}'.format(GITHUB_CLIENT_SECRET)
 
 print 'FACEBOOK_CLIENT_ID = {0!r}'.format(FACEBOOK_CLIENT_ID)
 print 'FACEBOOK_CLIENT_SECRET = {0!r}'.format(FACEBOOK_CLIENT_SECRET)
+
+print 'SKYDRIVE_CLIENT_ID = {0!r}'.format(SKYDRIVE_CLIENT_ID)
+print 'SKYDRIVE_CLIENT_SECRET = {0!r}'.format(SKYDRIVE_CLIENT_SECRET)
+
+#
+# /oauth/skydrive
+#
+
+# 1. https://login.live.com/oauth20_authorize.srf
+#    ?client_id=CLIENT_ID
+#    &scope=SCOPES
+#    &response_type=code
+#    &redirect_uri=REDIRECT_URL
+#
+# 2. POST https://login.live.com/oauth20_token.srf
+#    Content-type: application/x-www-form-urlencoded
+#
+#    client_id=CLIENT_ID
+#    &redirect_uri=REDIRECT_URL
+#    &client_secret=CLIENT_SECRET
+#    &code=AUTHORIZATION_CODE
+#    &grant_type=authorization_code
+
+class SkydriveAuthorize(xhttp.Resource):
+    @xhttp.cookie({ 'session_id': '^(.+)$' })
+    def GET(self, request):
+        nonce = str(uuid.uuid4())
+        SESSIONS[request['x-cookie']['session_id']]['skydrive_nonce'] = nonce
+        print SESSIONS
+        raise xhttp.HTTPException(xhttp.status.SEE_OTHER, {
+            'location': 'https://login.live.com/oauth20_authorize.srf?client_id={0}&redirect_uri={1}&scope=wl.signin%20wl.basic&state={2}&response_type=code'.format(
+                SKYDRIVE_CLIENT_ID, 
+                'http://dev.j0057.nl/oauth/skydrive/callback/',
+                nonce),
+            'x-detail': 'Redirecting you to Skydrive...'
+        })
+
+class SkydriveCallback(xhttp.Resource):
+    @xhttp.cookie({ 'session_id': '^(.+)$' })
+    @xhttp.get({ 'code': r'^([-_0-9a-zA-Z]+)$', 'state': r'^[-0-9a-f]+$' })
+    def GET(self, request):
+        session_id = request['x-cookie']['session_id']
+        session = SESSIONS[session_id]
+        state = request['x-get']['state']
+        nonce = session.pop('skydrive_nonce')
+        if state != nonce:
+            raise xhttp.HTTPException(xhttp.BAD_REQUEST, { 'x-detail': 'Bad state {0}'.format(state) })
+        code = request['x-get']['code']
+        r = requests.post(
+            'https://login.live.com/oauth20_token.srf',
+            data={
+                'client_id': SKYDRIVE_CLIENT_ID,
+                'redirect_uri': 'http://dev.j0057.nl/oauth/skydrive/callback/',
+                'client_secret': SKYDRIVE_CLIENT_SECRET,
+                'code': code,
+                'grant_type': 'authorization_code'
+            },
+            headers={
+                'accept': 'application/json',
+                'content-type': 'application/x-www-form-urlencoded'
+            })
+        print '###', r.status_code, r.content
+        data = r.json()
+        session['skydrive_token'] = data['access_token']
+        print SESSIONS
+        return { 
+            'x-status': xhttp.status.SEE_OTHER,
+            'location': '/oauth/index.xhtml'
+        }
+
+class SkydriveRequest(xhttp.Resource):
+    pass
 
 #
 # /oauth/facebook
@@ -217,6 +292,9 @@ class OauthRouter(xhttp.Router):
             (r'^/oauth/$',                      xhttp.Redirector('index.xhtml')),
             (r'^/oauth/(.*\.xhtml)$',           xhttp.FileServer('static', 'application/xhtml+xml')),
             (r'^/oauth/(.*\.js)$',              xhttp.FileServer('static', 'application/javascript')),
+            (r'^/oauth/skydrive/authorize/$',   SkydriveAuthorize()),
+            (r'^/oauth/skydrive/callback/$',    SkydriveCallback()),
+            (r'^/oauth/skydrive/request/(.*)$', SkydriveRequest()),
             (r'^/oauth/facebook/authorize/$',   FacebookAuthorize()),
             (r'^/oauth/facebook/callback/$',    FacebookCallback()),
             (r'^/oauth/facebook/request/(.*)$', FacebookRequest()),
