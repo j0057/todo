@@ -64,4 +64,12 @@ document.addEventListener('DOMContentLoaded', function(e) {
             })
         });
     });
+
+    document.querySelector("#live_me").addEventListener("click", function(e) {
+        e.preventDefault();
+        request("GET", e.target.href, function(xhr) {
+            var me = JSON.parse(xhr.response);
+            document.querySelector("#live_me_result").textContent = me.name;
+        });
+    });
 });

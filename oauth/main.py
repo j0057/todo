@@ -1,6 +1,7 @@
 import os
 import uuid
 import urlparse
+import urllib
 
 import requests
 
@@ -22,8 +23,8 @@ GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET', '')
 FACEBOOK_CLIENT_ID = os.environ.get('FACEBOOK_CLIENT_ID', '')
 FACEBOOK_CLIENT_SECRET = os.environ.get('FACEBOOK_CLIENT_SECRET', '')
 
-SKYDRIVE_CLIENT_ID = os.environ.get('SKYDRIVE_CLIENT_ID', '')
-SKYDRIVE_CLIENT_SECRET = os.environ.get('SKYDRIVE_CLIENT_SECRET', '')
+LIVE_CLIENT_ID = os.environ.get('LIVE_CLIENT_ID', '')
+LIVE_CLIENT_SECRET = os.environ.get('LIVE_CLIENT_SECRET', '')
 
 print 'GITHUB_CLIENT_ID = {0!r}'.format(GITHUB_CLIENT_ID)
 print 'GITHUB_CLIENT_SECRET = {0!r}'.format(GITHUB_CLIENT_SECRET)
@@ -31,211 +32,181 @@ print 'GITHUB_CLIENT_SECRET = {0!r}'.format(GITHUB_CLIENT_SECRET)
 print 'FACEBOOK_CLIENT_ID = {0!r}'.format(FACEBOOK_CLIENT_ID)
 print 'FACEBOOK_CLIENT_SECRET = {0!r}'.format(FACEBOOK_CLIENT_SECRET)
 
-print 'SKYDRIVE_CLIENT_ID = {0!r}'.format(SKYDRIVE_CLIENT_ID)
-print 'SKYDRIVE_CLIENT_SECRET = {0!r}'.format(SKYDRIVE_CLIENT_SECRET)
+print 'LIVE_CLIENT_ID = {0!r}'.format(LIVE_CLIENT_ID)
+print 'LIVE_CLIENT_SECRET = {0!r}'.format(LIVE_CLIENT_SECRET)
+
+def session(cookie_key, sessions):
+    class session(xhttp.decorator):
+        def __call__(self, request, *a, **k):
+            if 'x-cookie' in request and cookie_key in request['x-cookie']:
+                session_id = request['x-cookie'][cookie_key]
+                if session_id in sessions:
+                    request['x-session'] = sessions[session_id]
+                    return self.func(request, *a, **k)
+            request['x-session'] = None
+            return self.func(request, *a, **k)
+    return session
+
+xhttp.session = session
 
 #
-# /oauth/skydrive
+# Authorize
 #
 
-# 1. https://login.live.com/oauth20_authorize.srf
-#    ?client_id=CLIENT_ID
-#    &scope=SCOPES
-#    &response_type=code
-#    &redirect_uri=REDIRECT_URL
-#
-# 2. POST https://login.live.com/oauth20_token.srf
-#    Content-type: application/x-www-form-urlencoded
-#
-#    client_id=CLIENT_ID
-#    &redirect_uri=REDIRECT_URL
-#    &client_secret=CLIENT_SECRET
-#    &code=AUTHORIZATION_CODE
-#    &grant_type=authorization_code
+class OauthAuthorize(xhttp.Resource):
+    def __init__(self, key_fmt, client_id, client_secret, authorize_uri, callback_uri, scope=''):
+        super(OauthAuthorize, self).__init__()
+        self.key_fmt = key_fmt 
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.authorize_uri = authorize_uri
+        self.callback_uri = callback_uri
+        self.scope = scope
 
-class SkydriveAuthorize(xhttp.Resource):
     @xhttp.cookie({ 'session_id': '^(.+)$' })
+    @xhttp.session('session_id', SESSIONS)
     def GET(self, request):
-        nonce = str(uuid.uuid4())
-        SESSIONS[request['x-cookie']['session_id']]['skydrive_nonce'] = nonce
-        print SESSIONS
-        raise xhttp.HTTPException(xhttp.status.SEE_OTHER, {
-            'location': 'https://login.live.com/oauth20_authorize.srf?client_id={0}&redirect_uri={1}&scope=wl.signin%20wl.basic&state={2}&response_type=code'.format(
-                SKYDRIVE_CLIENT_ID, 
-                'http://dev.j0057.nl/oauth/skydrive/callback/',
-                nonce),
-            'x-detail': 'Redirecting you to Skydrive...'
-        })
-
-class SkydriveCallback(xhttp.Resource):
-    @xhttp.cookie({ 'session_id': '^(.+)$' })
-    @xhttp.get({ 'code': r'^([-_0-9a-zA-Z]+)$', 'state': r'^[-0-9a-f]+$' })
-    def GET(self, request):
-        session_id = request['x-cookie']['session_id']
-        session = SESSIONS[session_id]
-        state = request['x-get']['state']
-        nonce = session.pop('skydrive_nonce')
-        if state != nonce:
-            raise xhttp.HTTPException(xhttp.BAD_REQUEST, { 'x-detail': 'Bad state {0}'.format(state) })
-        code = request['x-get']['code']
-        r = requests.post(
-            'https://login.live.com/oauth20_token.srf',
-            data={
-                'client_id': SKYDRIVE_CLIENT_ID,
-                'redirect_uri': 'http://dev.j0057.nl/oauth/skydrive/callback/',
-                'client_secret': SKYDRIVE_CLIENT_SECRET,
-                'code': code,
-                'grant_type': 'authorization_code'
-            },
-            headers={
-                'accept': 'application/json',
-                'content-type': 'application/x-www-form-urlencoded'
-            })
-        print '###', r.status_code, r.content
-        data = r.json()
-        session['skydrive_token'] = data['access_token']
-        print SESSIONS
-        return { 
+        request['x-session'][self.key_fmt.format('nonce')] = nonce = str(uuid.uuid4())
+        return {
             'x-status': xhttp.status.SEE_OTHER,
-            'location': '/oauth/index.xhtml'
+            'location': self.authorize_uri + '?' + urllib.urlencode({
+                'client_id': self.client_id,
+                'redirect_uri': self.callback_uri,
+                'scope': self.scope,
+                'state': nonce,
+                'response_type': 'code' })
         }
 
-class SkydriveRequest(xhttp.Resource):
-    pass
+class GithubAuthorize(OauthAuthorize):
+    def __init__(self):
+        super(GithubAuthorize, self).__init__('github_{0}', GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
+                                              'https://github.com/login/oauth/authorize',
+                                              'http://dev.j0057.nl/oauth/github/callback/')
+
+class FacebookAuthorize(OauthAuthorize):
+    def __init__(self):
+        super(FacebookAuthorize, self).__init__('facebook_{0}', 
+                                                FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
+                                                'https://www.facebook.com/dialog/oauth',
+                                                'http://dev.j0057.nl/oauth/facebook/callback/')
+
+class LiveAuthorize(OauthAuthorize):
+    def __init__(self):
+        super(LiveAuthorize, self).__init__('live_{0}', LIVE_CLIENT_ID, LIVE_CLIENT_SECRET,
+                                            'https://login.live.com/oauth20_authorize.srf',
+                                            'http://dev.j0057.nl/oauth/live/callback/',
+                                            'wl.signin wl.basic wl.skydrive')
 
 #
-# /oauth/facebook
+# Callback
 #
 
-class FacebookAuthorize(xhttp.Resource):
-    @xhttp.cookie({ 'session_id': '^(.+)$' })
-    def GET(self, request):
-        nonce = str(uuid.uuid4())
-        SESSIONS[request['x-cookie']['session_id']]['facebook_nonce'] = nonce
-        print SESSIONS
-        raise xhttp.HTTPException(xhttp.status.SEE_OTHER, {
-            'location': 'https://www.facebook.com/dialog/oauth?client_id={0}&redirect_uri=http://dev.j0057.nl/oauth/facebook/callback/&scope=&state={1}'.format(FACEBOOK_CLIENT_ID, nonce),
-            'x-detail': 'Redirecting you to Facebook...'
-        })
+class OauthCallback(xhttp.Resource):
+    def __init__(self, key_fmt, client_id, client_secret, token_uri, callback_uri, redirect_uri):
+        super(OauthCallback, self).__init__()
+        self.key_fmt = key_fmt 
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.token_uri = token_uri
+        self.callback_uri = callback_uri
+        self.redirect_uri = redirect_uri
 
-class FacebookCallback(xhttp.Resource):
-    @xhttp.cookie({ 'session_id': '^(.+)$' })
+    def get_token(self, code):
+        r = requests.post(
+            self.token_uri,
+            data={
+                'client_id': self.client_id,
+                'client_secret': self.client_secret,
+                'redirect_uri': self.callback_uri,
+                'code': code,
+                'grant_type': 'authorization_code' },
+            headers={
+                'accept': 'application/json',
+                'content-type': 'application/x-www-form-urlencoded' })
+        if r.status_code != 200:
+            raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': r.text.encode('utf8') })
+        data = r.json()
+        return data['access_token']
+
     @xhttp.get({ 'code': r'^([-_0-9a-zA-Z]+)$', 'state': r'^[-0-9a-f]+$' })
+    @xhttp.cookie({ 'session_id': '^(.+)$' })
+    @xhttp.session('session_id', SESSIONS)
     def GET(self, request):
-        session_id = request['x-cookie']['session_id']
-        session = SESSIONS[session_id]
-        state = request['x-get']['state']
-        nonce = session.pop('facebook_nonce')
-        if state != nonce:
+        if request['x-get']['state'] != request['x-session'].pop(self.key_fmt.format('nonce')):
             raise xhttp.HTTPException(xhttp.BAD_REQUEST, { 'x-detail': 'Bad state {0}'.format(state) })
-        code = request['x-get']['code']
+        request['x-session'][self.key_fmt.format('token')] = self.get_token(request['x-get']['code'])
+        return { 
+            'x-status': xhttp.status.SEE_OTHER,
+            'location': self.redirect_uri
+        }
+
+class GithubCallback(OauthCallback):
+    def __init__(self):
+        super(GithubCallback, self).__init__('github_{0}', GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
+                                             'https://github.com/login/oauth/access_token',
+                                             'http://dev.j0057.nl/oauth/github/callback/',
+                                             'http://dev.j0057.nl/oauth/index.xhtml')
+
+class FacebookCallback(OauthCallback):
+    def __init__(self):
+        super(FacebookCallback, self).__init__('facebook_{0}',
+                                               FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
+                                               'https://graph.facebook.com/oauth/access_token',
+                                               'http://dev.j0057.nl/oauth/facebook/callback/',
+                                               'http://dev.j0057.nl/oauth/index.xhtml')
+
+    def get_token(self, code): # facebook returns x-www-form-urlencoded instead of json...
         r = requests.post(
             'https://graph.facebook.com/oauth/access_token',
             params={
                 'client_id': FACEBOOK_CLIENT_ID,
-                'redirect_uri': 'http://dev.j0057.nl/oauth/facebook/callback/',
                 'client_secret': FACEBOOK_CLIENT_SECRET,
-                'code': code
-            },
-            headers={
-                'accept': 'application/json'
-            })
+                'redirect_uri': 'http://dev.j0057.nl/oauth/facebook/callback/',
+                'code': code },
+            headers={ 'accept': 'application/json' })
         data = urlparse.parse_qs(r.content)
-        session['facebook_token'] = data['access_token'][0]
-        print SESSIONS
-        return { 
-            'x-status': xhttp.status.SEE_OTHER,
-            'location': '/oauth/index.xhtml'
-        }
+        return data['access_token'][0]
 
-class FacebookRequest(xhttp.Resource):
-    @xhttp.cookie({ 'session_id': '^(.+)$' })
-    @xhttp.get({ 'fields?': r'^.*$' })
-    def GET(self, request, path):
-        session_id = request['x-cookie']['session_id']
-        session = SESSIONS[session_id]
-        path = 'https://graph.facebook.com/' + path
-        params = { 'access_token': session.get('facebook_token', '') }
-        params.update(request['x-get'])
-        r = requests.get(
-            path,
-            params=params,
-            headers={
-                'accept': 'application/json'
-            })
-        return {
-            'x-status': r.status_code,
-            'content-type': r.headers['content-type'],
-            'x-content': r.content
-        }
-
-
-# /me?fields=name,friends.fields(name,username),username
+class LiveCallback(OauthCallback):
+    def __init__(self):
+        super(LiveCallback, self).__init__('live_{0}', LIVE_CLIENT_ID, LIVE_CLIENT_SECRET,
+                                           'https://login.live.com/oauth20_token.srf',
+                                           'http://dev.j0057.nl/oauth/live/callback/',
+                                           'http://dev.j0057.nl/oauth/index.xhtml')
 
 #
-# /oauth/github
+# Request
 #
 
-class GithubAuthorize(xhttp.Resource):
-    @xhttp.cookie({ 'session_id': '^(.+)$' })
-    def GET(self, request):
-        nonce = str(uuid.uuid4())
-        SESSIONS[request['x-cookie']['session_id']]['github_nonce'] = nonce
-        print SESSIONS
-        raise xhttp.HTTPException(xhttp.status.SEE_OTHER, {
-            'location': 'https://github.com/login/oauth/authorize?client_id={0}&redirect_uri=http://dev.j0057.nl/oauth/github/callback/&scope=&state={1}'.format(GITHUB_CLIENT_ID, nonce),
-            'x-detail': 'Redirecting you to Github...'
-        })
+class OauthRequest(xhttp.Resource):
+    def __init__(self, key_fmt, base_uri):
+        super(OauthRequest, self).__init__()
+        self.key_fmt = key_fmt
+        self.base_uri = base_uri
 
-class GithubCallback(xhttp.Resource):
     @xhttp.cookie({ 'session_id': '^(.+)$' })
-    @xhttp.get({ 'code': r'^([0-9a-z]+)$', 'state': r'^[-0-9a-f]+$' })
-    def GET(self, request):
-        session_id = request['x-cookie']['session_id']
-        session = SESSIONS[session_id]
-        state = request['x-get']['state']
-        nonce = session.pop('github_nonce')
-        if state != nonce:
-            raise xhttp.HTTPException(xhttp.BAD_REQUEST, { 'x-detail': 'Bad state {0}'.format(state) })
-        code = request['x-get']['code']
-        r = requests.post('https://github.com/login/oauth/access_token',
-            params={ 
-                'client_id': GITHUB_CLIENT_ID, 
-                'client_secret': GITHUB_CLIENT_SECRET,
-                'code': code
-            },
-            headers={
-                'accept': 'application/json'
-            })
-        data = r.json()
-        session['github_token'] = data['access_token']
-        print SESSIONS
-        return {
-            'x-status': xhttp.status.SEE_OTHER,
-            'location': '/oauth/index.xhtml'
-        }
-
-class GithubRequest(xhttp.Resource):
-    @xhttp.cookie({ 'session_id': '^(.+)$' })
+    @xhttp.session('session_id', SESSIONS)
     def GET(self, request, path):
-        session_id = request['x-cookie']['session_id']
-        session = SESSIONS[session_id]
-        path = 'https://api.github.com/' + path
-        print path
-        r = requests.get(
-            path,
-            params={
-                'access_token': session.get('github_token', '')
-            },
-            headers={
-                'accept': 'application/json'
-            })
+        path = self.base_uri + path
+        params = { k: v[0] for (k, v) in urlparse.parse_qs(request['x-query-string']).items() }
+        params.update({ 'access_token': request['x-session'].get(self.key_fmt.format('token'), '') })
+        response = requests.get( path, params=params, headers={ 'accept': 'application/json' })
         return {
-            'x-status': r.status_code,
-            'content-type': r.headers['content-type'],
-            'x-content': r.content
-        }
-        
+            'x-status': response.status_code,
+            'content-type': response.headers['content-type'],
+            'x-content': response.content }
+
+class GithubRequest(OauthRequest):
+    def __init__(self):
+        super(GithubRequest, self).__init__('github_{0}', 'https://api.github.com/')
+
+class FacebookRequest(OauthRequest):
+    def __init__(self):
+        super(FacebookRequest, self).__init__('facebook_{0}', 'https://graph.facebook.com/')
+
+class LiveRequest(OauthRequest):
+    def __init__(self):
+        super(LiveRequest, self).__init__('live_{0}', 'https://apis.live.net/v5.0/')
 
 #
 # /oauth/session/
@@ -292,9 +263,9 @@ class OauthRouter(xhttp.Router):
             (r'^/oauth/$',                      xhttp.Redirector('index.xhtml')),
             (r'^/oauth/(.*\.xhtml)$',           xhttp.FileServer('static', 'application/xhtml+xml')),
             (r'^/oauth/(.*\.js)$',              xhttp.FileServer('static', 'application/javascript')),
-            (r'^/oauth/skydrive/authorize/$',   SkydriveAuthorize()),
-            (r'^/oauth/skydrive/callback/$',    SkydriveCallback()),
-            (r'^/oauth/skydrive/request/(.*)$', SkydriveRequest()),
+            (r'^/oauth/live/authorize/$',       LiveAuthorize()),
+            (r'^/oauth/live/callback/$',        LiveCallback()),
+            (r'^/oauth/live/request/(.*)$',     LiveRequest()),
             (r'^/oauth/facebook/authorize/$',   FacebookAuthorize()),
             (r'^/oauth/facebook/callback/$',    FacebookCallback()),
             (r'^/oauth/facebook/request/(.*)$', FacebookRequest()),

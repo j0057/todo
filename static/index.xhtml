@@ -40,7 +40,7 @@
                 <a href="/oauth/facebook/authorize/">authorize</a>
             </li>
             <li>
-                <a id="facebook_me" href="/oauth/facebook/request/me?fields=name,username,friends.fields(name,username)">/me?fields=name,username,friends.fields(name,username)</a>
+                <a id="facebook_me" href="/oauth/facebook/request/me?fields=name,username,friends.fields(name,username)">https://graph.facebook.com/me?fields=name,username,friends.fields(name,username)</a>
                 <div id="facebook_me_result"/>
             </li>
         </ul>
@@ -48,7 +48,11 @@
         <h2>Skydrive</h2>
         <ul>
             <li>
-                <a href="/oauth/skydrive/authorize/">authorize</a>
+                <a href="/oauth/live/authorize/">authorize</a>
+            </li>
+            <li>
+                <a id="live_me" href="/oauth/live/request/me">https://apis.live.net/v5.0/me</a>
+                <div id="live_me_result"/> 
             </li>
         </ul>
 
