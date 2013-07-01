@@ -17,29 +17,20 @@ SESSIONS = {}
 # keys come from configuration/environment
 #
 
-GITHUB_CLIENT_ID = os.environ.get('GITHUB_CLIENT_ID', '')
-GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET', '')
-
-FACEBOOK_CLIENT_ID = os.environ.get('FACEBOOK_CLIENT_ID', '')
-FACEBOOK_CLIENT_SECRET = os.environ.get('FACEBOOK_CLIENT_SECRET', '')
-
-LIVE_CLIENT_ID = os.environ.get('LIVE_CLIENT_ID', '')
-LIVE_CLIENT_SECRET = os.environ.get('LIVE_CLIENT_SECRET', '')
-
-GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID, '')
-GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
-
-print 'GITHUB_CLIENT_ID = {0!r}'.format(GITHUB_CLIENT_ID)
-print 'GITHUB_CLIENT_SECRET = {0!r}'.format(GITHUB_CLIENT_SECRET)
-
-print 'FACEBOOK_CLIENT_ID = {0!r}'.format(FACEBOOK_CLIENT_ID)
-print 'FACEBOOK_CLIENT_SECRET = {0!r}'.format(FACEBOOK_CLIENT_SECRET)
-
-print 'LIVE_CLIENT_ID = {0!r}'.format(LIVE_CLIENT_ID)
-print 'LIVE_CLIENT_SECRET = {0!r}'.format(LIVE_CLIENT_SECRET)
-
-print 'GOOGLE_CLIENT_ID = {0!r}'.format(GOOGLE_CLIENT_ID)
-print 'GOOGLE_CLIENT_SECRET = {0!r}'.format(GOOGLE_CLIENT_SECRET)
+def get_keys(name):
+    client_id     = '{0}_CLIENT_ID'.format(name)
+    client_secret = '{0}_CLIENT_SECRET'.format(name)
+    keys = {
+        client_id    : os.environ.get(client_id, ''),
+        client_secret: os.environ.get(client_secret, '') 
+    }
+    globals().update(keys)
+    print keys
+        
+get_keys('GITHUB')
+get_keys('FACEBOOK')
+get_keys('LIVE')
+get_keys('GOOGLE')
 
 def session(cookie_key, sessions):
     class session(xhttp.decorator):
