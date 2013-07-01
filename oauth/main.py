@@ -221,7 +221,7 @@ class LiveRequest(OauthRequest):
 
 class GoogleRequest(OauthRequest):
     def __init__(self):
-        super(GoogleRequest, self).__init('google_{0}', 'https://www.googleapis.com/')
+        super(GoogleRequest, self).__init__('google_{0}', 'https://www.googleapis.com/')
 
 #
 # /oauth/session/
