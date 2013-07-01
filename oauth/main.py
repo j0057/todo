@@ -132,7 +132,8 @@ class OauthCallback(xhttp.Resource):
         data = r.json()
         return data['access_token']
 
-    @xhttp.get({ 'code': r'^([-_0-9a-zA-Z]+)$', 'state': r'^[-0-9a-f]+$' })
+    @xhttp.get({ 'code': r'^.+$', 'state': r'^[-0-9a-f]+$',
+                 'authuser?': '.*', 'prompt?': '.*', 'session_state?': '.*' })
     @xhttp.cookie({ 'session_id': '^(.+)$' })
     @xhttp.session('session_id', SESSIONS)
     def GET(self, request):
