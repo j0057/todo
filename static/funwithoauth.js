@@ -72,4 +72,12 @@ document.addEventListener('DOMContentLoaded', function(e) {
             document.querySelector("#live_me_result").textContent = me.name;
         });
     });
+    
+    document.querySelector("#google_userinfo").addEventListener("click", function(e) {
+        e.preventDefault();
+        request("GET", e.target.href, function(xhr) {
+            var userinfo = JSON.parse(xhr.response);
+            document.querySelector("#google_userinfo_result").textContent = userinfo.email;
+        });
+    });
 });
