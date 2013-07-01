@@ -26,6 +26,9 @@ FACEBOOK_CLIENT_SECRET = os.environ.get('FACEBOOK_CLIENT_SECRET', '')
 LIVE_CLIENT_ID = os.environ.get('LIVE_CLIENT_ID', '')
 LIVE_CLIENT_SECRET = os.environ.get('LIVE_CLIENT_SECRET', '')
 
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID, '')
+GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
+
 print 'GITHUB_CLIENT_ID = {0!r}'.format(GITHUB_CLIENT_ID)
 print 'GITHUB_CLIENT_SECRET = {0!r}'.format(GITHUB_CLIENT_SECRET)
 
@@ -34,6 +37,9 @@ print 'FACEBOOK_CLIENT_SECRET = {0!r}'.format(FACEBOOK_CLIENT_SECRET)
 
 print 'LIVE_CLIENT_ID = {0!r}'.format(LIVE_CLIENT_ID)
 print 'LIVE_CLIENT_SECRET = {0!r}'.format(LIVE_CLIENT_SECRET)
+
+print 'GOOGLE_CLIENT_ID = {0!r}'.format(GOOGLE_CLIENT_ID)
+print 'GOOGLE_CLIENT_SECRET = {0!r}'.format(GOOGLE_CLIENT_SECRET)
 
 def session(cookie_key, sessions):
     class session(xhttp.decorator):
@@ -96,6 +102,13 @@ class LiveAuthorize(OauthAuthorize):
                                             'https://login.live.com/oauth20_authorize.srf',
                                             'http://dev.j0057.nl/oauth/live/callback/',
                                             'wl.signin wl.basic wl.skydrive')
+
+class GoogleAuthorize(OauthAuthorize):
+    def __init__(self):
+        super(GoogleAuthorize, self).__init__('google_{0}', GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
+                                              'https://accounts.google.com/o/oauth2/auth',
+                                              'http://dev.j0057.nl/oauth/google/callback/',
+                                              'openid email')
 
 #
 # Callback
@@ -173,6 +186,13 @@ class LiveCallback(OauthCallback):
                                            'https://login.live.com/oauth20_token.srf',
                                            'http://dev.j0057.nl/oauth/live/callback/',
                                            'http://dev.j0057.nl/oauth/index.xhtml')
+                                           
+class GoogleCallback(OauthCallback):
+    def __init__(self):
+        super(GoogleCallback, self).__init__('google_{0}', GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
+                                             'https://accounts.google.com/o/oauth2/token',
+                                             'http://dev.j0057.nl/oauth/google/callback/',
+                                             'http://dev.j0057.nl/oauth/index.xhtml')
 
 #
 # Request
@@ -207,6 +227,10 @@ class FacebookRequest(OauthRequest):
 class LiveRequest(OauthRequest):
     def __init__(self):
         super(LiveRequest, self).__init__('live_{0}', 'https://apis.live.net/v5.0/')
+
+class GoogleRequest(OauthRequest):
+    def __init__(self):
+        super(GoogleRequest, self).__init('google_{0}', 'https://www.googleapis.com/')
 
 #
 # /oauth/session/
@@ -260,18 +284,33 @@ class OauthRouter(xhttp.Router):
     def __init__(self):
         super(OauthRouter, self).__init__(
             (r'^/$',                            xhttp.Redirector('/oauth')),
+            
+            # static stuff
             (r'^/oauth/$',                      xhttp.Redirector('index.xhtml')),
             (r'^/oauth/(.*\.xhtml)$',           xhttp.FileServer('static', 'application/xhtml+xml')),
             (r'^/oauth/(.*\.js)$',              xhttp.FileServer('static', 'application/javascript')),
+            
+            # google
+            (r'^/oauth/google/authorize/$',     GoogleAuthorize()),
+            (r'^/oauth/google/callback/$',      GoogleCallback()),
+            (r'^/oauth/google/request/(.*)$',   GoogleRequest()),
+            
+            # live
             (r'^/oauth/live/authorize/$',       LiveAuthorize()),
             (r'^/oauth/live/callback/$',        LiveCallback()),
             (r'^/oauth/live/request/(.*)$',     LiveRequest()),
+            
+            # facebook
             (r'^/oauth/facebook/authorize/$',   FacebookAuthorize()),
             (r'^/oauth/facebook/callback/$',    FacebookCallback()),
             (r'^/oauth/facebook/request/(.*)$', FacebookRequest()),
+            
+            # github
             (r'^/oauth/github/authorize/$',     GithubAuthorize()),
             (r'^/oauth/github/callback/$',      GithubCallback()),
             (r'^/oauth/github/request/(.*)$',   GithubRequest()),
+            
+            # sessions
             (r'^/oauth/session/start/$',        SessionStart()),
             (r'^/oauth/session/delete/$',       SessionDelete()),
             (r'^/oauth/session/check/$',        SessionCheck())
