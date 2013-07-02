@@ -111,11 +111,11 @@ document.addEventListener('DOMContentLoaded', function(e) {
                         var li = xml(["li",
                             ["img", {src: item.iconLink}],
                             " ",
-                            item.defaultOpenWithLink
-                                ? ["a", {href: item.defaultOpenWithLink, "class": "document"}, item.title]
+                            item.mimeType != "application/vnd.google-apps.folder"
+                                ? ["a", {href: item.alternateLink, "class": "document"}, item.title]
                                 : "",
                             item.mimeType == "application/vnd.google-apps.folder"
-                                ? ["a", {href: "/oauth/google/request/drive/v2/files?q=\"" + item.id + "\"+in+parents&fields=items(defaultOpenWithLink,iconLink,id,mimeType,thumbnailLink,title)", "class": "folder"},
+                                ? ["a", {href: "/oauth/google/request/drive/v2/files?q=\"" + item.id + "\"+in+parents&fields=items(alternateLink,defaultOpenWithLink,iconLink,id,mimeType,thumbnailLink,title)", "class": "folder"},
                                     item.title]
                                 : "",
                             item.mimeType == "application/vnd.google-apps.folder"
