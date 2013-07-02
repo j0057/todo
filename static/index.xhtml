@@ -59,18 +59,15 @@
         <h2>Google</h2>
         <ul>
             <li>
-                <!--
-                <a href="/oauth/google/authorize?scope=openid+email+https://www.googleapis.com/auth/drive+https://www.googleapis.com/auth/drive.apps.readonly+https://www.googleapis.com/auth/drive.file+https://www.googleapis.com/auth/drive.metadata.readonly+https://www.googleapis.com/auth/drive.readonly">authorize</a>
-                -->
                 <a href="/oauth/google/authorize?scope=openid+email+drive+drive.apps.readonly">authorize</a>
             </li>
             <li>
                 <a id="google_userinfo" href="/oauth/google/request/oauth2/v1/userinfo">https://www.googleapis.com/oauth2/v1/userinfo</a>
                 <div id="google_userinfo_result"/>
             </li>
-            <li>
-                <a id="google_drive_root" href="/oauth/google/request/drive/v2/files?q=&quot;root&quot;+in+parents&amp;fields=items(defaultOpenWithLink,iconLink,id,mimeType,thumbnailLink,title)">https://www.googleapis.com/drive/v2/files</a>
-                <ul id="google_drive_root_result"/>
+            <li id="google_drive_browser">
+                <a class="folder" href="/oauth/google/request/drive/v2/files?q=&quot;root&quot;+in+parents&amp;fields=items(defaultOpenWithLink,iconLink,id,mimeType,thumbnailLink,title)">https://www.googleapis.com/drive/v2/files</a>
+                <ul/>
             </li> 
         </ul>
 

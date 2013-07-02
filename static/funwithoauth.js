@@ -27,6 +27,12 @@ var xml = function(node) {
         return document.createTextNode(node);
 };
 
+var empty = function(node) {
+    while (node.lastChild) {
+        node.removeChild(node.lastChild);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function(e) {
     request('GET', '/oauth/session/check/', function(xhr) {
         document.querySelector('#session_id').textContent = document.cookie;
@@ -93,29 +99,35 @@ document.addEventListener('DOMContentLoaded', function(e) {
         });
     });
 
-    document.querySelector("#google_drive_root").addEventListener("click", function(e) {
+    document.querySelector("#google_drive_browser").addEventListener("click", function(e) {
         e.preventDefault();
-        request("GET", e.target.href, function(xhr) {
-            JSON.parse(xhr.response)
-                .items.map(function(item) {
-                    var li = xml(["li",
-                        ["img", {src: item.iconLink}],
-                        " ",
-                        item.defaultOpenWithLink
-                            ? ["a", {href: item.defaultOpenWithLink, "class": "document"}, item.title]
-                            : item.title
-                    ]);
-                    document.querySelector("#google_drive_root_result").appendChild(li);
-                });
-        });
-    });
-
-    document.querySelector("#google_drive_root_result").addEventListener("click", function(e) {
-        e.preventDefault();
-        if (e.target.className == "document") {
-            window.open(e.target.href)
+        if (e.target.className == "folder") { 
+            var ul = e.target.parentNode.querySelector('ul');
+            empty(ul);
+            request("GET", e.target.href, function(xhr) {
+                JSON.parse(xhr.response)
+                    .items.map(function(item) {
+                        console.log(item);
+                        var li = xml(["li",
+                            ["img", {src: item.iconLink}],
+                            " ",
+                            item.defaultOpenWithLink
+                                ? ["a", {href: item.defaultOpenWithLink, "class": "document"}, item.title]
+                                : "",
+                            item.mimeType == "application/vnd.google-apps.folder"
+                                ? ["a", {href: "/oauth/google/request/drive/v2/files?q=\"" + item.id + "\"+in+parents&fields=items(defaultOpenWithLink,iconLink,id,mimeType,thumbnailLink,title)", "class": "folder"},
+                                    item.title]
+                                : "",
+                            item.mimeType == "application/vnd.google-apps.folder"
+                                ? ["ul"]
+                                : ""
+                        ]);
+                        ul.appendChild(li);
+                    });
+            });
         }
-        else {
+        else if (e.target.className == "document") {
+            window.open(e.target.href)
         }
     });
 });
