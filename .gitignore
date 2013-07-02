@@ -3,3 +3,4 @@ env
 .cache
 *.swp
 Makefile.keys
+log
