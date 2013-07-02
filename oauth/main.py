@@ -32,36 +32,25 @@ get_keys('FACEBOOK')
 get_keys('LIVE')
 get_keys('GOOGLE')
 
-def session(cookie_key, sessions):
-    class session(xhttp.decorator):
-        def __call__(self, request, *a, **k):
-            if 'x-cookie' in request and cookie_key in request['x-cookie']:
-                session_id = request['x-cookie'][cookie_key]
-                if session_id in sessions:
-                    request['x-session'] = sessions[session_id]
-                    return self.func(request, *a, **k)
-            request['x-session'] = None
-            return self.func(request, *a, **k)
-    return session
-
-xhttp.session = session
-
 #
 # Authorize
 #
 
 class OauthAuthorize(xhttp.Resource):
-    def __init__(self, key_fmt, client_id, client_secret, authorize_uri, callback_uri, scope=''):
+    def __init__(self, key_fmt, client_id, client_secret, authorize_uri, callback_uri):
         super(OauthAuthorize, self).__init__()
         self.key_fmt = key_fmt 
         self.client_id = client_id
         self.client_secret = client_secret
         self.authorize_uri = authorize_uri
         self.callback_uri = callback_uri
-        self.scope = scope
+
+    def get_scope(self, request):
+        return request['x-get']['scope'] or ''
 
     @xhttp.cookie({ 'session_id': '^(.+)$' })
     @xhttp.session('session_id', SESSIONS)
+    @xhttp.get({ 'scope?': '.+' })
     def GET(self, request):
         request['x-session'][self.key_fmt.format('nonce')] = nonce = str(uuid.uuid4())
         return {
@@ -69,7 +58,7 @@ class OauthAuthorize(xhttp.Resource):
             'location': self.authorize_uri + '?' + urllib.urlencode({
                 'client_id': self.client_id,
                 'redirect_uri': self.callback_uri,
-                'scope': self.scope,
+                'scope': self.get_scope(request),
                 'state': nonce,
                 'response_type': 'code' })
         }
@@ -91,15 +80,19 @@ class LiveAuthorize(OauthAuthorize):
     def __init__(self):
         super(LiveAuthorize, self).__init__('live_{0}', LIVE_CLIENT_ID, LIVE_CLIENT_SECRET,
                                             'https://login.live.com/oauth20_authorize.srf',
-                                            'http://dev.j0057.nl/oauth/live/callback/',
-                                            'wl.signin wl.basic wl.skydrive')
+                                            'http://dev.j0057.nl/oauth/live/callback/')
+                                            #'wl.signin wl.basic wl.skydrive')
 
 class GoogleAuthorize(OauthAuthorize):
     def __init__(self):
         super(GoogleAuthorize, self).__init__('google_{0}', GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
                                               'https://accounts.google.com/o/oauth2/auth',
-                                              'http://dev.j0057.nl/oauth/google/callback/',
-                                              'openid email')
+                                              'http://dev.j0057.nl/oauth/google/callback/')
+
+    def get_scope(self, request):
+        scopes = request['x-get']['scope'] or ''
+        return ' '.join(scope if scope in ['openid', 'email'] else 'https://www.googleapis.com/auth/' + scope
+                        for scope in scopes.split())
 
 #
 # Callback
@@ -232,7 +225,6 @@ class SessionStart(xhttp.Resource):
     def GET(self, request):
         session_id = str(uuid.uuid4())
         SESSIONS[session_id] = {}
-        print SESSIONS
         return {
             'x-status': xhttp.status.SEE_OTHER,
             'location': '/oauth/index.xhtml',
@@ -245,7 +237,6 @@ class SessionDelete(xhttp.Resource):
         session_id = request['x-cookie'].get('session_id', '')
         if session_id and session_id in SESSIONS:
             del SESSIONS[request['x-cookie']['session_id']]
-        print SESSIONS
         return {
             'x-status': xhttp.status.SEE_OTHER,
             'location': '/oauth/index.xhtml',
@@ -257,13 +248,11 @@ class SessionCheck(xhttp.Resource):
     def GET(self, request):
         session_id = request['x-cookie'].get('session_id', None)
         if session_id and session_id not in SESSIONS:
-            print '## Session not found, unsetting'
             return {
                 'x-status': xhttp.status.NO_CONTENT,
                 'set-cookie': 'session_id=; Path=/oauth/; Expires=Sat, 01 Jan 2000 00:00:00 GMT'
             }
         else:
-            print '## Session OK: {0!r}'.format(session_id)
             return {
                 'x-status': xhttp.status.NO_CONTENT
             }
