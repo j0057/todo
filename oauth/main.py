@@ -17,7 +17,7 @@ SESSIONS = {}
 # keys come from configuration/environment
 #
 
-def get_keys(name):
+def load_keys(name):
     client_id     = '{0}_CLIENT_ID'.format(name)
     client_secret = '{0}_CLIENT_SECRET'.format(name)
     keys = {
@@ -27,10 +27,11 @@ def get_keys(name):
     globals().update(keys)
     print keys
         
-get_keys('GITHUB')
-get_keys('FACEBOOK')
-get_keys('LIVE')
-get_keys('GOOGLE')
+load_keys('GITHUB')
+load_keys('FACEBOOK')
+load_keys('LIVE')
+load_keys('GOOGLE')
+load_keys('DROPBOX')
 
 #
 # Authorize
@@ -81,7 +82,6 @@ class LiveAuthorize(OauthAuthorize):
         super(LiveAuthorize, self).__init__('live_{0}', LIVE_CLIENT_ID, LIVE_CLIENT_SECRET,
                                             'https://login.live.com/oauth20_authorize.srf',
                                             'http://dev.j0057.nl/oauth/live/callback/')
-                                            #'wl.signin wl.basic wl.skydrive')
 
 class GoogleAuthorize(OauthAuthorize):
     def __init__(self):
@@ -93,6 +93,12 @@ class GoogleAuthorize(OauthAuthorize):
         scopes = request['x-get']['scope'] or ''
         return ' '.join(scope if scope in ['openid', 'email'] else 'https://www.googleapis.com/auth/' + scope
                         for scope in scopes.split())
+
+class DropboxAuthorize(OauthAuthorize):
+    def __init__(self):
+        super(DropboxAuthorize, self).__init__('dropbox_{0}', DROPBOX_CLIENT_ID, DROPBOX_CLIENT_SECRET,
+                                               'https://www.dropbox.com/1/oauth2/authorize',
+                                               'https://dev.j0057.nl/oauth/dropbox/callback/')
 
 #
 # Callback
@@ -178,6 +184,13 @@ class GoogleCallback(OauthCallback):
                                              'https://accounts.google.com/o/oauth2/token',
                                              'http://dev.j0057.nl/oauth/google/callback/',
                                              'http://dev.j0057.nl/oauth/index.xhtml')
+
+class DropboxCallback(OauthCallback):
+    def __init__(self):
+        super(DropboxCallback, self).__init__('dropbox_{0}', DROPBOX_CLIENT_ID, DROPBOX_CLIENT_SECRET,
+                                              'https://api.dropbox.com/1/oauth2/token',
+                                              'https://dev.j0057.nl/oauth/dropbox/callback/',
+                                              'https://dev.j0057.nl/oauth/index.xhtml')
 
 #
 # Request
@@ -290,6 +303,10 @@ class OauthRouter(xhttp.Router):
             (r'^/oauth/github/authorize/$',     GithubAuthorize()),
             (r'^/oauth/github/callback/$',      GithubCallback()),
             (r'^/oauth/github/request/(.*)$',   GithubRequest()),
+
+            # dropbox
+            (r'^/oauth/dropbox/authorize/$',    DropboxAuthorize()),
+            (r'^/oauth/dropbox/callback/$',     DropboxCallback()),
             
             # sessions
             (r'^/oauth/session/start/$',        SessionStart()),
