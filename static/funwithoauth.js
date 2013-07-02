@@ -34,6 +34,15 @@ var empty = function(node) {
 }
 
 document.addEventListener('DOMContentLoaded', function(e) {
+    var links = document.querySelectorAll("a.authorize");
+    for (var i = 0; i < links.length; i++) {
+        links[i].href += links[i].href.indexOf("?") > -1
+            ? "&" + document.cookie
+            : "?" + document.cookie;
+        links[i].focus();
+        links[i].blur();
+    }
+
     request('GET', '/oauth/session/check/', function(xhr) {
         document.querySelector('#session_id').textContent = document.cookie;
     });
@@ -89,6 +98,37 @@ document.addEventListener('DOMContentLoaded', function(e) {
             var me = JSON.parse(xhr.response);
             document.querySelector("#live_me_result").textContent = me.name;
         });
+    });
+
+    document.querySelector("#live_skydrive_browser").addEventListener("click", function(e) {
+        var isFolder = function(item) { return item.type == "folder" || item.type == "album"; }
+        var isDocument = function(item) { return item.type == "file" || item.type == "photo"; }
+        e.preventDefault();
+        if (e.target.className == "folder") {
+            request("GET", e.target.href, function(xhr) {
+                var ul = e.target.parentNode.querySelector('ul');
+                empty(ul);
+                JSON.parse(xhr.response)
+                    .data.map(function(item) {
+                        console.log(item);
+                        var li = xml(["li",
+                            isFolder(item)
+                                ? ["a", {href: "/oauth/live/request/" + item.id + "/files", "class": "folder"}, item.name]
+                                : "",
+                            isDocument(item)
+                                ? ["a", {href: item.link, "class": "document"}, item.name]
+                                : "",
+                            isFolder(item)
+                                ? ["ul"]
+                                : ""
+                        ]);
+                        ul.appendChild(li);
+                    });
+            });
+        }
+        else if (e.target.className = "document") {
+            window.open(e.target.href)
+        }
     });
     
     document.querySelector("#google_userinfo").addEventListener("click", function(e) {

@@ -12,13 +12,12 @@
             <a href="/oauth/session/start/">Initialize</a>;
             <a href="/oauth/session/delete/">Reset</a>
         </p>
-
         <p>Current cookie: [<span id="session_id"/>]</p>
 
         <h2>Github</h2>
         <ul>
             <li>
-                <a href="/oauth/github/authorize/">authorize</a>
+                <a class="authorize" href="/oauth/github/authorize/">authorize</a>
             </li>
             <li>
                 <a id="github_user" href="/oauth/github/request/user">https://api.github.com/user</a>
@@ -37,7 +36,7 @@
         <h2>Facebook</h2>
         <ul>
             <li>
-                <a href="/oauth/facebook/authorize/">authorize</a>
+                <a class="authorize" href="/oauth/facebook/authorize/">authorize</a>
             </li>
             <li>
                 <a id="facebook_me" href="/oauth/facebook/request/me?fields=name,username,friends.fields(name,username)">https://graph.facebook.com/me?fields=name,username,friends.fields(name,username)</a>
@@ -48,18 +47,22 @@
         <h2>Live</h2>
         <ul>
             <li>
-                <a href="/oauth/live/authorize/?scope=wl.signin+wl.basic+wl.skydrive">authorize</a>
+                <a class="authorize" href="/oauth/live/authorize/?scope=wl.signin+wl.basic+wl.skydrive">authorize</a>
             </li>
             <li>
                 <a id="live_me" href="/oauth/live/request/me">https://apis.live.net/v5.0/me</a>
                 <div id="live_me_result"/> 
+            </li>
+            <li id="live_skydrive_browser">
+                <a class="folder" href="/oauth/live/request/me/skydrive/files">https://apis.live.net/v5.0/me/skydrive/files</a>
+                <ul/>
             </li>
         </ul>
         
         <h2>Google</h2>
         <ul>
             <li>
-                <a href="/oauth/google/authorize?scope=openid+email+drive+drive.apps.readonly">authorize</a>
+                <a class="authorize" href="/oauth/google/authorize?scope=openid+email+drive+drive.apps.readonly">authorize</a>
             </li>
             <li>
                 <a id="google_userinfo" href="/oauth/google/request/oauth2/v1/userinfo">https://www.googleapis.com/oauth2/v1/userinfo</a>

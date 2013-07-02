@@ -50,7 +50,7 @@ class OauthAuthorize(xhttp.Resource):
 
     @xhttp.cookie({ 'session_id': '^(.+)$' })
     @xhttp.session('session_id', SESSIONS)
-    @xhttp.get({ 'scope?': '.+' })
+    @xhttp.get({ 'scope?': '.+', 'session_id*': '.*' })
     def GET(self, request):
         request['x-session'][self.key_fmt.format('nonce')] = nonce = str(uuid.uuid4())
         return {
