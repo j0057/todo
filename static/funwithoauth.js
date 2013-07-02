@@ -170,4 +170,11 @@ document.addEventListener('DOMContentLoaded', function(e) {
             window.open(e.target.href)
         }
     });
+
+    document.querySelector("#linkbag").addEventListener("click", function(e) {
+        e.preventDefault();
+        if (e.target.href) { 
+            window.open(e.target.href);
+        }
+    });
 });
