@@ -40,10 +40,10 @@ load_keys('GOOGLE')
 load_keys('DROPBOX')
 
 #
-# OauthAuthorize
+# OauthInit
 #
 
-class OauthAuthorize(xhttp.Resource):
+class OauthInit(xhttp.Resource):
     def __init__(self, key_fmt, client_id, client_secret, authorize_uri, callback_uri):
         super(OauthAuthorize, self).__init__()
         self.key_fmt = key_fmt 
@@ -70,41 +70,40 @@ class OauthAuthorize(xhttp.Resource):
                 'response_type': 'code' })
         }
 
-class GithubAuthorize(OauthAuthorize):
+class GithubInit(OauthInit):
     def __init__(self):
-        super(GithubAuthorize, self).__init__('github_{0}', GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
-                                              'https://github.com/login/oauth/authorize',
-                                              'http://dev.j0057.nl/oauth/github/callback/')
+        super(GithubInit, self).__init__('github_{0}', GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
+                                         'https://github.com/login/oauth/authorize',
+                                         'http://dev.j0057.nl/oauth/github/callback/')
 
-class FacebookAuthorize(OauthAuthorize):
+class FacebookInit(OauthInit):
     def __init__(self):
-        super(FacebookAuthorize, self).__init__('facebook_{0}', 
-                                                FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
-                                                'https://www.facebook.com/dialog/oauth',
-                                                'http://dev.j0057.nl/oauth/facebook/callback/')
+        super(FacebookInit, self).__init__('facebook_{0}', FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
+                                           'https://www.facebook.com/dialog/oauth',
+                                           'http://dev.j0057.nl/oauth/facebook/callback/')
 
-class LiveAuthorize(OauthAuthorize):
+class LiveInit(OauthInit):
     def __init__(self):
-        super(LiveAuthorize, self).__init__('live_{0}', LIVE_CLIENT_ID, LIVE_CLIENT_SECRET,
-                                            'https://login.live.com/oauth20_authorize.srf',
-                                            'http://dev.j0057.nl/oauth/live/callback/')
+        super(LiveInit, self).__init__('live_{0}', LIVE_CLIENT_ID, LIVE_CLIENT_SECRET,
+                                       'https://login.live.com/oauth20_authorize.srf',
+                                       'http://dev.j0057.nl/oauth/live/callback/')
 
-class GoogleAuthorize(OauthAuthorize):
+class GoogleInit(OauthInit):
     def __init__(self):
-        super(GoogleAuthorize, self).__init__('google_{0}', GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
-                                              'https://accounts.google.com/o/oauth2/auth',
-                                              'http://dev.j0057.nl/oauth/google/callback/')
+        super(GoogleInit, self).__init__('google_{0}', GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
+                                         'https://accounts.google.com/o/oauth2/auth',
+                                         'http://dev.j0057.nl/oauth/google/callback/')
 
     def get_scope(self, request):
         scopes = request['x-get']['scope'] or ''
         return ' '.join(scope if scope in ['openid', 'email'] else 'https://www.googleapis.com/auth/' + scope
                         for scope in scopes.split())
 
-class DropboxAuthorize(OauthAuthorize):
+class DropboxInit(OauthInit):
     def __init__(self):
-        super(DropboxAuthorize, self).__init__('dropbox_{0}', DROPBOX_CLIENT_ID, DROPBOX_CLIENT_SECRET,
-                                               'https://www.dropbox.com/1/oauth2/authorize',
-                                               'https://dev.j0057.nl/oauth/dropbox/callback/')
+        super(DropboxInit, self).__init__('dropbox_{0}', DROPBOX_CLIENT_ID, DROPBOX_CLIENT_SECRET,
+                                          'https://www.dropbox.com/1/oauth2/authorize',
+                                          'https://dev.j0057.nl/oauth/dropbox/callback/')
 
 #
 # OauthCode
@@ -294,24 +293,24 @@ class OauthRouter(xhttp.Router):
             (r'^/oauth/(.*\.xhtml)$',           xhttp.FileServer('static', 'application/xhtml+xml')),
             (r'^/oauth/(.*\.js)$',              xhttp.FileServer('static', 'application/javascript')),
             
-            (r'^/oauth/google/authorize/$',     GoogleAuthorize()),
-            (r'^/oauth/google/callback/$',      GoogleCode()),
-            (r'^/oauth/google/request/(.*)$',   GoogleApi()),
+            (r'^/oauth/google/init/$',          GoogleInit()),
+            (r'^/oauth/google/code/$',          GoogleCode()),
+            (r'^/oauth/google/api/(.*)$',       GoogleApi()),
             
-            (r'^/oauth/live/authorize/$',       LiveAuthorize()),
-            (r'^/oauth/live/callback/$',        LiveCode()),
-            (r'^/oauth/live/request/(.*)$',     LiveApi()),
+            (r'^/oauth/live/init/$',            LiveInit()),
+            (r'^/oauth/live/code/$',            LiveCode()),
+            (r'^/oauth/live/api/(.*)$',         LiveApi()),
             
-            (r'^/oauth/facebook/authorize/$',   FacebookAuthorize()),
-            (r'^/oauth/facebook/callback/$',    FacebookCode()),
-            (r'^/oauth/facebook/request/(.*)$', FacebookApi()),
+            (r'^/oauth/facebook/init/$',        FacebookInit()),
+            (r'^/oauth/facebook/code/$',        FacebookCode()),
+            (r'^/oauth/facebook/api/(.*)$',     FacebookApi()),
             
-            (r'^/oauth/github/authorize/$',     GithubAuthorize()),
-            (r'^/oauth/github/callback/$',      GithubCode()),
-            (r'^/oauth/github/request/(.*)$',   GithubApi()),
+            (r'^/oauth/github/init/$',          GithubInit()),
+            (r'^/oauth/github/code/$',          GithubCode()),
+            (r'^/oauth/github/api/(.*)$',       GithubApi()),
 
-            (r'^/oauth/dropbox/authorize/$',    DropboxAuthorize()),
-            (r'^/oauth/dropbox/callback/$',     DropboxCode()),
+            (r'^/oauth/dropbox/init/$',         DropboxInit()),
+            (r'^/oauth/dropbox/code/$',         DropboxCode()),
             
             (r'^/oauth/session/start/$',        SessionStart()),
             (r'^/oauth/session/delete/$',       SessionDelete()),
