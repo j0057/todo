@@ -20,18 +20,18 @@
         <h2>Github</h2>
         <ul>
             <li>
-                <a class="authorize" href="/oauth/github/authorize/">authorize</a>
+                <a class="authorize" href="/oauth/github/init/">authorize</a>
             </li>
             <li>
-                <a id="github_user" href="/oauth/github/request/user">https://api.github.com/user</a>
+                <a id="github_user" href="/oauth/github/api/user">https://api.github.com/user</a>
                 <div id="github_user_result"/>
             </li>
             <li>
-                <a id="github_following" href="/oauth/github/request/user/following">https://api.github.com/user/following</a>
+                <a id="github_following" href="/oauth/github/api/user/following">https://api.github.com/user/following</a>
                 <div id="github_following_result"/>
             </li>
             <li>
-                <a id="github_followers" href="/oauth/github/request/user/followers">https://api.github.com/user/followers</a>
+                <a id="github_followers" href="/oauth/github/api/user/followers">https://api.github.com/user/followers</a>
                 <div id="github_followers_result"/>
             </li>
         </ul>
@@ -39,10 +39,10 @@
         <h2>Facebook</h2>
         <ul>
             <li>
-                <a class="authorize" href="/oauth/facebook/authorize/">authorize</a>
+                <a class="authorize" href="/oauth/facebook/init/">authorize</a>
             </li>
             <li>
-                <a id="facebook_me" href="/oauth/facebook/request/me?fields=name,username,friends.fields(name,username)">https://graph.facebook.com/me?fields=name,username,friends.fields(name,username)</a>
+                <a id="facebook_me" href="/oauth/facebook/api/me?fields=name,username,friends.fields(name,username)">https://graph.facebook.com/me?fields=name,username,friends.fields(name,username)</a>
                 <div id="facebook_me_result"/>
             </li>
         </ul>
@@ -50,14 +50,14 @@
         <h2>Live</h2>
         <ul>
             <li>
-                <a class="authorize" href="/oauth/live/authorize/?scope=wl.signin+wl.basic+wl.skydrive">authorize</a>
+                <a class="authorize" href="/oauth/live/init/?scope=wl.signin+wl.basic+wl.skydrive">authorize</a>
             </li>
             <li>
-                <a id="live_me" href="/oauth/live/request/me">https://apis.live.net/v5.0/me</a>
+                <a id="live_me" href="/oauth/live/api/me">https://apis.live.net/v5.0/me</a>
                 <div id="live_me_result"/> 
             </li>
             <li id="live_skydrive_browser">
-                <a class="folder" href="/oauth/live/request/me/skydrive/files">https://apis.live.net/v5.0/me/skydrive/files</a>
+                <a class="folder" href="/oauth/live/api/me/skydrive/files">https://apis.live.net/v5.0/me/skydrive/files</a>
                 <ul/>
             </li>
         </ul>
@@ -65,14 +65,14 @@
         <h2>Google</h2>
         <ul>
             <li>
-                <a class="authorize" href="/oauth/google/authorize/?scope=openid+email+drive+drive.apps.readonly">authorize</a>
+                <a class="authorize" href="/oauth/google/init/?scope=openid+email+drive+drive.apps.readonly">authorize</a>
             </li>
             <li>
-                <a id="google_userinfo" href="/oauth/google/request/oauth2/v1/userinfo">https://www.googleapis.com/oauth2/v1/userinfo</a>
+                <a id="google_userinfo" href="/oauth/google/api/oauth2/v1/userinfo">https://www.googleapis.com/oauth2/v1/userinfo</a>
                 <div id="google_userinfo_result"/>
             </li>
             <li id="google_drive_browser">
-                <a class="folder" href="/oauth/google/request/drive/v2/files?q=&quot;root&quot;+in+parents&amp;fields=items(alternateLink,defaultOpenWithLink,iconLink,id,mimeType,thumbnailLink,title)">https://www.googleapis.com/drive/v2/files</a>
+                <a class="folder" href="/oauth/google/api/drive/v2/files?q=&quot;root&quot;+in+parents&amp;fields=items(alternateLink,defaultOpenWithLink,iconLink,id,mimeType,thumbnailLink,title)">https://www.googleapis.com/drive/v2/files</a>
                 <ul/>
             </li> 
         </ul>
