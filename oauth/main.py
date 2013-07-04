@@ -1,5 +1,4 @@
 import os
-import uuid
 import urlparse
 import urllib
 
@@ -12,6 +11,13 @@ from jjm import xhttp
 #
 
 SESSIONS = {}
+
+#
+# generate something random
+#
+
+def random(n=57):
+    return os.urandom(n).encode('base64')[:-1].replace('+','_').replace('/','-')
 
 #
 # keys come from configuration/environment
@@ -53,7 +59,7 @@ class OauthAuthorize(xhttp.Resource):
     @xhttp.session('session_id', SESSIONS)
     @xhttp.get({ 'scope?': '.+', 'session_id*': '.*' })
     def GET(self, request):
-        request['x-session'][self.key_fmt.format('nonce')] = nonce = str(uuid.uuid4())
+        request['x-session'][self.key_fmt.format('nonce')] = nonce = random()
         return {
             'x-status': xhttp.status.SEE_OTHER,
             'location': self.authorize_uri + '?' + urllib.urlencode({
@@ -153,8 +159,7 @@ class GithubCallback(OauthCallback):
 
 class FacebookCallback(OauthCallback):
     def __init__(self):
-        super(FacebookCallback, self).__init__('facebook_{0}',
-                                               FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
+        super(FacebookCallback, self).__init__('facebook_{0}', FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
                                                'https://graph.facebook.com/oauth/access_token',
                                                'http://dev.j0057.nl/oauth/facebook/callback/',
                                                'http://dev.j0057.nl/oauth/index.xhtml')
@@ -236,7 +241,7 @@ class GoogleRequest(OauthRequest):
 
 class SessionStart(xhttp.Resource):
     def GET(self, request):
-        session_id = str(uuid.uuid4())
+        session_id = random()
         SESSIONS[session_id] = {}
         return {
             'x-status': xhttp.status.SEE_OTHER,
@@ -249,7 +254,7 @@ class SessionDelete(xhttp.Resource):
     def GET(self, request):
         session_id = request['x-cookie'].get('session_id', '')
         if session_id and session_id in SESSIONS:
-            del SESSIONS[request['x-cookie']['session_id']]
+            del SESSIONS[session_id]
         return {
             'x-status': xhttp.status.SEE_OTHER,
             'location': '/oauth/index.xhtml',
