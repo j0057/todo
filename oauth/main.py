@@ -74,25 +74,25 @@ class GithubInit(OauthInit):
     def __init__(self):
         super(GithubInit, self).__init__('github_{0}', GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
                                          'https://github.com/login/oauth/authorize',
-                                         'http://dev.j0057.nl/oauth/github/callback/')
+                                         'https://dev.j0057.nl/oauth/github/code/')
 
 class FacebookInit(OauthInit):
     def __init__(self):
         super(FacebookInit, self).__init__('facebook_{0}', FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
                                            'https://www.facebook.com/dialog/oauth',
-                                           'http://dev.j0057.nl/oauth/facebook/callback/')
+                                           'https://dev.j0057.nl/oauth/facebook/code/')
 
 class LiveInit(OauthInit):
     def __init__(self):
         super(LiveInit, self).__init__('live_{0}', LIVE_CLIENT_ID, LIVE_CLIENT_SECRET,
                                        'https://login.live.com/oauth20_authorize.srf',
-                                       'http://dev.j0057.nl/oauth/live/callback/')
+                                       'https://dev.j0057.nl/oauth/live/code/')
 
 class GoogleInit(OauthInit):
     def __init__(self):
         super(GoogleInit, self).__init__('google_{0}', GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
                                          'https://accounts.google.com/o/oauth2/auth',
-                                         'http://dev.j0057.nl/oauth/google/callback/')
+                                         'https://dev.j0057.nl/oauth/google/code/')
 
     def get_scope(self, request):
         scopes = request['x-get']['scope'] or ''
@@ -103,7 +103,7 @@ class DropboxInit(OauthInit):
     def __init__(self):
         super(DropboxInit, self).__init__('dropbox_{0}', DROPBOX_CLIENT_ID, DROPBOX_CLIENT_SECRET,
                                           'https://www.dropbox.com/1/oauth2/authorize',
-                                          'https://dev.j0057.nl/oauth/dropbox/callback/')
+                                          'https://dev.j0057.nl/oauth/dropbox/code/')
 
 #
 # OauthCode
@@ -154,15 +154,15 @@ class GithubCode(OauthCode):
     def __init__(self):
         super(GithubCode, self).__init__('github_{0}', GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
                                          'https://github.com/login/oauth/access_token',
-                                         'http://dev.j0057.nl/oauth/github/callback/',
-                                         'http://dev.j0057.nl/oauth/index.xhtml')
+                                         'https://dev.j0057.nl/oauth/github/code/',
+                                         'https://dev.j0057.nl/oauth/index.xhtml')
 
 class FacebookCode(OauthCode):
     def __init__(self):
         super(FacebookCode, self).__init__('facebook_{0}', FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
                                            'https://graph.facebook.com/oauth/access_token',
-                                           'http://dev.j0057.nl/oauth/facebook/callback/',
-                                           'http://dev.j0057.nl/oauth/index.xhtml')
+                                           'https://dev.j0057.nl/oauth/facebook/code/',
+                                           'https://dev.j0057.nl/oauth/index.xhtml')
 
     def get_token(self, code): 
         # post to a URL with GET-parameters and get a URL-encoded form in return, even when asking for JSON
@@ -185,21 +185,21 @@ class LiveCode(OauthCode):
     def __init__(self):
         super(LiveCode, self).__init__('live_{0}', LIVE_CLIENT_ID, LIVE_CLIENT_SECRET,
                                        'https://login.live.com/oauth20_token.srf',
-                                       'http://dev.j0057.nl/oauth/live/callback/',
-                                       'http://dev.j0057.nl/oauth/index.xhtml')
+                                       'https://dev.j0057.nl/oauth/live/code/',
+                                       'https://dev.j0057.nl/oauth/index.xhtml')
                                            
 class GoogleCode(OauthCode):
     def __init__(self):
         super(GoogleCode, self).__init__('google_{0}', GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
                                          'https://accounts.google.com/o/oauth2/token',
-                                         'http://dev.j0057.nl/oauth/google/callback/',
-                                         'http://dev.j0057.nl/oauth/index.xhtml')
+                                         'https://dev.j0057.nl/oauth/google/code/',
+                                         'https://dev.j0057.nl/oauth/index.xhtml')
 
 class DropboxCode(OauthCode):
     def __init__(self):
         super(DropboxCode, self).__init__('dropbox_{0}', DROPBOX_CLIENT_ID, DROPBOX_CLIENT_SECRET,
                                            'https://api.dropbox.com/1/oauth2/token',
-                                           'https://dev.j0057.nl/oauth/dropbox/callback/',
+                                           'https://dev.j0057.nl/oauth/dropbox/code/',
                                            'https://dev.j0057.nl/oauth/index.xhtml')
 
 #
