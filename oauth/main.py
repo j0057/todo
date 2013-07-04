@@ -40,7 +40,7 @@ load_keys('GOOGLE')
 load_keys('DROPBOX')
 
 #
-# Authorize
+# OauthAuthorize
 #
 
 class OauthAuthorize(xhttp.Resource):
@@ -107,12 +107,12 @@ class DropboxAuthorize(OauthAuthorize):
                                                'https://dev.j0057.nl/oauth/dropbox/callback/')
 
 #
-# Callback
+# OauthCode
 #
 
-class OauthCallback(xhttp.Resource):
+class OauthCode(xhttp.Resource):
     def __init__(self, key_fmt, client_id, client_secret, token_uri, callback_uri, redirect_uri):
-        super(OauthCallback, self).__init__()
+        super(OauthCode, self).__init__()
         self.key_fmt = key_fmt 
         self.client_id = client_id
         self.client_secret = client_secret
@@ -121,6 +121,7 @@ class OauthCallback(xhttp.Resource):
         self.redirect_uri = redirect_uri
 
     def get_token(self, code):
+        # post a URL-encoded form and get JSON in return
         r = requests.post(
             self.token_uri,
             data={
@@ -150,60 +151,65 @@ class OauthCallback(xhttp.Resource):
             'location': self.redirect_uri
         }
 
-class GithubCallback(OauthCallback):
+class GithubCode(OauthCode):
     def __init__(self):
-        super(GithubCallback, self).__init__('github_{0}', GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
-                                             'https://github.com/login/oauth/access_token',
-                                             'http://dev.j0057.nl/oauth/github/callback/',
-                                             'http://dev.j0057.nl/oauth/index.xhtml')
+        super(GithubCode, self).__init__('github_{0}', GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
+                                         'https://github.com/login/oauth/access_token',
+                                         'http://dev.j0057.nl/oauth/github/callback/',
+                                         'http://dev.j0057.nl/oauth/index.xhtml')
 
-class FacebookCallback(OauthCallback):
+class FacebookCode(OauthCode):
     def __init__(self):
-        super(FacebookCallback, self).__init__('facebook_{0}', FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
-                                               'https://graph.facebook.com/oauth/access_token',
-                                               'http://dev.j0057.nl/oauth/facebook/callback/',
-                                               'http://dev.j0057.nl/oauth/index.xhtml')
+        super(FacebookCode, self).__init__('facebook_{0}', FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
+                                           'https://graph.facebook.com/oauth/access_token',
+                                           'http://dev.j0057.nl/oauth/facebook/callback/',
+                                           'http://dev.j0057.nl/oauth/index.xhtml')
 
-    def get_token(self, code): # facebook returns x-www-form-urlencoded instead of json...
+    def get_token(self, code): 
+        # post to a URL with GET-parameters and get a URL-encoded form in return, even when asking for JSON
+        # XXX: not sure if facebook is going to accept &grant_type=authorization_code!
         r = requests.post(
-            'https://graph.facebook.com/oauth/access_token',
+            self.token_uri,
             params={
                 'client_id': FACEBOOK_CLIENT_ID,
                 'client_secret': FACEBOOK_CLIENT_SECRET,
-                'redirect_uri': 'http://dev.j0057.nl/oauth/facebook/callback/',
-                'code': code },
+                'redirect_uri': self.redirect_uri,
+                'code': code,
+                'grant_type': 'authorization_code' },
             headers={ 'accept': 'application/json' })
+        if r.status_code != 200:
+            raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': r.text.encode('utf8') })
         data = urlparse.parse_qs(r.content)
         return data['access_token'][0]
 
-class LiveCallback(OauthCallback):
+class LiveCode(OauthCode):
     def __init__(self):
-        super(LiveCallback, self).__init__('live_{0}', LIVE_CLIENT_ID, LIVE_CLIENT_SECRET,
-                                           'https://login.live.com/oauth20_token.srf',
-                                           'http://dev.j0057.nl/oauth/live/callback/',
-                                           'http://dev.j0057.nl/oauth/index.xhtml')
+        super(LiveCode, self).__init__('live_{0}', LIVE_CLIENT_ID, LIVE_CLIENT_SECRET,
+                                       'https://login.live.com/oauth20_token.srf',
+                                       'http://dev.j0057.nl/oauth/live/callback/',
+                                       'http://dev.j0057.nl/oauth/index.xhtml')
                                            
-class GoogleCallback(OauthCallback):
+class GoogleCode(OauthCode):
     def __init__(self):
-        super(GoogleCallback, self).__init__('google_{0}', GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
-                                             'https://accounts.google.com/o/oauth2/token',
-                                             'http://dev.j0057.nl/oauth/google/callback/',
-                                             'http://dev.j0057.nl/oauth/index.xhtml')
+        super(GoogleCode, self).__init__('google_{0}', GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
+                                         'https://accounts.google.com/o/oauth2/token',
+                                         'http://dev.j0057.nl/oauth/google/callback/',
+                                         'http://dev.j0057.nl/oauth/index.xhtml')
 
-class DropboxCallback(OauthCallback):
+class DropboxCode(OauthCode):
     def __init__(self):
-        super(DropboxCallback, self).__init__('dropbox_{0}', DROPBOX_CLIENT_ID, DROPBOX_CLIENT_SECRET,
-                                              'https://api.dropbox.com/1/oauth2/token',
-                                              'https://dev.j0057.nl/oauth/dropbox/callback/',
-                                              'https://dev.j0057.nl/oauth/index.xhtml')
+        super(DropboxCode, self).__init__('dropbox_{0}', DROPBOX_CLIENT_ID, DROPBOX_CLIENT_SECRET,
+                                           'https://api.dropbox.com/1/oauth2/token',
+                                           'https://dev.j0057.nl/oauth/dropbox/callback/',
+                                           'https://dev.j0057.nl/oauth/index.xhtml')
 
 #
-# Request
+# OauthApi
 #
 
-class OauthRequest(xhttp.Resource):
+class OauthApi(xhttp.Resource):
     def __init__(self, key_fmt, base_uri):
-        super(OauthRequest, self).__init__()
+        super(OauthApi, self).__init__()
         self.key_fmt = key_fmt
         self.base_uri = base_uri
 
@@ -213,30 +219,30 @@ class OauthRequest(xhttp.Resource):
         path = self.base_uri + path
         params = { k: v[0] for (k, v) in urlparse.parse_qs(request['x-query-string']).items() }
         params.update({ 'access_token': request['x-session'].get(self.key_fmt.format('token'), '') })
-        response = requests.get( path, params=params, headers={ 'accept': 'application/json' })
+        response = requests.get(path, params=params, headers={ 'accept': 'application/json' })
         return {
             'x-status': response.status_code,
             'content-type': response.headers['content-type'],
             'x-content': response.content }
 
-class GithubRequest(OauthRequest):
+class GithubApi(OauthApi):
     def __init__(self):
-        super(GithubRequest, self).__init__('github_{0}', 'https://api.github.com/')
+        super(GithubApi, self).__init__('github_{0}', 'https://api.github.com/')
 
-class FacebookRequest(OauthRequest):
+class FacebookApi(OauthApi):
     def __init__(self):
-        super(FacebookRequest, self).__init__('facebook_{0}', 'https://graph.facebook.com/')
+        super(FacebookApi, self).__init__('facebook_{0}', 'https://graph.facebook.com/')
 
-class LiveRequest(OauthRequest):
+class LiveRequest(OauthApi):
     def __init__(self):
-        super(LiveRequest, self).__init__('live_{0}', 'https://apis.live.net/v5.0/')
+        super(LiveApi, self).__init__('live_{0}', 'https://apis.live.net/v5.0/')
 
-class GoogleRequest(OauthRequest):
+class GoogleApi(OauthApi):
     def __init__(self):
-        super(GoogleRequest, self).__init__('google_{0}', 'https://www.googleapis.com/')
+        super(GoogleApi, self).__init__('google_{0}', 'https://www.googleapis.com/')
 
 #
-# /oauth/session/
+# Sessions
 #
 
 class SessionStart(xhttp.Resource):
@@ -276,44 +282,37 @@ class SessionCheck(xhttp.Resource):
             }
 
 #
-# /
+# Router
 #
 
 class OauthRouter(xhttp.Router):
     def __init__(self):
         super(OauthRouter, self).__init__(
-            (r'^/$',                            xhttp.Redirector('/oauth')),
-            
-            # static stuff
+            (r'^/$',                            xhttp.Redirector('/oauth/')),
             (r'^/oauth/$',                      xhttp.Redirector('index.xhtml')),
+            
             (r'^/oauth/(.*\.xhtml)$',           xhttp.FileServer('static', 'application/xhtml+xml')),
             (r'^/oauth/(.*\.js)$',              xhttp.FileServer('static', 'application/javascript')),
             
-            # google
             (r'^/oauth/google/authorize/$',     GoogleAuthorize()),
-            (r'^/oauth/google/callback/$',      GoogleCallback()),
-            (r'^/oauth/google/request/(.*)$',   GoogleRequest()),
+            (r'^/oauth/google/callback/$',      GoogleCode()),
+            (r'^/oauth/google/request/(.*)$',   GoogleApi()),
             
-            # live
             (r'^/oauth/live/authorize/$',       LiveAuthorize()),
-            (r'^/oauth/live/callback/$',        LiveCallback()),
-            (r'^/oauth/live/request/(.*)$',     LiveRequest()),
+            (r'^/oauth/live/callback/$',        LiveCode()),
+            (r'^/oauth/live/request/(.*)$',     LiveApi()),
             
-            # facebook
             (r'^/oauth/facebook/authorize/$',   FacebookAuthorize()),
-            (r'^/oauth/facebook/callback/$',    FacebookCallback()),
-            (r'^/oauth/facebook/request/(.*)$', FacebookRequest()),
+            (r'^/oauth/facebook/callback/$',    FacebookCode()),
+            (r'^/oauth/facebook/request/(.*)$', FacebookApi()),
             
-            # github
             (r'^/oauth/github/authorize/$',     GithubAuthorize()),
-            (r'^/oauth/github/callback/$',      GithubCallback()),
-            (r'^/oauth/github/request/(.*)$',   GithubRequest()),
+            (r'^/oauth/github/callback/$',      GithubCode()),
+            (r'^/oauth/github/request/(.*)$',   GithubApi()),
 
-            # dropbox
             (r'^/oauth/dropbox/authorize/$',    DropboxAuthorize()),
-            (r'^/oauth/dropbox/callback/$',     DropboxCallback()),
+            (r'^/oauth/dropbox/callback/$',     DropboxCode()),
             
-            # sessions
             (r'^/oauth/session/start/$',        SessionStart()),
             (r'^/oauth/session/delete/$',       SessionDelete()),
             (r'^/oauth/session/check/$',        SessionCheck())
