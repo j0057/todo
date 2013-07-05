@@ -173,8 +173,8 @@ class FacebookCode(OauthCode):
                 'client_id': FACEBOOK_CLIENT_ID,
                 'client_secret': FACEBOOK_CLIENT_SECRET,
                 'redirect_uri': self.callback_uri,
-                'code': code },
-                #'grant_type': 'authorization_code' },
+                'code': code,
+                'grant_type': 'authorization_code' },
             headers={ 'accept': 'application/json' })
         if r.status_code != 200:
             raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': r.text.encode('utf8') })
