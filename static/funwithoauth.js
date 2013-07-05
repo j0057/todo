@@ -171,6 +171,17 @@ document.addEventListener('DOMContentLoaded', function(e) {
         }
     });
 
+    document.querySelector("#dropbox_me").addEventListener("click", function(e) {
+        e.preventDefault();
+        request("GET", e.target.href, function(xhr) {
+            var me = JSON.parse(xhr.response);
+            document.querySelector("#dropbox_me_result").textContent = me.display_name 
+                + " <"
+                + me.quota_info.email
+                + ">";
+        });
+    });
+
     document.querySelector("#linkbag").addEventListener("click", function(e) {
         e.preventDefault();
         if (e.target.href) { 
