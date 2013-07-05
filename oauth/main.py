@@ -215,8 +215,10 @@ class OauthApi(xhttp.Resource):
     @xhttp.session('session_id', SESSIONS)
     def GET(self, request, path):
         path = self.base_uri + path
+        print path
         params = { k: v[0] for (k, v) in urlparse.parse_qs(request['x-query-string']).items() }
         params.update({ 'access_token': request['x-session'].get(self.key_fmt.format('token'), '') })
+        print params
         response = requests.get(path, params=params, headers={ 'accept': 'application/json' })
         return {
             'x-status': response.status_code,
@@ -244,8 +246,8 @@ class DropboxApi(OauthApi):
         super(DropboxApi, self).__init__('dropbox_{0}', 'https://api.dropbox.com/')
         
     def GET(self, request, path): # FIXME: path gets unquoted by xhttp ... 
-        path = ''.join(urlib.quote(part) for part in path.split('/'))
-        super(DropboxApi, self).GET(request, path)
+        path = '/'.join(urllib.quote(part) for part in path.split('/'))
+        return super(DropboxApi, self).GET(request, path)
         
 class DropboxContentApi(OauthApi):
     def __init__(self):

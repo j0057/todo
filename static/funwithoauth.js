@@ -191,11 +191,13 @@ document.addEventListener('DOMContentLoaded', function(e) {
                 JSON.parse(xhr.response)
                     .contents.map(function(item) {
                         console.log(item);
+                        var path = item.path.split("/").map(encodeURIComponent).join("/");
+                        var name = item.path.split("/").pop();
                         var li = xml([
                             "li",
                             item.is_dir 
-                                ? ["a", {href: "/oauth/dropbox/api/1/metadata/dropbox" + item.path, "class": "folder"}, item.path]
-                                : ["a", {href: "/oauth/dropbox/api/1/media/dropbox" + item.path, "class": "document"}, item.path],
+                                ? ["a", {href: "/oauth/dropbox/api/1/metadata/dropbox" + path, "class": "folder"}, name]
+                                : ["a", {href: "/oauth/dropbox/api/1/media/dropbox" + path, "class": "document"}, name],
                             item.is_dir ? ["ul"] : ""
                         ]);
                         ul.appendChild(li);
