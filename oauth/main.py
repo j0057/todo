@@ -45,7 +45,7 @@ load_keys('DROPBOX')
 
 class OauthInit(xhttp.Resource):
     def __init__(self, key_fmt, client_id, client_secret, authorize_uri, callback_uri):
-        super(OauthAuthorize, self).__init__()
+        super(OauthInit, self).__init__()
         self.key_fmt = key_fmt 
         self.client_id = client_id
         self.client_secret = client_secret
@@ -137,7 +137,7 @@ class OauthCode(xhttp.Resource):
         data = r.json()
         return data['access_token']
 
-    @xhttp.get({ 'code': r'^.+$', 'state': r'^[-0-9a-f]+$',
+    @xhttp.get({ 'code': r'^.+$', 'state': r'^[-_0-9a-zA-Z]+$',
                  'authuser?': '.*', 'prompt?': '.*', 'session_state?': '.*' })
     @xhttp.cookie({ 'session_id': '^(.+)$' })
     @xhttp.session('session_id', SESSIONS)
@@ -172,9 +172,9 @@ class FacebookCode(OauthCode):
             params={
                 'client_id': FACEBOOK_CLIENT_ID,
                 'client_secret': FACEBOOK_CLIENT_SECRET,
-                'redirect_uri': self.redirect_uri,
-                'code': code,
-                'grant_type': 'authorization_code' },
+                'redirect_uri': self.callback_uri,
+                'code': code },
+                #'grant_type': 'authorization_code' },
             headers={ 'accept': 'application/json' })
         if r.status_code != 200:
             raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': r.text.encode('utf8') })
@@ -232,7 +232,7 @@ class FacebookApi(OauthApi):
     def __init__(self):
         super(FacebookApi, self).__init__('facebook_{0}', 'https://graph.facebook.com/')
 
-class LiveRequest(OauthApi):
+class LiveApi(OauthApi):
     def __init__(self):
         super(LiveApi, self).__init__('live_{0}', 'https://apis.live.net/v5.0/')
 
