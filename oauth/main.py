@@ -166,7 +166,6 @@ class FacebookCode(OauthCode):
 
     def get_token(self, code): 
         # post to a URL with GET-parameters and get a URL-encoded form in return, even when asking for JSON
-        # XXX: not sure if facebook is going to accept &grant_type=authorization_code!
         r = requests.post(
             self.token_uri,
             params={
@@ -240,6 +239,14 @@ class GoogleApi(OauthApi):
     def __init__(self):
         super(GoogleApi, self).__init__('google_{0}', 'https://www.googleapis.com/')
 
+class DropboxApi(OauthApi):
+    def __init__(self):
+        super(DropboxApi, self).__init__('dropbox_{0}', 'https://api.dropbox.com/')
+        
+class DropboxContentApi(OauthApi):
+    def __init__(self):
+        super(DropboxContentApi, self).__init__('dropbox_{0}', 'https://content-api.dropbox.com/')
+
 #
 # Sessions
 #
@@ -311,6 +318,8 @@ class OauthRouter(xhttp.Router):
 
             (r'^/oauth/dropbox/init/$',         DropboxInit()),
             (r'^/oauth/dropbox/code/$',         DropboxCode()),
+            (r'^/oauth/dropbox/api/$',          DropboxApi()),
+            (r'^/oauth/dropbox/content/$',      DropboxContent()),
             
             (r'^/oauth/session/start/$',        SessionStart()),
             (r'^/oauth/session/delete/$',       SessionDelete()),
