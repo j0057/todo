@@ -243,6 +243,10 @@ class DropboxApi(OauthApi):
     def __init__(self):
         super(DropboxApi, self).__init__('dropbox_{0}', 'https://api.dropbox.com/')
         
+    def GET(self, request, path): # FIXME: path gets unquoted by xhttp ... 
+        path = ''.join(urlib.quote(part) for part in path.split('/'))
+        super(DropboxApi, self).GET(request, path)
+        
 class DropboxContentApi(OauthApi):
     def __init__(self):
         super(DropboxContentApi, self).__init__('dropbox_{0}', 'https://api-content.dropbox.com/')
