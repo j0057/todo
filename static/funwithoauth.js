@@ -182,6 +182,32 @@ document.addEventListener('DOMContentLoaded', function(e) {
         });
     });
 
+    document.querySelector("#dropbox_browser").addEventListener("click", function(e) {
+        e.preventDefault();
+        if (e.target.className == "folder") {
+            var ul = e.target.parentNode.querySelector("ul");
+            empty(ul);
+            request("GET", e.target.href, function(xhr) {
+                JSON.parse(xhr.response)
+                    .contents.map(function(item) {
+                        console.log(item);
+                        var li = xml([
+                            "li",
+                            item.is_dir 
+                                ? ["a", {href: "/oauth/dropbox/api/1/metadata/dropbox" + item.path, "class": "folder"}]
+                                : ["a", {href: "/oauth/dropbox/api/1/media/dropbox" + item.path, "class": "document"}]
+                        ]);
+                    });
+            });
+        }
+        else if (e.target.className == "document" {
+            request("GET", e.target.href, function(xhr) {
+                var media = JSON.parse(xhr.response);
+                window.open(media.url);
+            });
+        }
+    });
+
     document.querySelector("#linkbag").addEventListener("click", function(e) {
         e.preventDefault();
         if (e.target.href) { 
