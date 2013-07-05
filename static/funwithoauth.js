@@ -194,13 +194,15 @@ document.addEventListener('DOMContentLoaded', function(e) {
                         var li = xml([
                             "li",
                             item.is_dir 
-                                ? ["a", {href: "/oauth/dropbox/api/1/metadata/dropbox" + item.path, "class": "folder"}]
-                                : ["a", {href: "/oauth/dropbox/api/1/media/dropbox" + item.path, "class": "document"}]
+                                ? ["a", {href: "/oauth/dropbox/api/1/metadata/dropbox" + item.path, "class": "folder"}, item.path]
+                                : ["a", {href: "/oauth/dropbox/api/1/media/dropbox" + item.path, "class": "document"}, item.path],
+                            item.is_dir ? ["ul"] : ""
                         ]);
+                        ul.appendChild(li);
                     });
             });
         }
-        else if (e.target.className == "document" {
+        else if (e.target.className == "document") {
             request("GET", e.target.href, function(xhr) {
                 var media = JSON.parse(xhr.response);
                 window.open(media.url);

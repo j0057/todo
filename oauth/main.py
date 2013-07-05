@@ -245,7 +245,7 @@ class DropboxApi(OauthApi):
         
 class DropboxContentApi(OauthApi):
     def __init__(self):
-        super(DropboxContentApi, self).__init__('dropbox_{0}', 'https://content-api.dropbox.com/')
+        super(DropboxContentApi, self).__init__('dropbox_{0}', 'https://api-content.dropbox.com/')
 
 #
 # Sessions
