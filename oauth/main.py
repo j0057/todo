@@ -319,7 +319,7 @@ class OauthRouter(xhttp.Router):
             (r'^/oauth/dropbox/init/$',         DropboxInit()),
             (r'^/oauth/dropbox/code/$',         DropboxCode()),
             (r'^/oauth/dropbox/api/$',          DropboxApi()),
-            (r'^/oauth/dropbox/content/$',      DropboxContent()),
+            (r'^/oauth/dropbox/content/$',      DropboxContentApi()),
             
             (r'^/oauth/session/start/$',        SessionStart()),
             (r'^/oauth/session/delete/$',       SessionDelete()),
