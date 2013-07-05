@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
             var me = JSON.parse(xhr.response);
             document.querySelector("#dropbox_me_result").textContent = me.display_name 
                 + " <"
-                + me.quota_info.email
+                + me.email
                 + ">";
         });
     });
