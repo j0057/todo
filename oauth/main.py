@@ -39,6 +39,21 @@ load_keys('LIVE')
 load_keys('GOOGLE')
 load_keys('DROPBOX')
 
+
+def print_exchange(r, result):
+    print '>', r.request.method, r.request.url
+    for k in sorted(k.title() for k in r.request.headers.keys()):
+        print '>', k.title(), ':', r.request.headers[k] 
+    print '>'
+    print '>', r.request.body
+    print
+    print '<', r.status_code, r.reason
+    for k in sorted(k.title() for k in r.headers.keys()):
+        print '<', k.title(), ':', r.headers[k]
+    print '<'
+    print '<', result
+    print
+
 #
 # OauthInit
 #
@@ -135,6 +150,7 @@ class OauthCode(xhttp.Resource):
         if r.status_code != 200:
             raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': r.text.encode('utf8') })
         data = r.json()
+        print_exchange(r, data)
         return data['access_token']
 
     @xhttp.get({ 'code': r'^.+$', 'state': r'^[-_0-9a-zA-Z]+$',
@@ -178,6 +194,7 @@ class FacebookCode(OauthCode):
         if r.status_code != 200:
             raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': r.text.encode('utf8') })
         data = urlparse.parse_qs(r.content)
+        print_exchange(r, data)
         return data['access_token'][0]
 
 class LiveCode(OauthCode):
@@ -215,11 +232,10 @@ class OauthApi(xhttp.Resource):
     @xhttp.session('session_id', SESSIONS)
     def GET(self, request, path):
         path = self.base_uri + path
-        print path
         params = { k: v[0] for (k, v) in urlparse.parse_qs(request['x-query-string']).items() }
         params.update({ 'access_token': request['x-session'].get(self.key_fmt.format('token'), '') })
-        print params
         response = requests.get(path, params=params, headers={ 'accept': 'application/json' })
+        print_exchange(response, response.content)
         return {
             'x-status': response.status_code,
             'content-type': response.headers['content-type'],
