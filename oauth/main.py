@@ -41,6 +41,7 @@ load_keys('DROPBOX')
 
 
 def print_exchange(r, result):
+    print
     print '>', r.request.method, r.request.url
     for k in sorted(k.title() for k in r.request.headers.keys()):
         print '>', k.title(), ':', r.request.headers[k] 
@@ -181,16 +182,17 @@ class FacebookCode(OauthCode):
                                            'https://dev.j0057.nl/oauth/index.xhtml')
 
     def get_token(self, code): 
-        # post to a URL with GET-parameters and get a URL-encoded form in return, even when asking for JSON
         r = requests.post(
             self.token_uri,
-            params={
+            data={
                 'client_id': FACEBOOK_CLIENT_ID,
                 'client_secret': FACEBOOK_CLIENT_SECRET,
                 'redirect_uri': self.callback_uri,
                 'code': code,
                 'grant_type': 'authorization_code' },
-            headers={ 'accept': 'application/json' })
+            headers={ 
+                'accept': 'application/json',
+                'content-type': 'application/x-www-form-urlencoded' })
         if r.status_code != 200:
             raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': r.text.encode('utf8') })
         data = urlparse.parse_qs(r.content)
