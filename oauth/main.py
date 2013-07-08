@@ -347,6 +347,7 @@ class OauthRouter(xhttp.Router):
             (r'^/oauth/dropbox/code/$',         DropboxCode()),
             (r'^/oauth/dropbox/api/(.*)$',      DropboxApi()),
             (r'^/oauth/dropbox/content/(.*)$',  DropboxContentApi()),
+            (r'^/oauth/dropbox/(.*\.gif)$',     xhttp.FileServer('static/dropbox/16x16', 'image/gif')),
             
             (r'^/oauth/session/start/$',        SessionStart()),
             (r'^/oauth/session/delete/$',       SessionDelete()),

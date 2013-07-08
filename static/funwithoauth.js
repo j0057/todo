@@ -195,6 +195,8 @@ document.addEventListener('DOMContentLoaded', function(e) {
                         var name = item.path.split("/").pop();
                         var li = xml([
                             "li",
+                            ["img", {src: "/oauth/dropbox/" + item.icon + ".gif"}],
+                            " ",
                             item.is_dir 
                                 ? ["a", {href: "/oauth/dropbox/api/1/metadata/dropbox" + path, "class": "folder"}, name]
                                 : ["a", {href: "/oauth/dropbox/api/1/media/dropbox" + path, "class": "document"}, name],
