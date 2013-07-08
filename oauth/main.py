@@ -1,4 +1,5 @@
 import os
+import re
 import urlparse
 import urllib
 
@@ -39,8 +40,11 @@ load_keys('LIVE')
 load_keys('GOOGLE')
 load_keys('DROPBOX')
 
+#
+# utility functions
+#
 
-def print_exchange(r, result):
+def print_exchange(r):
     print
     print '>', r.request.method, r.request.url
     for k in sorted(k.title() for k in r.request.headers.keys()):
@@ -52,8 +56,15 @@ def print_exchange(r, result):
     for k in sorted(k.title() for k in r.headers.keys()):
         print '<', k.title(), ':', r.headers[k]
     print '<'
-    print '<', result
+    for line in re.split(r'[\r\n]+', r.text):
+        print '<', line
     print
+
+def split_mime_header(header_val):
+    parts = re.split(r';\s*', header_val)
+    value = parts[0]
+    attrs = dict(attr.split('=', 1) for attr in parts[1:])
+    return value, attrs
 
 #
 # OauthInit
@@ -136,7 +147,6 @@ class OauthCode(xhttp.Resource):
         self.redirect_uri = redirect_uri
 
     def get_token(self, code):
-        # post a URL-encoded form and get JSON in return
         r = requests.post(
             self.token_uri,
             data={
@@ -146,13 +156,24 @@ class OauthCode(xhttp.Resource):
                 'code': code,
                 'grant_type': 'authorization_code' },
             headers={
-                'accept': 'application/json',
+                'accept': 'application/json, application/x-www-form-urlencoded;q=0.9, text/plain;q=0.1',
                 'content-type': 'application/x-www-form-urlencoded' })
+
         if r.status_code != 200:
             raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': r.text.encode('utf8') })
-        data = r.json()
-        print_exchange(r, data)
-        return data['access_token']
+
+        print_exchange(r)
+
+        content_type, _ = split_mime_header(r.headers['content-type'])
+        if content_type == 'application/json':
+            data = r.json()
+            return data['access_token']
+        elif content_type == 'application/x-www-form-urlencoded' or content_type == 'text/plain':
+            data = urlparse.parse_qs(r.content)
+            return data['access_token'][0]
+        else:
+            raise xhttp.HTTPException(xhttp.status.NOT_IMPLEMENTED, { 
+                'x-detail': "Don't know how to handle content type {0}".format(content_type) })
 
     @xhttp.get({ 'code': r'^.+$', 'state': r'^[-_0-9a-zA-Z]+$',
                  'authuser?': '.*', 'prompt?': '.*', 'session_state?': '.*' })
@@ -180,24 +201,6 @@ class FacebookCode(OauthCode):
                                            'https://graph.facebook.com/oauth/access_token',
                                            'https://dev.j0057.nl/oauth/facebook/code/',
                                            'https://dev.j0057.nl/oauth/index.xhtml')
-
-    def get_token(self, code): 
-        r = requests.post(
-            self.token_uri,
-            data={
-                'client_id': FACEBOOK_CLIENT_ID,
-                'client_secret': FACEBOOK_CLIENT_SECRET,
-                'redirect_uri': self.callback_uri,
-                'code': code,
-                'grant_type': 'authorization_code' },
-            headers={ 
-                'accept': 'application/json',
-                'content-type': 'application/x-www-form-urlencoded' })
-        if r.status_code != 200:
-            raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': r.text.encode('utf8') })
-        data = urlparse.parse_qs(r.content)
-        print_exchange(r, data)
-        return data['access_token'][0]
 
 class LiveCode(OauthCode):
     def __init__(self):
@@ -237,7 +240,7 @@ class OauthApi(xhttp.Resource):
         params = { k: v[0] for (k, v) in urlparse.parse_qs(request['x-query-string']).items() }
         params.update({ 'access_token': request['x-session'].get(self.key_fmt.format('token'), '') })
         response = requests.get(path, params=params, headers={ 'accept': 'application/json' })
-        print_exchange(response, response.content)
+        print_exchange(response)
         return {
             'x-status': response.status_code,
             'content-type': response.headers['content-type'],
