@@ -218,11 +218,11 @@ document.addEventListener('DOMContentLoaded', function(e) {
         e.preventDefault();
         request("GET", e.target.href, function(xhr) { 
             document.querySelector("#linkedin_me_result").textContent 
-                = xhr.responseXML.querySelector("person first-name")
+                = xhr.responseXML.querySelector("person first-name").textContent
                 + " "
-                + xhr.responseXML.querySelector("person last-name")
+                + xhr.responseXML.querySelector("person last-name").textContent
                 + ", "
-                + xhr.responseXML.querySelector("person headline");
+                + xhr.responseXML.querySelector("person headline").textContent;
         });
     });
 
