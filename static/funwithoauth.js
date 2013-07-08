@@ -213,6 +213,18 @@ document.addEventListener('DOMContentLoaded', function(e) {
             });
         }
     });
+    
+    document.querySelector("#linkedin_me").addEventListener("click", function(e) {
+        e.preventDefault();
+        request("GET", e.target.href, function(xhr) { 
+            document.querySelector("#linkedin_me_result").textContent 
+                = xhr.responseXML.querySelector("person first-name")
+                + " "
+                + xhr.responseXML.querySelector("person last-name")
+                + ", "
+                + xhr.responseXML.querySelector("person headline");
+        });
+    });
 
     document.querySelector("#linkbag").addEventListener("click", function(e) {
         e.preventDefault();
