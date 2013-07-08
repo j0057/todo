@@ -39,6 +39,7 @@ load_keys('FACEBOOK')
 load_keys('LIVE')
 load_keys('GOOGLE')
 load_keys('DROPBOX')
+load_keys('LINKEDIN')
 
 #
 # utility functions
@@ -132,6 +133,12 @@ class DropboxInit(OauthInit):
                                           'https://www.dropbox.com/1/oauth2/authorize',
                                           'https://dev.j0057.nl/oauth/dropbox/code/')
 
+class LinkedinInit(OauthInit):
+    def __init__(self):
+        super(LinkedinInit, self).__init__('linkedin_{0}', LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET,
+                                           'https://www.linkedin.com/uas/oauth2/authorization',
+                                           'https://dev.j0057.nl/oauth/linkedin/code/')
+
 #
 # OauthCode
 #
@@ -223,22 +230,30 @@ class DropboxCode(OauthCode):
                                            'https://dev.j0057.nl/oauth/dropbox/code/',
                                            'https://dev.j0057.nl/oauth/index.xhtml')
 
+class LinkedinCode(OauthCode):
+    def __init__(self):
+        super(LinkedinCode, self).__init__('linkedin_{0}', LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET,
+                                           'https://www.linkedin.com/uas/oauth2/accessToken',
+                                           'https://dev.j0057.nl/oauth/linkedin/code/',
+                                           'https://dev.j0057.nl/oauth/index.xhtml')
+                                           
 #
 # OauthApi
 #
 
 class OauthApi(xhttp.Resource):
-    def __init__(self, key_fmt, base_uri):
+    def __init__(self, key_fmt, base_uri, access_token='access_token'):
         super(OauthApi, self).__init__()
         self.key_fmt = key_fmt
         self.base_uri = base_uri
+        self.access_token = access_token
 
     @xhttp.cookie({ 'session_id': '^(.+)$' })
     @xhttp.session('session_id', SESSIONS)
     def GET(self, request, path):
         path = self.base_uri + path
         params = { k: v[0] for (k, v) in urlparse.parse_qs(request['x-query-string']).items() }
-        params.update({ 'access_token': request['x-session'].get(self.key_fmt.format('token'), '') })
+        params.update({ self.access_token: request['x-session'].get(self.key_fmt.format('token'), '') })
         response = requests.get(path, params=params, headers={ 'accept': 'application/json' })
         print_exchange(response)
         return {
@@ -273,6 +288,10 @@ class DropboxApi(OauthApi):
 class DropboxContentApi(OauthApi):
     def __init__(self):
         super(DropboxContentApi, self).__init__('dropbox_{0}', 'https://api-content.dropbox.com/')
+
+class LinkedinApi(OauthApi):
+    def __init__(self):
+        super(LinkedinApi, self).__init__('linkedin_{0}', 'https://api.linkedin.com/', 'oauth2_access_token')
 
 #
 # Sessions
@@ -348,6 +367,10 @@ class OauthRouter(xhttp.Router):
             (r'^/oauth/dropbox/api/(.*)$',      DropboxApi()),
             (r'^/oauth/dropbox/content/(.*)$',  DropboxContentApi()),
             (r'^/oauth/dropbox/(.*\.gif)$',     xhttp.FileServer('static/dropbox/16x16', 'image/gif')),
+            
+            (r'^/oauth/linkedin/init/$',        LinkedinInit()),
+            (r'^/oauth/linkedin/code/$',        LinkedinCode()),
+            (r'^/oauth/linkedin/api/(.*)$',     LinkedinApi()),
             
             (r'^/oauth/session/start/$',        SessionStart()),
             (r'^/oauth/session/delete/$',       SessionDelete()),
