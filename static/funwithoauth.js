@@ -33,18 +33,22 @@ var empty = function(node) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function(e) {
-    var links = document.querySelectorAll("a.authorize");
-    for (var i = 0; i < links.length; i++) {
-        links[i].href += links[i].href.indexOf("?") > -1
-            ? "&" + document.cookie
-            : "?" + document.cookie;
-        links[i].focus();
-        links[i].blur();
-    }
+var qsa = function(expr, ctx) {
+    return Array.prototype.slice.call((ctx || document).querySelectorAll(expr));
+};
 
+document.addEventListener('DOMContentLoaded', function(e) {
     request('GET', '/oauth/session/check/', function(xhr) {
         document.querySelector('#session_id').textContent = document.cookie;
+
+        qsa("a.authorize")
+            .map(function(link) {
+                link.href += links[i].href.indexOf("?") > -1
+                    ? "&" + document.cookie
+                    : "?" + document.cookie;
+                link.focus();
+                link.blur();
+        });
     });
 
     document.querySelector('#github_user').addEventListener('click', function(e) {
