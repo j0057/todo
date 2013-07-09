@@ -33,16 +33,13 @@ var empty = function(node) {
     }
 }
 
-var qsa = function(expr, ctx) {
-    return Array.prototype.slice.call((ctx || document).querySelectorAll(expr));
-};
-
 document.addEventListener('DOMContentLoaded', function(e) {
     request('GET', '/oauth/session/check/', function(xhr) {
         document.querySelector('#session_id').textContent = document.cookie;
 
-        qsa("a.authorize")
-            .map(function(link) {
+        document.querySelectorAll("a.authorize")
+            .toArray()
+            .forEach(function(link) {
                 link.href += links[i].href.indexOf("?") > -1
                     ? "&" + document.cookie
                     : "?" + document.cookie;
