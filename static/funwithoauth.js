@@ -239,8 +239,11 @@ document.addEventListener('DOMContentLoaded', function(e) {
                 .forEach(function(person) {
                     if (person.querySelector("id").textContent == "private")
                         return;
+                    var picture = person.querySelector("picture-url");
+                    if (!picture)
+                        return;
                     var img = xml(["img", {
-                        src: person.querySelector("picture-url").textContent,
+                        src: picture.textContent,
                         title: person.querySelector("first-name").textContent
                             + " "
                             + person.querySelector("last-name").textContent
