@@ -35,17 +35,14 @@ var empty = function(node) {
     }
 }
 
-var qsa = function(expr, ctx) {
-    return Array.prototype.slice.call((ctx || document).querySelectorAll(expr));
-};
-
 document.addEventListener('DOMContentLoaded', function(e) {
     request('GET', '/oauth/session/check/', function(xhr) {
         document.querySelector('#session_id').textContent = document.cookie;
 
-        qsa("a.authorize")
-            .map(function(link) {
-                link.href += link.href.indexOf("?") > -1
+        document.querySelectorAll("a.authorize")
+            .toArray()
+            .forEach(function(link) {
+                link.href += links[i].href.indexOf("?") > -1
                     ? "&" + document.cookie
                     : "?" + document.cookie;
                 link.focus();
@@ -230,6 +227,27 @@ document.addEventListener('DOMContentLoaded', function(e) {
                 + ", "
                 + xhr.responseXML.querySelector("person headline").textContent;
         });
+    });
+    
+    document.querySelector("#linkedin_friends").addEventListener("click", function(e) {
+        e.preventDefault();
+        request("GET", e.target.href, function(xhr) {
+            var div = document.querySelector("#linkedin_friends_result");
+            xhr.responseXML
+                .querySelectorAll("connections person")
+                .toArray()
+                .forEach(function(person) {
+                    if (person.querySelector("id") == "private")
+                        return;
+                    var img = xml(["img", {
+                        src: person.querySelector("picture-url").textContent,
+                        title: person.querySelector("first-name").textContent
+                            + " "
+                            + person.querySelector("last-name").textContent
+                    }]);
+                    div.appendChild(img);
+                });
+       });
     });
 
     document.querySelector("#linkbag").addEventListener("click", function(e) {
