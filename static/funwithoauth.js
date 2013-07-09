@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
         document.querySelectorAll("a.authorize")
             .toArray()
             .forEach(function(link) {
-                link.href += links[i].href.indexOf("?") > -1
+                link.href += link.href.indexOf("?") > -1
                     ? "&" + document.cookie
                     : "?" + document.cookie;
                 link.focus();
