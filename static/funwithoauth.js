@@ -229,6 +229,27 @@ document.addEventListener('DOMContentLoaded', function(e) {
                 + xhr.responseXML.querySelector("person headline").textContent;
         });
     });
+    
+    document.querySelector("#linkedin_friends").addEventListener("click", function(e) {
+        e.preventDefault();
+        request("GET", e.target.href, function(xhr) {
+            var div = document.querySelector("#linkedin_friends_result");
+            xhr.responseXML
+                .querySelectorAll("connections person")
+                .toArray()
+                .forEach(function(person) {
+                    if (person.querySelector("id") == "private")
+                        return;
+                    var img = xml(["img", {
+                        src: person.querySelector("picture-url").textContent,
+                        title: person.querySelector("first-name").textContent
+                            + " "
+                            + person.querySelector("last-name").textContent
+                    }]);
+                    div.appendChild(img);
+                });
+       });
+    });
 
     document.querySelector("#linkbag").addEventListener("click", function(e) {
         e.preventDefault();
