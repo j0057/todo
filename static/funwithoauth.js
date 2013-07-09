@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
                 .querySelectorAll("connections person")
                 .toArray()
                 .forEach(function(person) {
-                    if (person.querySelector("id") == "private")
+                    if (person.querySelector("id").textContent == "private")
                         return;
                     var img = xml(["img", {
                         src: person.querySelector("picture-url").textContent,
