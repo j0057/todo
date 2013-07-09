@@ -1,3 +1,5 @@
+NodeList.prototype.toArray = function() { return Array.prototype.slice.call(this); };
+
 var request = function(method, url, handler) {
     var xhr = new XMLHttpRequest();
     xhr.open(method, url, true);
@@ -43,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
         qsa("a.authorize")
             .map(function(link) {
-                link.href += links[i].href.indexOf("?") > -1
+                link.href += link.href.indexOf("?") > -1
                     ? "&" + document.cookie
                     : "?" + document.cookie;
                 link.focus();
