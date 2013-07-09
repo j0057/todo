@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import urlparse
@@ -325,12 +326,27 @@ class SessionCheck(xhttp.Resource):
         session_id = request['x-cookie'].get('session_id', None)
         if session_id and session_id not in SESSIONS:
             return {
-                'x-status': xhttp.status.NO_CONTENT,
-                'set-cookie': 'session_id=; Path=/oauth/; Expires=Sat, 01 Jan 2000 00:00:00 GMT'
+                'x-status': xhttp.status.OK,
+                'x-content': json.dumps({
+                    'session': False
+                }),
+                'content-type': 'application/json',
+                'set-cookie': 'session_id=; Path=/oauth/; Expires=Sat, 01 Jan 2000 00:00:00 GMT',
             }
         else:
+            session = SESSIONS[session_id]
             return {
-                'x-status': xhttp.status.NO_CONTENT
+                'x-status': xhttp.status.OK,
+                'x-content': json.dumps({
+                    'session': True,
+                    'github': 'github_token' in session,
+                    'facebook': 'facebook_token' in session,
+                    'live': 'live_token' in session,
+                    'google': 'google_token' in session,
+                    'dropbox': 'dropbox_token' in session,
+                    'linkedin': 'linkedin_token' in session
+                }),
+                'content-type': 'application/json'
             }
 
 #
