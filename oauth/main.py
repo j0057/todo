@@ -41,6 +41,7 @@ load_keys('LIVE')
 load_keys('GOOGLE')
 load_keys('DROPBOX')
 load_keys('LINKEDIN')
+load_keys('REDDIT')
 
 #
 # utility functions
@@ -140,6 +141,12 @@ class LinkedinInit(OauthInit):
                                            'https://www.linkedin.com/uas/oauth2/authorization',
                                            'https://dev.j0057.nl/oauth/linkedin/code/')
 
+class RedditInit(OauthInit):
+    def __init__(self):
+        super(RedditInit, self).__init__('reddit_{0}', REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET,
+                                         'https://ssl.reddit.com/api/v1/authorize',
+                                         'https://dev.j0057.nl/oauth/reddit/code/')
+
 #
 # OauthCode
 #
@@ -238,6 +245,13 @@ class LinkedinCode(OauthCode):
                                            'https://dev.j0057.nl/oauth/linkedin/code/',
                                            'https://dev.j0057.nl/oauth/index.xhtml')
                                            
+class RedditCode(OauthCode):
+    def __init__(self):
+        super(RedditCode, self).__init__('reddit_{0}', REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET,
+                                         'https://ssl.reddit.com/api/v1/access_token',
+                                         'https://dev.j0057.nl/oauth/reddit/code/',
+                                         'https://dev.j0057.nl/oauth/index.xhtml')
+
 #
 # OauthApi
 #
@@ -293,6 +307,10 @@ class DropboxContentApi(OauthApi):
 class LinkedinApi(OauthApi):
     def __init__(self):
         super(LinkedinApi, self).__init__('linkedin_{0}', 'https://api.linkedin.com/', 'oauth2_access_token')
+
+class RedditApi(OauthApi):
+    def __init__(self):
+        super(RedditApi, self).__init__('reddit_{0}', 'https://oauth.reddit.com/')
 
 #
 # Sessions
@@ -387,6 +405,10 @@ class OauthRouter(xhttp.Router):
             (r'^/oauth/linkedin/init/$',        LinkedinInit()),
             (r'^/oauth/linkedin/code/$',        LinkedinCode()),
             (r'^/oauth/linkedin/api/(.*)$',     LinkedinApi()),
+            
+            (r'^/oauth/reddit/init/$',          RedditInit()),
+            (r'^/oauth/reddit/code/$',          RedditCode()),
+            (r'^/oauth/reddit/api/(.*)$',       RedditApi()),
             
             (r'^/oauth/session/start/$',        SessionStart()),
             (r'^/oauth/session/delete/$',       SessionDelete()),
