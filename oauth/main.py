@@ -174,10 +174,10 @@ class OauthCode(xhttp.Resource):
                 'accept': 'application/json, application/x-www-form-urlencoded;q=0.9, text/plain;q=0.1',
                 'content-type': 'application/x-www-form-urlencoded' })
 
+        print_exchange(r)
+
         if r.status_code != 200:
             raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': r.text.encode('utf8') })
-
-        print_exchange(r)
 
         content_type, _ = split_mime_header(r.headers['content-type'])
         if content_type == 'application/json':
