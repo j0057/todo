@@ -161,18 +161,26 @@ class OauthCode(xhttp.Resource):
         self.callback_uri = callback_uri
         self.redirect_uri = redirect_uri
 
+    def get_form(self, code):
+        return {
+            'client_id': self.client_id,
+            'client_secret': self.client_secret,
+            'redirect_uri': self.callback_uri,
+            'code': code,
+            'grant_type': 'authorization_code' }
+
+    def get_headers(self):
+        headers = {
+            'accept': 'application/json, application/x-www-form-urlencoded;q=0.9, text/plain;q=0.1',
+            'content-type': 'application/x-www-form-urlencoded' }
+        headers.update(self.get_authorization())
+        return headers
+
+    def get_authorization(self):
+        return {}
+
     def get_token(self, code):
-        r = requests.post(
-            self.token_uri,
-            data={
-                'client_id': self.client_id,
-                'client_secret': self.client_secret,
-                'redirect_uri': self.callback_uri,
-                'code': code,
-                'grant_type': 'authorization_code' },
-            headers={
-                'accept': 'application/json, application/x-www-form-urlencoded;q=0.9, text/plain;q=0.1',
-                'content-type': 'application/x-www-form-urlencoded' })
+        r = requests.post(self.token_uri, data=self.get_form(code), headers=self.get_headers())
 
         print_exchange(r)
 
@@ -252,6 +260,10 @@ class RedditCode(OauthCode):
                                          'https://dev.j0057.nl/oauth/reddit/code/',
                                          'https://dev.j0057.nl/oauth/index.xhtml')
 
+    def get_authorization(self):
+        auth = 'Basic ' + '{0}:{1}'.format(self.client_id, self.client_secret).encode('base64')[:-1]
+        return { 'authorization': auth }
+
 #
 # OauthApi
 #
@@ -269,7 +281,10 @@ class OauthApi(xhttp.Resource):
         path = self.base_uri + path
         params = { k: v[0] for (k, v) in urlparse.parse_qs(request['x-query-string']).items() }
         params.update({ self.access_token: request['x-session'].get(self.key_fmt.format('token'), '') })
-        response = requests.get(path, params=params, headers={ 'accept': 'application/json' })
+        headers = { 'accept': 'application/json',
+        #            'authorization': 'Bearer {0}'.format(request['x-session'].get(self.key_fmt.format('token'), '')) 
+        }
+        response = requests.get(path, params=params, headers=headers)
         print_exchange(response)
         return {
             'x-status': response.status_code,
@@ -310,7 +325,7 @@ class LinkedinApi(OauthApi):
 
 class RedditApi(OauthApi):
     def __init__(self):
-        super(RedditApi, self).__init__('reddit_{0}', 'https://oauth.reddit.com/')
+        super(RedditApi, self).__init__('reddit_{0}', 'https://oauth.reddit.com/api/v1/')
 
 #
 # Sessions
@@ -346,7 +361,8 @@ class SessionCheck(xhttp.Resource):
             return {
                 'x-status': xhttp.status.OK,
                 'x-content': json.dumps({
-                    'session': False
+                    'session': False,
+                    'tokens': {}
                 }),
                 'content-type': 'application/json',
                 'set-cookie': 'session_id=; Path=/oauth/; Expires=Sat, 01 Jan 2000 00:00:00 GMT',
@@ -357,12 +373,15 @@ class SessionCheck(xhttp.Resource):
                 'x-status': xhttp.status.OK,
                 'x-content': json.dumps({
                     'session': True,
-                    'github': 'github_token' in session,
-                    'facebook': 'facebook_token' in session,
-                    'live': 'live_token' in session,
-                    'google': 'google_token' in session,
-                    'dropbox': 'dropbox_token' in session,
-                    'linkedin': 'linkedin_token' in session
+                    'tokens': {
+                        'github': 'github_token' in session,
+                        'facebook': 'facebook_token' in session,
+                        'live': 'live_token' in session,
+                        'google': 'google_token' in session,
+                        'dropbox': 'dropbox_token' in session,
+                        'linkedin': 'linkedin_token' in session,
+                        'reddit': 'reddit_token' in session,
+                    }
                 }),
                 'content-type': 'application/json'
             }
