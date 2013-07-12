@@ -284,7 +284,7 @@ class OauthApi(xhttp.Resource):
         if self.access_token:
             params.update({ self.access_token: token })
         else:
-            headers.update({ 'authorization': 'Bearer {0}'.format(token) }
+            headers.update({ 'authorization': 'Bearer {0}'.format(token) })
         response = requests.get(self.base_uri + path, params=params, headers=headers)
         print_exchange(response)
         return {

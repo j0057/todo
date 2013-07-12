@@ -253,6 +253,20 @@ document.addEventListener('DOMContentLoaded', function(e) {
        });
     });
 
+    document.querySelector("#reddit_me").addEventListener("click", function(e) {
+        e.preventDefault();
+        request("GET", e.target.href, function(xhr) {
+            var me = JSON.parse(xhr.response);
+            document.querySelector("#reddit_me_result").textContent
+                = me.name
+                + " ("
+                + me.link_karma
+                + " link karma, "
+                + me.comment_karma
+                + " comment karma)";
+        });
+    });
+
     document.querySelector("#linkbag").addEventListener("click", function(e) {
         e.preventDefault();
         if (e.target.href) { 
