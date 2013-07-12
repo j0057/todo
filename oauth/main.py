@@ -269,7 +269,7 @@ class RedditCode(OauthCode):
 #
 
 class OauthApi(xhttp.Resource):
-    def __init__(self, key_fmt, base_uri, access_token='access_token'):
+    def __init__(self, key_fmt, base_uri, access_token=None):
         super(OauthApi, self).__init__()
         self.key_fmt = key_fmt
         self.base_uri = base_uri
@@ -278,13 +278,14 @@ class OauthApi(xhttp.Resource):
     @xhttp.cookie({ 'session_id': '^(.+)$' })
     @xhttp.session('session_id', SESSIONS)
     def GET(self, request, path):
-        path = self.base_uri + path
+        token = request['x-session'].get(self.key_fmt.format('token'), '')
         params = { k: v[0] for (k, v) in urlparse.parse_qs(request['x-query-string']).items() }
-        params.update({ self.access_token: request['x-session'].get(self.key_fmt.format('token'), '') })
-        headers = { 'accept': 'application/json',
-        #            'authorization': 'Bearer {0}'.format(request['x-session'].get(self.key_fmt.format('token'), '')) 
-        }
-        response = requests.get(path, params=params, headers=headers)
+        headers = { 'accept': 'application/json' }
+        if self.access_token:
+            params.update({ self.access_token: token })
+        else:
+            headers.update({ 'authorization': 'Bearer {0}'.format(token) }
+        response = requests.get(self.base_uri + path, params=params, headers=headers)
         print_exchange(response)
         return {
             'x-status': response.status_code,
