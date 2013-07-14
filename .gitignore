@@ -1,0 +1,5 @@
+env
+*.pyc
+.cache
+*.swp
+db.dat
