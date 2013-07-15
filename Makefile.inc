@@ -4,7 +4,7 @@ PIP_NAME = oauth
 PIP_REQ = requirements.txt
 
 PKG_BASE = file:///home/joost/git
-PKG = jjm jjm.xml jjm.xhttp
+PKG = xmlist xhttp
 
 STATIC_DIRS = static
 

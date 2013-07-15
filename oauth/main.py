@@ -6,7 +6,7 @@ import urllib
 
 import requests
 
-from jjm import xhttp
+import xhttp
 
 #
 # session store: a dict
@@ -326,7 +326,7 @@ class LinkedinApi(OauthApi):
 
 class RedditApi(OauthApi):
     def __init__(self):
-        super(RedditApi, self).__init__('reddit_{0}', 'https://oauth.reddit.com/api/v1/')
+        super(RedditApi, self).__init__('reddit_{0}', 'https://oauth.reddit.com/')
 
 #
 # Sessions
@@ -358,7 +358,7 @@ class SessionCheck(xhttp.Resource):
     @xhttp.cookie({ 'session_id?': '^(.+)$' })
     def GET(self, request):
         session_id = request['x-cookie'].get('session_id', None)
-        if session_id and session_id not in SESSIONS:
+        if session_id and (session_id not in SESSIONS):
             return {
                 'x-status': xhttp.status.OK,
                 'x-content': json.dumps({
@@ -369,11 +369,11 @@ class SessionCheck(xhttp.Resource):
                 'set-cookie': 'session_id=; Path=/oauth/; Expires=Sat, 01 Jan 2000 00:00:00 GMT',
             }
         else:
-            session = SESSIONS[session_id]
+            session = SESSIONS.get(session_id, {})
             return {
                 'x-status': xhttp.status.OK,
                 'x-content': json.dumps({
-                    'session': True,
+                    'session': bool(session),
                     'tokens': {
                         'github': 'github_token' in session,
                         'facebook': 'facebook_token' in session,
