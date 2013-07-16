@@ -3,3 +3,4 @@ env
 .cache
 *.swp
 db.dat
+cookies.txt

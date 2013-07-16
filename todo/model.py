@@ -1,87 +1,72 @@
-from sqlalchemy import create_engine
-from sqlalchemy import Column, ForeignKey
-from sqlalchemy import Integer, Boolean, String, DateTime
+ 
+import os
 
-from sqlalchemy.orm import relationship, backref
-from sqlalchemy.orm import sessionmaker
+import data
 
-from sqlalchemy.ext.declarative import declarative_base
+def random(n=57):
+    return os.urandom(n).encode('base64')[:-1].replace('+','_').replace('/','-')
 
-Base = declarative_base()
+class Model(object):
+    def __init__(self, user_cookie=None, access_token=None):
+        self.session = data.Session()
+        if user_cookie:
+            self.user_session = self.session.query(data.UserSession).filter_by(cookie=user_cookie).one()
+        else:
+            self.user_session = None
 
-class User(Base):
-    __tablename__ = 'users'
-    
-    user_id = Column(Integer, primary_key=True)
-    name = Column(String)
-    email = Column(String)
-    password = Column(String)
+    def create_user(self, username, password1, password2):
+        if password1 != password2:
+            raise Exception("Passwords do not match")
+        user = data.User(name=username, password=password1)
+        self.session.add(user)
+        self.session.commit()
 
-    def __repr__(self):
-        return '<User {0}: {1}>'.format(self.user_id, self.email)
+    def create_user_session(self):
+        user_session = data.UserSession(cookie=random())
+        self.session.add(user_session)
+        self.session.commit()
+        return user_session.cookie
 
-class Task(Base):
-    __tablename__ = 'tasks'
+    def login(self, username, password):
+        user = self.session \
+            .query(data.User) \
+            .filter_by(name=username) \
+            .first()
+        if user and user.password == password:
+            self.user_session.user = user
+            self.session.commit()
+            return True
+        return False
 
-    task_id = Column(Integer, primary_key=True)
+    def create_task(self, description):
+        task = data.Task(description=description)
+        self.user_session.user.tasks.append(task)
+        self.session.commit()
+        return task.task_id
 
-    is_done = Column(Boolean)
+    def get_tasks(self):
+        return self.user_session.user.tasks
 
-    description = Column(String)
+    def get_task(self, task_id):
+        for task in self.user_session.user.tasks:
+            if task.task_id == task_id:
+                return task
+        return None
 
-    user_id = Column(Integer, ForeignKey('users.user_id'))
-    user = relationship('User', backref=backref('tasks', order_by=task_id))
+    def update_task(self, task_id, is_done, description):
+        try:
+            for task in self.user_session.user.tasks:
+                if task.task_id == task_id:
+                    task.is_done = is_done
+                    task.description = description
+                    return task
+        finally:
+            self.session.commit()
 
-    def __repr__(self):
-        return '<Task {0}: {1}>'.format(self.task_id, self.description)
-
-class UserSession(Base):
-    __tablename__ = 'usersessions'
-
-    usersession_id = Column(Integer, primary_key=True)
-
-    cookie = Column(String)
-
-    last_active = Column(DateTime)
-
-    user_id = Column(Integer, ForeignKey('users.user_id'))
-    user = relationship('User', backref=backref('usersessions', order_by=usersession_id))
-
-    def __repr__(self):
-        return '<UserSession {0}: {1}>'.format(self.session_id, self.cookie)
-
-class AppSession(Base):
-    __tablename__ = 'appsessions'
-
-    appsession_id = Column(Integer, primary_key=True)
-
-    token = Column(String)
-
-    user_id = Column(Integer, ForeignKey('users.user_id'))
-    user = relationship('User', backref=backref('appsessions', order_by=appsession_id))
-
-    app_id = Column(Integer, ForeignKey('apps.app_id'))
-    app = relationship('App', backref=backref('appsessions', order_by=appsession_id))
-
-class App(Base):
-    __tablename__ = 'apps'
-
-    app_id = Column(Integer, primary_key=True)
-
-    name = Column(String)
-
-    client_id = Column(String)
-    client_secret = Column(String)
-    callback_url = Column(String)
-
-    developer_id = Column(Integer, ForeignKey('users.user_id'))
-    developer = relationship('User', backref=backref('apps', order_by=app_id))
-
-engine = create_engine('sqlite:///db.dat', echo=True)
-
-Base.metadata.create_all(engine)
-
-Session = sessionmaker()
-Session.configure(bind=engine)
-
+    def delete_task(self, task_id):
+        for (i, task) in self.user_session.user.tasks:
+            if task.task_id == task_id:
+                del self.user_session.user.tasks[i]
+                break
+        self.session.commit()
 

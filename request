@@ -1,0 +1,32 @@
+#!/bin/bash
+url='http://localhost:8080'
+case $1 in
+    session)
+        curl -v -c cookies.txt -b cookies.txt -X GET "$url/"
+        ;;
+    signup)
+        curl -v -c cookies.txt -b cookies.txt -X POST "$url/todo/signup/" \
+            -d 'username=joost&password1=foo&password2=foo'
+        ;;
+    login)
+        curl -v -c cookies.txt -b cookies.txt -X POST "$url/todo/login/" \
+            -d 'username=joost&password=foo'
+        ;;
+    
+    get-tasks)
+        curl -v -c cookies.txt -b cookies.txt -X GET "$url/todo/tasks/"
+        ;;
+
+    create-task)
+        curl -v -c cookies.txt -b cookies.txt -X POST "$url/todo/tasks/" \
+            -d 'description=A%20task'
+        ;;
+
+    get-task)
+        curl -v -c cookies.txt -b cookies.txt -X GET "$url/todo/tasks/1"
+        ;;
+
+    update-task)
+        curl -v -c cookies.txt -b cookies.txt -X PUT "$url/todo/tasks/1" \
+            -d 'is_done=false&description=A%20new%20task%20description'
+esac
