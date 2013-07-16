@@ -64,7 +64,7 @@ class Model(object):
             self.session.commit()
 
     def delete_task(self, task_id):
-        for (i, task) in self.user_session.user.tasks:
+        for (i, task) in enumerate(self.user_session.user.tasks):
             if task.task_id == task_id:
                 del self.user_session.user.tasks[i]
                 break

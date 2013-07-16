@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Login</title>
+        <script src="jquery-2.0.3.js"></script>
+        <script src="login.js"></script>
+    </head>
+    <body>
+        <div>
+
+        </div>
+
+        <form id="login" method="post" action="/todo/login/">
+            <h1>Login</h1>
+
+            <div>
+                <input type="text" name="username" placeholder="Username" />
+            </div>
+
+            <div>
+                <input type="password" name="password" placeholder="Password" />
+            </div>
+
+            <div>
+                <button type="submit">Login</button>
+            </div>
+        </form>
+        
+        <form id="signup" method="post" action="/todo/signup/">
+            <h1>Create account</h1>
+
+            <div>
+                <input type="text" name="username" placeholder="Username" />
+            </div>
+
+            <div>
+                <input type="password" name="password1" placeholder="Password" />
+            </div>
+
+            <div>
+                <input type="password" name="password2" placeholder="Password (again)" />
+            </div>
+
+            <div>
+                <button type="submit">Create account</button>
+            </div>
+        </form>
+    </body>
+</html>

@@ -14,7 +14,9 @@ class Signup(xhttp.Resource):
                 request['x-post']['password2']
             )
             return {
-                'x-status': xhttp.status.OK
+                'x-status': xhttp.status.OK,
+                'content-type': 'text/plain',
+                'x-content': 'OK'
             }
         except Exception as e:
             raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': e.message })
@@ -26,7 +28,11 @@ class Login(xhttp.Resource):
         password = request['x-post']['password']
         if not request['model'].login(**request['x-post']):
             raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': 'Bad username or password' })
-        return { 'x-status': xhttp.status.OK }
+        return {
+            'x-status': xhttp.status.OK,
+            'content-type': 'text/plain',
+            'x-content': 'OK'
+        }
 
 class Tasks(xhttp.Resource):
     def GET(self, request):
@@ -45,7 +51,9 @@ class Tasks(xhttp.Resource):
         task_id = request['model'].create_task(**request['x-post'])
         return {
             'x-status': xhttp.status.CREATED,
-            'location': '/todo/tasks/{0}'.format(task_id)
+            'location': '/todo/tasks/{0}'.format(task_id),
+            'x-content': 'Created',
+            'content-type': 'text/plain'
         }
 
 class Task(xhttp.Resource):
@@ -79,8 +87,13 @@ class Task(xhttp.Resource):
                 'url': '/todo/tasks/{0}'.format(task.task_id) }) }
 
     def DELETE(self, request, task_id):
+        task_id = int(task_id)
         request['model'].delete_task(task_id)
-        return { 'x-status': xhttp.status.OK }
+        return {
+            'x-status': xhttp.status.OK,
+            'content-type': 'text/plain',
+            'x-content': 'OK'
+        }
 
 class SessionGenerator(xhttp.decorator):
     @xhttp.cookie({ 'session_id?': '^.*$' })
@@ -91,7 +104,9 @@ class SessionGenerator(xhttp.decorator):
                 return {
                     'x-status': xhttp.status.FOUND,
                     'set-cookie': 'session_id={0}'.format(session_id),
-                    'location': request['x-request-uri']
+                    'location': request['x-request-uri'],
+                    'content-type': 'text/plain',
+                    'x-content': 'Found'
                 }
             else:
                 raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': 'No session cookie found' })
@@ -103,8 +118,9 @@ class TodoRouter(xhttp.Router):
     def __init__(self):
         super(TodoRouter, self).__init__(
             (r'^/$',                    xhttp.Redirector('/todo/')),
-            (r'^/todo/$',               xhttp.Redirector('/todo/index.xhtml')),
+            (r'^/todo/$',               xhttp.Redirector('/todo/login.xhtml')),
             (r'^/todo/(.+\.xhtml)$',    xhttp.FileServer('static', 'application/xhtml+xml')),
+            (r'^/todo/(.+\.js)$',       xhttp.FileServer('static', 'application/javascript')),
             (r'^/todo/signup/$',        Signup()),
             (r'^/todo/login/$',         Login()),
             (r'^/todo/tasks/$',         Tasks()),

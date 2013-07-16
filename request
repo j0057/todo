@@ -1,16 +1,19 @@
 #!/bin/bash
 url='http://localhost:8080'
+
+echo "# $*"
+
 case $1 in
     session)
         curl -v -c cookies.txt -b cookies.txt -X GET "$url/"
         ;;
     signup)
         curl -v -c cookies.txt -b cookies.txt -X POST "$url/todo/signup/" \
-            -d 'username=joost&password1=foo&password2=foo'
+            -d "username=$2&password1=$3&password2=$3"
         ;;
     login)
         curl -v -c cookies.txt -b cookies.txt -X POST "$url/todo/login/" \
-            -d 'username=joost&password=foo'
+            -d "username=$2&password=$3"
         ;;
     
     get-tasks)
@@ -19,14 +22,33 @@ case $1 in
 
     create-task)
         curl -v -c cookies.txt -b cookies.txt -X POST "$url/todo/tasks/" \
-            -d 'description=A%20task'
+            -d "description=$2"
         ;;
 
     get-task)
-        curl -v -c cookies.txt -b cookies.txt -X GET "$url/todo/tasks/1"
+        curl -v -c cookies.txt -b cookies.txt -X GET "$url/todo/tasks/$2"
         ;;
 
     update-task)
-        curl -v -c cookies.txt -b cookies.txt -X PUT "$url/todo/tasks/1" \
-            -d 'is_done=false&description=A%20new%20task%20description'
+        curl -v -c cookies.txt -b cookies.txt -X PUT "$url/todo/tasks/$2" \
+            -d "is_done=$3&description=$4"
+        ;;
+
+    delete-task)
+        curl -v -c cookies.txt -b cookies.txt -X DELETE "$url/todo/tasks/$2"
+        ;;
+
+    go-all-out)
+        rm cookies.txt
+        $0 session
+        $0 signup "joost" "foo"
+        $0 login "joost" "foo"
+        $0 get-tasks
+        $0 create-task "whatever"
+        $0 get-tasks
+        $0 update-task 1 "true" "whatever"
+        $0 get-tasks
+        $0 delete-task 1
 esac
+
+echo
