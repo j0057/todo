@@ -1,19 +1,36 @@
  
 import os
 
+import xhttp
+
 import data
 
 def random(n=57):
     return os.urandom(n).encode('base64')[:-1].replace('+','_').replace('/','-')
 
+class print_args(xhttp.decorator):
+    def __call__(self, *a, **k):
+        print self.func.__name__, a, k
+        result = self.func(*a, **k)
+        print self.func.__name__, ':', result
+        return result
+
 class Model(object):
     def __init__(self, user_cookie=None, access_token=None):
         self.session = data.Session()
-        if user_cookie:
-            self.user_session = self.session.query(data.UserSession).filter_by(cookie=user_cookie).one()
-        else:
-            self.user_session = None
+        self.user_cookie = user_cookie
+        self._user_session = None
 
+    @property
+    def user_session(self):
+        if self.user_cookie and not self._user_session:
+            self._user_session = self.session \
+                .query(data.UserSession) \
+                .filter_by(cookie=self.user_cookie) \
+                .first()
+        return self._user_session
+
+    @print_args
     def create_user(self, username, password1, password2):
         if password1 != password2:
             raise Exception("Passwords do not match")
@@ -21,12 +38,14 @@ class Model(object):
         self.session.add(user)
         self.session.commit()
 
+    @print_args
     def create_user_session(self):
         user_session = data.UserSession(cookie=random())
         self.session.add(user_session)
         self.session.commit()
         return user_session.cookie
 
+    @print_args
     def login(self, username, password):
         user = self.session \
             .query(data.User) \
@@ -38,21 +57,25 @@ class Model(object):
             return True
         return False
 
+    @print_args
     def create_task(self, description):
         task = data.Task(description=description)
         self.user_session.user.tasks.append(task)
         self.session.commit()
         return task.task_id
 
+    @print_args
     def get_tasks(self):
         return self.user_session.user.tasks
 
+    @print_args
     def get_task(self, task_id):
         for task in self.user_session.user.tasks:
             if task.task_id == task_id:
                 return task
         return None
 
+    @print_args
     def update_task(self, task_id, is_done, description):
         try:
             for task in self.user_session.user.tasks:
@@ -63,6 +86,7 @@ class Model(object):
         finally:
             self.session.commit()
 
+    @print_args
     def delete_task(self, task_id):
         for (i, task) in enumerate(self.user_session.user.tasks):
             if task.task_id == task_id:

@@ -39,11 +39,13 @@ class Tasks(xhttp.Resource):
         return {
             'x-status': xhttp.status.OK,
             'content-type': 'application/json',
-            'x-content': json.dumps([
-                { 'url': '/todo/tasks/{0}'.format(task.task_id),
-                  'description': task.description,
-                  'is_done': task.is_done }
-                for task in request['model'].get_tasks() ])
+            'x-content': json.dumps(
+                { 'tasks': [
+                    { 'url': '/todo/tasks/{0}'.format(task.task_id),
+                      'description': task.description,
+                      'is_done': task.is_done }
+                    for task in request['model'].get_tasks() ]
+                })
         }
 
     @xhttp.post({ 'description': '^.+$' })
@@ -70,10 +72,10 @@ class Task(xhttp.Resource):
                 'is_done': task.is_done,
                 'url': '/todo/tasks/{0}'.format(task.task_id) }) }
 
-    @xhttp.post({ 'is_done': '^true|false$', 'description': '^.+$' })
+    @xhttp.post({ 'is_done?': '^on|off|true|false$', 'description': '^.+$' })
     def PUT(self, request, task_id):
         task_id = int(task_id)
-        request['x-post']['is_done'] = request['x-post']['is_done'] == 'true'
+        request['x-post']['is_done'] = request['x-post']['is_done'] in ['true', 'on']
         task = request['model'].update_task(task_id, **request['x-post'])
         if not task:
             raise xhttp.HTTPException(xhttp.status.NOT_FOUND, 
@@ -98,7 +100,8 @@ class Task(xhttp.Resource):
 class SessionGenerator(xhttp.decorator):
     @xhttp.cookie({ 'session_id?': '^.*$' })
     def __call__(self, request, *a, **k):
-        if not request['x-cookie']['session_id']:
+        if not request['x-cookie']['session_id'] \
+        and request['x-request-uri'].startswith('/todo/'):
             if request['x-request-method'] == 'GET':
                 session_id = Model().create_user_session()
                 return {

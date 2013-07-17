@@ -80,7 +80,7 @@ class App(Base):
     developer_id = Column(Integer, ForeignKey('users.user_id'))
     developer = relationship('User', backref=backref('apps', order_by=app_id))
 
-engine = create_engine('sqlite:///db.dat', echo=True)
+engine = create_engine('sqlite:///db.dat', echo=False)
 
 Base.metadata.create_all(engine)
 

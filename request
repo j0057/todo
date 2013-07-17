@@ -5,7 +5,7 @@ echo "# $*"
 
 case $1 in
     session)
-        curl -v -c cookies.txt -b cookies.txt -X GET "$url/"
+        curl -v -c cookies.txt -b cookies.txt -X GET "$url/todo/"
         ;;
     signup)
         curl -v -c cookies.txt -b cookies.txt -X POST "$url/todo/signup/" \
