@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine 
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy import Integer, Boolean, String, DateTime
 
@@ -38,33 +38,24 @@ class Task(Base):
     def __repr__(self):
         return '<Task {0}: {1}>'.format(self.task_id, self.description)
 
-class UserSession(Base):
-    __tablename__ = 'usersessions'
+class Session(Base):
+    __tablename__ = 'sessions'
 
-    usersession_id = Column(Integer, primary_key=True)
+    session_id = Column(Integer, primary_key=True)
 
     cookie = Column(String)
+    code = Column(String)
 
     last_active = Column(DateTime)
 
     user_id = Column(Integer, ForeignKey('users.user_id'))
-    user = relationship('User', backref=backref('usersessions', order_by=usersession_id))
-
-    def __repr__(self):
-        return '<UserSession {0}: {1}>'.format(self.session_id, self.cookie)
-
-class AppSession(Base):
-    __tablename__ = 'appsessions'
-
-    appsession_id = Column(Integer, primary_key=True)
-
-    token = Column(String)
-
-    user_id = Column(Integer, ForeignKey('users.user_id'))
-    user = relationship('User', backref=backref('appsessions', order_by=appsession_id))
+    user = relationship('User', backref=backref('sessions', order_by=session_id))
 
     app_id = Column(Integer, ForeignKey('apps.app_id'))
-    app = relationship('App', backref=backref('appsessions', order_by=appsession_id))
+    app = relationship('App', backref=backref('sessions', order_by=session_id))
+
+    def __repr__(self):
+        return '<Session {0}: {1}>'.format(self.session_id, self.cookie)
 
 class App(Base):
     __tablename__ = 'apps'
@@ -80,12 +71,15 @@ class App(Base):
     developer_id = Column(Integer, ForeignKey('users.user_id'))
     developer = relationship('User', backref=backref('apps', order_by=app_id))
 
+    def __repr__(self):
+        return '<App {0}: {1}'.format(self.app_id, self.name)
+
 engine = create_engine('sqlite:///db.dat', echo=False)
 
 Base.metadata.create_all(engine)
 
-Session = sessionmaker()
-Session.configure(bind=engine)
+Database = sessionmaker()
+Database.configure(bind=engine)
 
 if __name__ == '__main__':
-    session = Session()
+    db = Database()

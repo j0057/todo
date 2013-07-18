@@ -4,6 +4,13 @@ import xhttp
 
 from model import Model
 
+class check_session(xhttp.decorator):
+    def __call__(self, request, *a, **k):
+        if not request['model'].validate_session():
+            raise xhttp.HTTPException(xhttp.status.FORBIDDEN, { 'x-detail': 'No valid session found' })
+        else:
+            return self.func(request, *a, **k)
+
 class Signup(xhttp.Resource):
     @xhttp.post({ 'username': r'^[a-z]+$', 'password1': r'^.+$', 'password2': r'^.+$' })
     def POST(self, request):
@@ -35,6 +42,7 @@ class Login(xhttp.Resource):
         }
 
 class Tasks(xhttp.Resource):
+    @check_session
     def GET(self, request):
         return {
             'x-status': xhttp.status.OK,
@@ -48,6 +56,7 @@ class Tasks(xhttp.Resource):
                 })
         }
 
+    @check_session
     @xhttp.post({ 'description': '^.+$' })
     def POST(self, request):
         task_id = request['model'].create_task(**request['x-post'])
@@ -59,6 +68,7 @@ class Tasks(xhttp.Resource):
         }
 
 class Task(xhttp.Resource):
+    @check_session
     def GET(self, request, task_id):
         task = request['model'].get_task(int(task_id))
         if not task:
@@ -72,6 +82,7 @@ class Task(xhttp.Resource):
                 'is_done': task.is_done,
                 'url': '/todo/tasks/{0}'.format(task.task_id) }) }
 
+    @check_session
     @xhttp.post({ 'is_done?': '^on|off|true|false$', 'description': '^.+$' })
     def PUT(self, request, task_id):
         task_id = int(task_id)
@@ -88,6 +99,7 @@ class Task(xhttp.Resource):
                 'is_done': task.is_done,
                 'url': '/todo/tasks/{0}'.format(task.task_id) }) }
 
+    @check_session
     def DELETE(self, request, task_id):
         task_id = int(task_id)
         request['model'].delete_task(task_id)
@@ -97,22 +109,53 @@ class Task(xhttp.Resource):
             'x-content': 'OK'
         }
 
+class Authorize(xhttp.Resource):
+    def GET(self, request):
+        # if already authorized, redirect to callback_url
+        # if not authorized, redirect to authorization page
+        raise xhttp.HTTPException(xhttp.status.NOT_IMPLEMENTED)
+
+    def POST(self, request):
+        # if authorization positive, redirect to callback_url with code 
+        # if authorization negative, redirect to callback_url with error
+        raise xhttp.HTTPException(xhttp.status.NOT_IMPLEMENTED)
+
+class AccessToken(xhttp.Resource):
+    def GET(self, request):
+        # trade token for access token
+        raise xhttp.HTTPException(xhttp.status.NOT_IMPLEMENTED)
+
 class SessionGenerator(xhttp.decorator):
+    def _redirect_cookie(self, request_uri, session_id=''):
+        return {
+            'x-status': xhttp.status.FOUND,
+            'set-cookie': 'session_id={0}'.format(session_id),
+            'location': request_uri,
+            'content-type': 'text/plain',
+            'x-content': 'Found' }
+
     @xhttp.cookie({ 'session_id?': '^.*$' })
     def __call__(self, request, *a, **k):
-        if not request['x-cookie']['session_id'] \
-        and request['x-request-uri'].startswith('/todo/'):
+        # only for /todo/ requests
+        if not request['x-request-uri'].startswith('/todo/'):
+            return self.func(request, *a, **k)
+
+        # create session if no cookie and authorization header present
+        elif not request['x-cookie']['session_id'] and not 'authorization' in request:
+            # only on GET requests
             if request['x-request-method'] == 'GET':
                 session_id = Model().create_user_session()
-                return {
-                    'x-status': xhttp.status.FOUND,
-                    'set-cookie': 'session_id={0}'.format(session_id),
-                    'location': request['x-request-uri'],
-                    'content-type': 'text/plain',
-                    'x-content': 'Found'
-                }
+                return self._redirect_cookie(request['x-request-uri'], session_id)
+            # for PUT/POST/DELETE, cookie is mandatory
             else:
                 raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': 'No session cookie found' })
+
+        # load session from authorization header
+        elif 'authorization' in request:
+            request['model'] = Model(app_cookie=request['authorization'])
+            return self.func(request, *a, **k)
+
+        # load session from cookie
         else:
             request['model'] = Model(user_cookie=request['x-cookie']['session_id'])
             return self.func(request, *a, **k)
@@ -127,7 +170,9 @@ class TodoRouter(xhttp.Router):
             (r'^/todo/signup/$',        Signup()),
             (r'^/todo/login/$',         Login()),
             (r'^/todo/tasks/$',         Tasks()),
-            (r'^/todo/tasks/([0-9]+)$', Task())
+            (r'^/todo/tasks/([0-9]+)$', Task()),
+            (r'^/todo/authorize/',      Authorize()),
+            (r'^/todo/access_token/',   AccessToken())
         )
 
 app = TodoRouter()

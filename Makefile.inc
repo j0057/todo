@@ -14,3 +14,6 @@ _test: test
 
 data:
 	cd $(ENV) ; bin/python -i -m todo.data
+
+model:
+	cd $(ENV) ; bin/python -i -m todo.model

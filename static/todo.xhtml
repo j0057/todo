@@ -12,7 +12,8 @@
         <style>
             form { display: inline; }
             .task-description { width: 50em; display: inline-block; }
-            .task-edit input:checked ~ .task-description { color: red }
+            input[name=description] { width: 50em; }
+            .task-edit input:checked ~ .task-description { text-decoration: line-through; color: gray; }
         </style>
     </head>
     <body>

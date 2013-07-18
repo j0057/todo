@@ -5,6 +5,7 @@ echo "# $*"
 
 case $1 in
     session)
+        rm -f cookies.txt
         curl -v -c cookies.txt -b cookies.txt -X GET "$url/todo/"
         ;;
     signup)
