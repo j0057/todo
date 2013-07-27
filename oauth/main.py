@@ -42,6 +42,7 @@ load_keys('GOOGLE')
 load_keys('DROPBOX')
 load_keys('LINKEDIN')
 load_keys('REDDIT')
+load_keys('J0057_TODO')
 
 #
 # utility functions
@@ -146,6 +147,13 @@ class RedditInit(OauthInit):
         super(RedditInit, self).__init__('reddit_{0}', REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET,
                                          'https://ssl.reddit.com/api/v1/authorize',
                                          'https://dev.j0057.nl/oauth/reddit/code/')
+
+class J0057TodoInit(OauthInit):
+    def __init__(self):
+        super(J0057TodoInit, self).__init__('j0057_todo_{0}',
+                                            J0057_TODO_CLIENT_ID, J0057_TODO_CLIENT_SECRET,
+                                            'http://dev2.j0057.nl/todo/authorize/',
+                                            'https://dev.j0057.nl/oauth/j0057-todo/code/')
 
 #
 # OauthCode
@@ -263,6 +271,14 @@ class RedditCode(OauthCode):
     def get_authorization(self):
         auth = 'Basic ' + '{0}:{1}'.format(self.client_id, self.client_secret).encode('base64')[:-1]
         return { 'authorization': auth }
+
+class J0057TodoCode(OauthCode):
+    def __init__(self):
+        super(J0057TodoCode, self).__init__('j0057_todo_{0}',
+                                            J0057_TODO_CLIENT_ID, J0057_TODO_CLIENT_SECRET,
+                                            'http://dev2.j0057.nl/todo/access_token/',
+                                            'https://dev.j0057.nl/oauth/j0057-todo/code/',
+                                            'https://dev.j0057.nl/oauth/index.xhtml')
 
 #
 # OauthApi
@@ -429,6 +445,9 @@ class OauthRouter(xhttp.Router):
             (r'^/oauth/reddit/init/$',          RedditInit()),
             (r'^/oauth/reddit/code/$',          RedditCode()),
             (r'^/oauth/reddit/api/(.*)$',       RedditApi()),
+
+            (r'^/oauth/j0057-todo/init/$',      J0057TodoInit()),
+            (r'^/oauth/j0057-todo/code/$',      J0057TodoCode()),
             
             (r'^/oauth/session/start/$',        SessionStart()),
             (r'^/oauth/session/delete/$',       SessionDelete()),
