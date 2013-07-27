@@ -6,7 +6,10 @@ import xhttp
 import data
 
 def random(n=57):
-    return os.urandom(n).encode('base64')[:-1].replace('+','_').replace('/','-')
+    return (os.urandom(n).encode('base64')
+        .replace('\n', '')
+        .replace('+', '_')
+        .replace('/','-'))
 
 class print_args(xhttp.decorator):
     def __call__(self, *a, **k):
@@ -14,6 +17,9 @@ class print_args(xhttp.decorator):
         result = self.func(*a, **k)
         print self.func.__name__, ':', result
         return result
+
+class OAuthException(Exception):
+    pass
 
 class Model(object):
     def __init__(self, user_cookie=None, app_cookie=None):
@@ -34,7 +40,8 @@ class Model(object):
                 .filter_by(cookie=self.cookie) \
                 .first()
         return self._session
-    
+
+    @print_args    
     def validate_session(self):
         if self.session is None:
             return False
@@ -107,44 +114,57 @@ class Model(object):
         self.db.commit()
 
     @print_args
-    def create_app(self, name, callback_url):
-        app = data.App(name=name, callback_url=callback_url, client_id=random(9), client_secret=random(),
-                       developer=self.session.user)
+    def create_app(self, name, redirect_uri, client_id=None, client_secret=None):
+        app = data.App(
+            name=name, 
+            redirect_uri=redirect_uri, 
+            client_id=client_id or random(15), 
+            client_secret=client_secret or random(),
+            developer=self.session.user)
         self.db.add(app)
         self.db.commit()
         return app
 
     @print_args
-    def find_app_session(self, client_id, callback_url):
+    def find_app(self, client_id):
+        return self.db.query(data.App).filter_by(client_id=client_id).first()
+
+    @print_args
+    def find_app_session(self, client_id, redirect_uri):
         for session in self.session.user.sessions:
             if not session.app:
                 continue
-            if session.app.client_id == client_id:
-                return session
+            if session.app.client_id != client_id:
+                continue
+            if session.app.redirect_uri != redirect_uri:
+                raise OAuthException('Invalid redirect URI')
+            session.code = random(15)
+            self.db.commit()
+            return session
         return None
 
     @print_args
-    def create_app_session(self, client_id, callback_url):
+    def create_app_session(self, client_id, redirect_uri):
         app = self.db.query(data.App).filter_by(client_id=client_id).one()
-        if app.callback_url != callback_url:
-            return None # wrong callback url
+        if app.redirect_uri != redirect_uri:
+            return None # wrong redirect_uri 
         session = data.Session(
             code=random(15), 
             user=self.session.user,
-            app=)
+            app=app)
         self.db.add(session)
         self.db.commit()
         return session
 
     @print_args
-    def get_access_token(self, client_id, client_secret, code, callback_url):
+    def get_access_token(self, client_id, client_secret, code, redirect_uri):
         app = self.db.query(data.App).filter_by(client_id=client_id).first()
         if app is None:
             return None # wrong client_id
         if app.client_secret != client_secret:
             return None # wrong client_secret
-        if app.callback_url != callback_url:
-            return None # wrong callback_url
+        if app.redirect_uri != redirect_uri:
+            return None # wrong redirect_uri
         for session in app.sessions:
             if session.code == code:  
                 session.code = None
@@ -152,6 +172,20 @@ class Model(object):
                 self.db.commit()
                 return session
         return None # wrong code
+
+    @print_args
+    def generate_csrf_token(self):
+        self.session.csrf_token = random()
+        self.db.commit()
+        return self.session.csrf_token
+
+    @print_args
+    def validate_csrf_token(self, csrf_token):
+        try:
+            return self.session.csrf_token and self.session.csrf_token == csrf_token
+        finally:
+            self.session.csrf_token = None
+            self.db.commit()
             
 if __name__ == '__main__':
     cb = 'https://dev.j0057.nl/oauth/todo/code/'
@@ -159,8 +193,9 @@ if __name__ == '__main__':
     model = Model()
     model.cookie = model.create_user_session()
     model.create_user('joost', 'foo', 'foo')
+    model.create_user('foo', 'bar', 'bar')
     model.login('joost', 'foo')
-    app = model.create_app('dev.j0057.nl', cb)
+    app = model.create_app('dev.j0057.nl', cb, 'test-id', 'test-secret')
     model.find_app_session(app.client_id, cb)
     session1 = model.create_app_session(app.client_id, cb)
     print 'code:', session1.code

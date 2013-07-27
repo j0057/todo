@@ -1,4 +1,7 @@
 import json
+import urllib
+
+import pystache
 
 import xhttp
 
@@ -110,13 +113,60 @@ class Task(xhttp.Resource):
         }
 
 class Authorize(xhttp.Resource):
+    @xhttp.get({ 'client_id': '^.+$', 
+                 'redirect_uri': '^.+$',
+                 'scope': '^$',
+                 'state': '^.+$',
+                 'response_type': '^code$' })
     def GET(self, request):
-        # if already authorized, redirect to callback_url
-        # if not authorized, redirect to authorization page
-        raise xhttp.HTTPException(xhttp.status.NOT_IMPLEMENTED)
+        app_session = request['model'].find_app_session(
+            request['x-get']['client_id'],
+            request['x-get']['redirect_uri'])
 
+        # already authorized; redirect to redirect_uri
+        if app_session:
+            return {
+                'x-status': xhttp.status.FOUND,
+                'location': app_session.app.redirect_uri
+                            + '?'
+                            + urllib.urlencode({ 'code': app_session.code,
+                                                 'state': request['x-get']['state'] }) 
+            }
+
+        # not yet authorized; serve authorization page
+        else:
+            app = request['model'].find_app(request['x-get']['client_id'])
+            with open('static/templates/authorize.xhtml', 'r') as template:
+                return {
+                    'x-status': xhttp.status.OK,
+                    'content-type': 'application/xhtml+xml; charset=utf-8',
+                    'x-content': pystache.render(template.read(), {
+                        'app_name': app.name,
+                        'action': '/todo/authorize/'
+                        'csrf_token': request['model'].generate_csrf_token(),
+                        'client_id': app.client_id,
+                    }).encode('utf8')
+                } 
+
+    @xhttp.post({ 'csrf_token': '^.+$', 
+                  'client_id': '^.+$',
+                  'yes?': '^yes$', 
+                  'no?': '^no$' })
     def POST(self, request):
-        # if authorization positive, redirect to callback_url with code 
+        if not request['model'].validate_csrf_token(request['x-post']['csrf_token']):
+            raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': 'Bad CSRF token' })
+
+        app = request['model'].find_app(request['x-post']['client_id'])
+
+        # if authorization positive, redirect to callback_url with code
+        if request['x-post']['yes']:
+            app_session = request['model'].create_app_session(app.client_id, app.redirect_uri)
+            return {
+                'x-status': xhttp.status.FOUND,
+                'location': app.redirect_uri
+                            + '?'
+                            + urllib.urlencode({ code: app_session.code }) }
+
         # if authorization negative, redirect to callback_url with error
         raise xhttp.HTTPException(xhttp.status.NOT_IMPLEMENTED)
 
@@ -163,16 +213,16 @@ class SessionGenerator(xhttp.decorator):
 class TodoRouter(xhttp.Router):
     def __init__(self):
         super(TodoRouter, self).__init__(
-            (r'^/$',                    xhttp.Redirector('/todo/')),
-            (r'^/todo/$',               xhttp.Redirector('/todo/login.xhtml')),
-            (r'^/todo/(.+\.xhtml)$',    xhttp.FileServer('static', 'application/xhtml+xml')),
-            (r'^/todo/(.+\.js)$',       xhttp.FileServer('static', 'application/javascript')),
-            (r'^/todo/signup/$',        Signup()),
-            (r'^/todo/login/$',         Login()),
-            (r'^/todo/tasks/$',         Tasks()),
-            (r'^/todo/tasks/([0-9]+)$', Task()),
-            (r'^/todo/authorize/',      Authorize()),
-            (r'^/todo/access_token/',   AccessToken())
+            (r'^/$',                            xhttp.Redirector('/todo/')),
+            (r'^/todo/$',                       xhttp.Redirector('/todo/login.xhtml')),
+            (r'^/todo/([a-z]+\.xhtml)$',        xhttp.FileServer('static', 'application/xhtml+xml')),
+            (r'^/todo/([a-z]+\.js)$',           xhttp.FileServer('static', 'application/javascript')),
+            (r'^/todo/signup/$',                Signup()),
+            (r'^/todo/login/$',                 Login()),
+            (r'^/todo/tasks/$',                 Tasks()),
+            (r'^/todo/tasks/([0-9]+)$',         Task()),
+            (r'^/todo/authorize/',              Authorize()),
+            (r'^/todo/access_token/',           AccessToken())
         )
 
 app = TodoRouter()

@@ -5,9 +5,10 @@ echo "# $*"
 
 case $1 in
     session)
-        rm -f cookies.txt
+        rm -vf cookies.txt
         curl -v -c cookies.txt -b cookies.txt -X GET "$url/todo/"
         ;;
+
     signup)
         curl -v -c cookies.txt -b cookies.txt -X POST "$url/todo/signup/" \
             -d "username=$2&password1=$3&password2=$3"
@@ -37,6 +38,10 @@ case $1 in
 
     delete-task)
         curl -v -c cookies.txt -b cookies.txt -X DELETE "$url/todo/tasks/$2"
+        ;;
+
+    authorize-app)
+        curl -v -c cookies.txt -b cookies.txt -X GET "$url/todo/authorize/?client_id=test-id&state=a&scope=&response_type=code&redirect_uri=https://dev.j0057.nl/oauth/todo/code/"
         ;;
 
     go-all-out)

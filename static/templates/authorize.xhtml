@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Authorize</title>
+    </head>
+    <body>
+        <h1>Authorize {{app_name}}</h1>
+
+        <p>{{app_name}} will be able to access all your todo items.</p>
+
+        <p>Is this OK?</p>
+
+        <form method="post" action="{{action}}">
+            <input type="hidden" name="csrf_token" value="{{csrf_token}}"/>
+            <input type="hidden" name="client_id" value="{{client_id}}"/>
+            <input type="submit" name="yes" value="yes"/>
+            <input type="submit" name="no" value="no"/>
+        </form>
+    </body>
+</html>

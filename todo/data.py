@@ -44,6 +44,7 @@ class Session(Base):
     session_id = Column(Integer, primary_key=True)
 
     cookie = Column(String)
+
     code = Column(String)
 
     last_active = Column(DateTime)
@@ -53,6 +54,8 @@ class Session(Base):
 
     app_id = Column(Integer, ForeignKey('apps.app_id'))
     app = relationship('App', backref=backref('sessions', order_by=session_id))
+
+    csrf_token = Column(String)
 
     def __repr__(self):
         return '<Session {0}: {1}>'.format(self.session_id, self.cookie)
@@ -65,14 +68,16 @@ class App(Base):
     name = Column(String)
 
     client_id = Column(String)
+
     client_secret = Column(String)
-    callback_url = Column(String)
+
+    redirect_uri = Column(String)
 
     developer_id = Column(Integer, ForeignKey('users.user_id'))
     developer = relationship('User', backref=backref('apps', order_by=app_id))
 
     def __repr__(self):
-        return '<App {0}: {1}'.format(self.app_id, self.name)
+        return '<App {0}: {1}>'.format(self.app_id, self.name)
 
 engine = create_engine('sqlite:///db.dat', echo=False)
 
