@@ -10,7 +10,17 @@ import webob.exc
 import mutagen
 import mutagen.mp3
 
-from jjm import core
+import core
+
+try:
+    MP3_JSON = os.environ["MP3_JSON"]
+except KeyError:
+    MP3_JSON = "/home/joost/www/mp3/mp3.json"
+
+try:
+    MP3_ROOT = os.environ["MP3_ROOT"]
+except KeyError:
+    MP3_ROOT = None
 
 class authorized(core.BaseDecorator):
     def __init__(self, func):
@@ -121,15 +131,27 @@ class TrackCover(core.Resource):
             return 404, 'text/plain', 'No cover'
 
 class TrackDownload(core.Resource):
-    @core.partial
     def GET(self, request, artist, album, track, title):
         filename = MODEL.library.library[artist][album][track]['fn'].encode('utf8')
         filesize = os.stat(filename).st_size
-        response = webob.Response(content_type='audio/mpeg')
-        response.body_stream = open(filename, 'rb')
-        response.content_length = filesize
-        #response.headers['X-Accel-Limit-Rate'] = str(50 * 1024);
-        return response
+        if MP3_ROOT:
+            print 'X-Accel-Redirect serving {0!r} ({1} bytes)'.format(filename, filesize)
+            response = webob.Response(content_type='audio/mpeg')
+            response.content_length = filesize
+            response.headers['X-Accel-Redirect'] = filename.replace(MP3_ROOT, '/mp3_file', 1)
+            print response.headers
+            return response
+        else:
+            print 'Self-serving {0!r} ({1} bytes)'.format(filename, filesize)
+            response = webob.Response(content_type='audio/mpeg')
+            response.body_stream = open(filename, 'rb')
+            response.content_length = filesize
+            #response.headers['X-Accel-Limit-Rate'] = str(50 * 1024);
+            print response.headers
+            return response
+
+    if not MP3_ROOT:
+        GET = core.partial(GET)
 
 class AlbumDownload(core.Resource):
     @core.partial
@@ -180,15 +202,10 @@ class Mp3Server(core.Resource):
     def GET(self, request):
         raise webob.exc.HTTPFound(location='mp3.xhtml')
 
-try:
-    mp3_json = os.environ["MP3_JSON"]
-except KeyError:
-    mp3_json = "/home/joost/www/mp3/mp3.json"
-
 print "# enviroment: {0!r}".format(os.environ)
 print "# current dir: {0!r}".format(os.getcwd())
-print "# mp3.json: {0!r} ({1!r})".format(mp3_json, os.path.abspath(mp3_json))
+print "# mp3.json: {0!r} ({1!r})".format(MP3_JSON, os.path.abspath(MP3_JSON))
 
-MODEL = Model(mp3_json)
+MODEL = Model(MP3_JSON)
 
 

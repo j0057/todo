@@ -13,7 +13,7 @@ import mutagen
 import mutagen.id3
 import mutagen.mp3
 
-from .. import sh
+import sh
 
 mutagen.id3.pedantic = False
 

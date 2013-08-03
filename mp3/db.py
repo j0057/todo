@@ -13,7 +13,7 @@ import mutagen.mp3
 
 from unidecode import unidecode
 
-import jjm.sh
+import sh
 
 # TODO: don't use os.chdir
 # TODO: scan for updated/new/missing files
