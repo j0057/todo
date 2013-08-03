@@ -63,6 +63,7 @@ class Model(object):
         user = data.User(name=username, password=password1)
         self.db.add(user)
         self.db.commit()
+        return user
 
     @print_args
     def login(self, username, password):
@@ -188,7 +189,7 @@ class Model(object):
             self.db.commit()
             
 if __name__ == '__main__':
-    cb = 'https://dev.j0057.nl/oauth/todo/code/'
+    cb = 'https://dev.j0057.nl/oauth/j0057-todo/code/'
     db = data.Database()
     model = Model()
     model.cookie = model.create_user_session()

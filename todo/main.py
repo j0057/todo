@@ -142,14 +142,15 @@ class Authorize(xhttp.Resource):
                     'content-type': 'application/xhtml+xml; charset=utf-8',
                     'x-content': pystache.render(template.read(), {
                         'app_name': app.name,
-                        'action': '/todo/authorize/'
-                        'csrf_token': request['model'].generate_csrf_token(),
                         'client_id': app.client_id,
+                        'csrf_token': request['model'].generate_csrf_token(),
+                        'state': request['x-get']['state']
                     }).encode('utf8')
                 } 
 
     @xhttp.post({ 'csrf_token': '^.+$', 
                   'client_id': '^.+$',
+                  'state': '^.+$',
                   'yes?': '^yes$', 
                   'no?': '^no$' })
     def POST(self, request):
@@ -158,24 +159,45 @@ class Authorize(xhttp.Resource):
 
         app = request['model'].find_app(request['x-post']['client_id'])
 
-        # if authorization positive, redirect to callback_url with code
+        # authorization positive; redirect to callback_url with code
         if request['x-post']['yes']:
             app_session = request['model'].create_app_session(app.client_id, app.redirect_uri)
             return {
                 'x-status': xhttp.status.FOUND,
                 'location': app.redirect_uri
                             + '?'
-                            + urllib.urlencode({ code: app_session.code }) }
+                            + urllib.urlencode({ 'code': app_session.code, 'state': request['x-post']['state'] }) }
 
-        # if authorization negative, redirect to callback_url with error
-        raise xhttp.HTTPException(xhttp.status.NOT_IMPLEMENTED)
+        # authorization negative; redirect to callback_url with error
+        elif request['x-post']['no']:
+            raise xhttp.HTTPException(xhttp.status.NOT_IMPLEMENTED)
+
+        # something fishy is up
+        else:
+            raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': "You didn't press yes or no" })
 
 class AccessToken(xhttp.Resource):
-    def GET(self, request):
-        # trade token for access token
-        raise xhttp.HTTPException(xhttp.status.NOT_IMPLEMENTED)
+    @xhttp.post({ 'client_id': '^.+$',
+                  'client_secret': '^.+$',
+                  'code': '^.+$',
+                  'redirect_uri': '^.+$',
+                  'grant_type': '^authorization_code$' })
+    def POST(self, request):
+        app_session = request['model'].get_access_token(
+            request['x-post']['client_id'],
+            request['x-post']['client_secret'],
+            request['x-post']['code'],
+            request['x-post']['redirect_uri'])
+        return {
+            'x-status': xhttp.status.OK,
+            'content-type': 'application/json',
+            'x-content': json.dumps({
+                'access_token': app_session.cookie,
+                'token_type': 'Bearer'
+            })
+        }
 
-class SessionGenerator(xhttp.decorator):
+class session_generator(xhttp.decorator):
     def _redirect_cookie(self, request_uri, session_id=''):
         return {
             'x-status': xhttp.status.FOUND,
@@ -190,25 +212,27 @@ class SessionGenerator(xhttp.decorator):
         if not request['x-request-uri'].startswith('/todo/'):
             return self.func(request, *a, **k)
 
-        # create session if no cookie and authorization header present
-        elif not request['x-cookie']['session_id'] and not 'authorization' in request:
-            # only on GET requests
-            if request['x-request-method'] == 'GET':
-                session_id = Model().create_user_session()
-                return self._redirect_cookie(request['x-request-uri'], session_id)
-            # for PUT/POST/DELETE, cookie is mandatory
-            else:
-                raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': 'No session cookie found' })
-
         # load session from authorization header
         elif 'authorization' in request:
             request['model'] = Model(app_cookie=request['authorization'])
             return self.func(request, *a, **k)
 
         # load session from cookie
-        else:
+        elif request['x-cookie']['session_id']:
             request['model'] = Model(user_cookie=request['x-cookie']['session_id'])
             return self.func(request, *a, **k)
+
+        # create session
+        else:
+            # only on GET requests
+            if request['x-request-method'] == 'GET':
+                session_id = Model().create_user_session()
+                return self._redirect_cookie(request['x-request-uri'], session_id)
+            # for PUT/POST/DELETE, ...just roll with it? see what happens?
+            else:
+                #raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': 'No session cookie found' })
+                request['model'] = Model()
+                return self.func(request, *a, **k)
 
 class TodoRouter(xhttp.Router):
     def __init__(self):
@@ -225,10 +249,16 @@ class TodoRouter(xhttp.Router):
             (r'^/todo/access_token/',           AccessToken())
         )
 
+    @xhttp.xhttp_app
+    @xhttp.catcher
+    @session_generator
+    def __call__(self, request, *a, **k):
+        return super(TodoRouter, self).__call__(request, *a, **k)
+
 app = TodoRouter()
-app = SessionGenerator(app)
-app = xhttp.catcher(app)
-app = xhttp.xhttp_app(app)
+#app = session_generator(app)
+#app = xhttp.catcher(app)
+#app = xhttp.xhttp_app(app)
 
 if __name__ == '__main__':
     xhttp.run_server(app, port=8080)

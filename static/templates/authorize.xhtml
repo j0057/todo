@@ -10,9 +10,10 @@
 
         <p>Is this OK?</p>
 
-        <form method="post" action="{{action}}">
+        <form method="post" action="/todo/authorize/">
             <input type="hidden" name="csrf_token" value="{{csrf_token}}"/>
             <input type="hidden" name="client_id" value="{{client_id}}"/>
+            <input type="hidden" name="state" value="{{state}}"/>
             <input type="submit" name="yes" value="yes"/>
             <input type="submit" name="no" value="no"/>
         </form>
