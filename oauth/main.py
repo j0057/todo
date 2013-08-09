@@ -1,8 +1,12 @@
 import json
 import os
 import re
-import urlparse
 import urllib
+
+try:
+    import urlparse as urlparse
+except ImportError:
+    import urllib.parse as urlparse
 
 import requests
 
@@ -33,7 +37,7 @@ def load_keys(name):
         client_secret: os.environ.get(client_secret, '') 
     }
     globals().update(keys)
-    print keys
+    print(keys)
         
 load_keys('GITHUB')
 load_keys('FACEBOOK')
@@ -49,20 +53,20 @@ load_keys('J0057_TODO')
 #
 
 def print_exchange(r):
-    print
-    print '>', r.request.method, r.request.url
+    print()
+    print('>', r.request.method, r.request.url)
     for k in sorted(k.title() for k in r.request.headers.keys()):
-        print '>', k.title(), ':', r.request.headers[k] 
-    print '>'
-    print '>', r.request.body
-    print
-    print '<', r.status_code, r.reason
+        print('>', k.title(), ':', r.request.headers[k])
+    print('>')
+    print('>', r.request.body)
+    print()
+    print('<', r.status_code, r.reason)
     for k in sorted(k.title() for k in r.headers.keys()):
-        print '<', k.title(), ':', r.headers[k]
-    print '<'
+        print('<', k.title(), ':', r.headers[k])
+    print('<')
     for line in re.split(r'[\r\n]+', r.text):
-        print '<', line
-    print
+        print('<', line)
+    print()
 
 def split_mime_header(header_val):
     parts = re.split(r';\s*', header_val)
