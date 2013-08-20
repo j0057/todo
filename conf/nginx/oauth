@@ -1,0 +1,9 @@
+server {
+    listen 80;
+    server_name pi.j0057.nl;
+    location /oauth {
+        root /srv/oauth;
+        include /etc/nginx/uwsgi_params;
+        uwsgi_pass unix:/run/uwsgi/oauth.socket;
+    }
+}
