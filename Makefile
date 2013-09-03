@@ -1,6 +1,4 @@
 
-include Makefile.inc
-
 ENV ?= env
 ENV_VERSION ?= python2.7
 SITE_PACKAGES = $(ENV)/lib/$(ENV_VERSION)/site-packages
