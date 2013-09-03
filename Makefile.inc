@@ -5,7 +5,6 @@ PIP_REQ = requirements.txt
 
 MAIN ?= mp3.main
 
-PKG_BASE = file://$(shell readlink -f ..)
 PKG = core sh
 
 STATIC_DIRS = conf web run
