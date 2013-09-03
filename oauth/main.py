@@ -29,24 +29,13 @@ def random(n=57):
 # keys come from configuration/environment
 #
 
-def load_keys(name):
-    client_id     = '{0}_CLIENT_ID'.format(name)
-    client_secret = '{0}_CLIENT_SECRET'.format(name)
-    keys = {
-        client_id    : os.environ.get(client_id, ''),
-        client_secret: os.environ.get(client_secret, '') 
-    }
-    globals().update(keys)
-    print(keys)
-        
-load_keys('GITHUB')
-load_keys('FACEBOOK')
-load_keys('LIVE')
-load_keys('GOOGLE')
-load_keys('DROPBOX')
-load_keys('LINKEDIN')
-load_keys('REDDIT')
-load_keys('J0057_TODO')
+def load_keys():
+    keys_json_filename = os.environ.get('OAUTH_KEYS', 'keys.json')
+    with open(keys_json_filename, 'r') as keys_json:
+        keys = json.load(keys_json)
+        globals().update(keys)
+
+load_keys()
 
 #
 # utility functions

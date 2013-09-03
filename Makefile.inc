@@ -9,6 +9,4 @@ STATIC_DIRS = conf static
 
 MAIN ?= oauth.main
 
-include Makefile.keys
-
-
+export OAUTH_KEYS = conf/keys.json
