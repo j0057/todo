@@ -68,14 +68,42 @@ def split_mime_header(header_val):
 #
 
 class Github(object):
-    key_format    = 'github_{0}'
+    key_fmt       = 'github_{0}'
 
     client_id     = GITHUB_CLIENT_ID
     client_secret = GITHUB_CLIENT_SECRET
 
     authorize_uri = 'https://github.com/login/oauth/authorize'
     token_uri     = 'https://github.com/login/oauth/access_token'
+    api_base_uri  = 'https://api.github.com'
+
     callback_uri  = 'https://dev.j0057.nl/oauth/github/code/'
+    redirect_uri  = 'https://dev.j0057.nl/oauth/index.xhtml'
+
+class Facebook(object):
+    key_fmt       = 'facebook_{0}'
+    
+    client_id     = FACEBOOK_CLIENT_ID
+    client_secret = FACEBOOK_CLIENT_SECRET
+    
+    authorize_uri = 'https://www.facebook.com/dialog/oauth'
+    token_uri     = 'https://graph.facebook.com/oauth/access_token'
+    api_base_uri  = 'https://graph.facebook.com/'
+
+    callback_uri  = 'https://dev.j0057.nl/oauth/facebook/code/'
+    redirect_uri  = 'https://dev.j0057.nl/oauth/index.xhtml'
+    
+class Live(object):
+    key_format    = 'live_{0}'
+    
+    client_id     = LIVE_CLIENT_ID
+    client_secret = LIVE_CLIENT_SECRET
+    
+    authorize_uri = 'https://login.live.com/oauth20_authorize.srf'
+    token_uri     = 'https://login.live.com/oauth20_token.srf'
+    api_base_uri  = 'https://apis.live.net/v5.0/'
+
+    callback_uri  = 'https://dev.j0057.nl/oauth/live/code/'
     redirect_uri  = 'https://dev.j0057.nl/oauth/index.xhtml'
 
 #
@@ -104,19 +132,11 @@ class OauthInit(xhttp.Resource):
 class GithubInit(OauthInit, Github):
     pass
 
-class FacebookInit(OauthInit):
-    key_fmt = 'facebook_{0}'
-    client_id = FACEBOOK_CLIENT_ID
-    client_secret = FACEBOOK_CLIENT_SECRET
-    authorize_uri = 'https://www.facebook.com/dialog/oauth'
-    callback_uri = 'https://dev.j0057.nl/oauth/facebook/code/'    
+class FacebookInit(OauthInit, Facebook):
+    pass
 
-class LiveInit(OauthInit):
-    key_fmt = 'live_{0}'
-    client_id = LIVE_CLIENT_ID
-    client_secret = LIVE_CLIENT_SECRET
-    authorize_uri = 'https://login.live.com/oauth20_authorize.srf'
-    callback_uri = 'https://dev.j0057.nl/oauth/live/code/'
+class LiveInit(OauthInit, Live):
+    pass
 
 class GoogleInit(OauthInit):
     key_fmt = 'google_{0}'
@@ -163,15 +183,6 @@ class J0057TodoInit(OauthInit):
 #
 
 class OauthCode(xhttp.Resource):
-    def __init__(self, key_fmt, client_id, client_secret, token_uri, callback_uri, redirect_uri):
-        super(OauthCode, self).__init__()
-        self.key_fmt = key_fmt 
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.token_uri = token_uri
-        self.callback_uri = callback_uri
-        self.redirect_uri = redirect_uri
-
     def get_form(self, code):
         return {
             'client_id': self.client_id,
@@ -222,27 +233,15 @@ class OauthCode(xhttp.Resource):
             'location': self.redirect_uri
         }
 
-class GithubCode(OauthCode):
-    def __init__(self):
-        super(GithubCode, self).__init__('github_{0}', GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
-                                         token_uri='https://github.com/login/oauth/access_token',
-                                         callback_uri='https://dev.j0057.nl/oauth/github/code/',
-                                         redirect_uri='https://dev.j0057.nl/oauth/index.xhtml')
+class GithubCode(OauthCode, Github):
+    pass
 
-class FacebookCode(OauthCode):
-    def __init__(self):
-        super(FacebookCode, self).__init__('facebook_{0}', FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
-                                           'https://graph.facebook.com/oauth/access_token',
-                                           'https://dev.j0057.nl/oauth/facebook/code/',
-                                           'https://dev.j0057.nl/oauth/index.xhtml')
+class FacebookCode(OauthCode, Facebook):
+    pass
 
-class LiveCode(OauthCode):
-    def __init__(self):
-        super(LiveCode, self).__init__('live_{0}', LIVE_CLIENT_ID, LIVE_CLIENT_SECRET,
-                                       'https://login.live.com/oauth20_token.srf',
-                                       'https://dev.j0057.nl/oauth/live/code/',
-                                       'https://dev.j0057.nl/oauth/index.xhtml')
-                                           
+class LiveCode(OauthCode, Live):
+    pass
+
 class GoogleCode(OauthCode):
     def __init__(self):
         super(GoogleCode, self).__init__('google_{0}', GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
@@ -288,11 +287,7 @@ class J0057TodoCode(OauthCode):
 #
 
 class OauthApi(xhttp.Resource):
-    def __init__(self, key_fmt, base_uri, access_token=None):
-        super(OauthApi, self).__init__()
-        self.key_fmt = key_fmt
-        self.base_uri = base_uri
-        self.access_token = access_token
+    access_token = None
 
     @xhttp.cookie({ 'session_id': '^(.+)$' })
     @xhttp.session('session_id', SESSIONS)
@@ -311,17 +306,14 @@ class OauthApi(xhttp.Resource):
             'content-type': response.headers['content-type'],
             'x-content': response.content }
 
-class GithubApi(OauthApi):
-    def __init__(self):
-        super(GithubApi, self).__init__('github_{0}', 'https://api.github.com/')
+class GithubApi(OauthApi, Github):
+    pass
 
-class FacebookApi(OauthApi):
-    def __init__(self):
-        super(FacebookApi, self).__init__('facebook_{0}', 'https://graph.facebook.com/')
+class FacebookApi(OauthApi, Facebook):
+    pass
 
-class LiveApi(OauthApi):
-    def __init__(self):
-        super(LiveApi, self).__init__('live_{0}', 'https://apis.live.net/v5.0/')
+class LiveApi(OauthApi, Live):
+    pass
 
 class GoogleApi(OauthApi):
     def __init__(self):
