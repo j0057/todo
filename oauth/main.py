@@ -64,18 +64,25 @@ def split_mime_header(header_val):
     return value, attrs
 
 #
+# Class variables
+#
+
+class Github(object):
+    key_format    = 'github_{0}'
+
+    client_id     = GITHUB_CLIENT_ID
+    client_secret = GITHUB_CLIENT_SECRET
+
+    authorize_uri = 'https://github.com/login/oauth/authorize'
+    token_uri     = 'https://github.com/login/oauth/access_token'
+    callback_uri  = 'https://dev.j0057.nl/oauth/github/code/'
+    redirect_uri  = 'https://dev.j0057.nl/oauth/index.xhtml'
+
+#
 # OauthInit
 #
 
 class OauthInit(xhttp.Resource):
-    def __init__(self, key_fmt, client_id, client_secret, authorize_uri, callback_uri):
-        super(OauthInit, self).__init__()
-        self.key_fmt = key_fmt 
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.authorize_uri = authorize_uri
-        self.callback_uri = callback_uri
-
     def get_scope(self, request):
         return request['x-get']['scope'] or ''
 
@@ -84,39 +91,39 @@ class OauthInit(xhttp.Resource):
     @xhttp.get({ 'scope?': '.+', 'session_id*': '.*' })
     def GET(self, request):
         request['x-session'][self.key_fmt.format('nonce')] = nonce = random()
+        authorize_uri = self.authorize_uri + '?' + urllib.urlencode({
+            'client_id': self.client_id,
+            'redirect_uri': self.callback_uri,
+            'scope': self.get_scope(request),
+            'state': nonce,
+            'response_type': 'code' })
         return {
             'x-status': xhttp.status.SEE_OTHER,
-            'location': self.authorize_uri + '?' + urllib.urlencode({
-                'client_id': self.client_id,
-                'redirect_uri': self.callback_uri,
-                'scope': self.get_scope(request),
-                'state': nonce,
-                'response_type': 'code' })
-        }
+            'location': authorize_uri }
 
-class GithubInit(OauthInit):
-    def __init__(self):
-        super(GithubInit, self).__init__('github_{0}', GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
-                                         'https://github.com/login/oauth/authorize',
-                                         'https://dev.j0057.nl/oauth/github/code/')
+class GithubInit(OauthInit, Github):
+    pass
 
 class FacebookInit(OauthInit):
-    def __init__(self):
-        super(FacebookInit, self).__init__('facebook_{0}', FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
-                                           'https://www.facebook.com/dialog/oauth',
-                                           'https://dev.j0057.nl/oauth/facebook/code/')
+    key_fmt = 'facebook_{0}'
+    client_id = FACEBOOK_CLIENT_ID
+    client_secret = FACEBOOK_CLIENT_SECRET
+    authorize_uri = 'https://www.facebook.com/dialog/oauth'
+    callback_uri = 'https://dev.j0057.nl/oauth/facebook/code/'    
 
 class LiveInit(OauthInit):
-    def __init__(self):
-        super(LiveInit, self).__init__('live_{0}', LIVE_CLIENT_ID, LIVE_CLIENT_SECRET,
-                                       'https://login.live.com/oauth20_authorize.srf',
-                                       'https://dev.j0057.nl/oauth/live/code/')
+    key_fmt = 'live_{0}'
+    client_id = LIVE_CLIENT_ID
+    client_secret = LIVE_CLIENT_SECRET
+    authorize_uri = 'https://login.live.com/oauth20_authorize.srf'
+    callback_uri = 'https://dev.j0057.nl/oauth/live/code/'
 
 class GoogleInit(OauthInit):
-    def __init__(self):
-        super(GoogleInit, self).__init__('google_{0}', GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
-                                         'https://accounts.google.com/o/oauth2/auth',
-                                         'https://dev.j0057.nl/oauth/google/code/')
+    key_fmt = 'google_{0}'
+    client_id = GOOGLE_CLIENT_ID
+    client_secret = GOOGLE_CLIENT_SECRET
+    authorize_uri = 'https://accounts.google.com/o/oauth2/auth'
+    callback_uri = 'https://dev.j0057.nl/oauth/google/code/'
 
     def get_scope(self, request):
         scopes = request['x-get']['scope'] or ''
@@ -124,29 +131,32 @@ class GoogleInit(OauthInit):
                         for scope in scopes.split())
 
 class DropboxInit(OauthInit):
-    def __init__(self):
-        super(DropboxInit, self).__init__('dropbox_{0}', DROPBOX_CLIENT_ID, DROPBOX_CLIENT_SECRET,
-                                          'https://www.dropbox.com/1/oauth2/authorize',
-                                          'https://dev.j0057.nl/oauth/dropbox/code/')
+    key_fmt = 'dropbox_{0}'
+    client_id = DROPBOX_CLIENT_ID
+    client_secret = DROPBOX_CLIENT_SECRET
+    authorize_uri = 'https://www.dropbox.com/1/oauth2/authorize'
+    callback_uri = 'https://dev.j0057.nl/oauth/dropbox/code/'
 
 class LinkedinInit(OauthInit):
-    def __init__(self):
-        super(LinkedinInit, self).__init__('linkedin_{0}', LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET,
-                                           'https://www.linkedin.com/uas/oauth2/authorization',
-                                           'https://dev.j0057.nl/oauth/linkedin/code/')
+    key_fmt = 'linkedin_{0}'
+    client_id = LINKEDIN_CLIENT_ID
+    client_secret = LINKEDIN_CLIENT_SECRET
+    authorize_uri = 'https://www.linkedin.com/uas/oauth2/authorization'
+    callback_uri = 'https://dev.j0057.nl/oauth/linkedin/code/'
 
 class RedditInit(OauthInit):
-    def __init__(self):
-        super(RedditInit, self).__init__('reddit_{0}', REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET,
-                                         'https://ssl.reddit.com/api/v1/authorize',
-                                         'https://dev.j0057.nl/oauth/reddit/code/')
+    key_fmt = 'reddit_{0}'
+    client_id = REDDIT_CLIENT_ID
+    client_secret = REDDIT_CLIENT_SECRET
+    authorize_uri = 'https://ssl.reddit.com/api/v1/authorize'
+    callback_uri = 'https://dev.j0057.nl/oauth/reddit/code/'
 
 class J0057TodoInit(OauthInit):
-    def __init__(self):
-        super(J0057TodoInit, self).__init__('j0057_todo_{0}',
-                                            J0057_TODO_CLIENT_ID, J0057_TODO_CLIENT_SECRET,
-                                            'http://dev2.j0057.nl/todo/authorize/',
-                                            'https://dev.j0057.nl/oauth/j0057-todo/code/')
+    key_fmt = 'j0057_todo_{0}'
+    client_id = J0057_TODO_CLIENT_ID
+    client_secret = J0057_TODO_CLIENT_SECRET
+    authorize_uri = 'http://dev2.j0057.nl/todo/authorize/'
+    callback_uri = 'https://dev.j0057.nl/oauth/j0057-todo/code/'
 
 #
 # OauthCode
@@ -215,9 +225,9 @@ class OauthCode(xhttp.Resource):
 class GithubCode(OauthCode):
     def __init__(self):
         super(GithubCode, self).__init__('github_{0}', GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
-                                         'https://github.com/login/oauth/access_token',
-                                         'https://dev.j0057.nl/oauth/github/code/',
-                                         'https://dev.j0057.nl/oauth/index.xhtml')
+                                         token_uri='https://github.com/login/oauth/access_token',
+                                         callback_uri='https://dev.j0057.nl/oauth/github/code/',
+                                         redirect_uri='https://dev.j0057.nl/oauth/index.xhtml')
 
 class FacebookCode(OauthCode):
     def __init__(self):
