@@ -245,19 +245,16 @@ class OauthCode(xhttp.Resource):
         return {}
 
     def get_token(self, code):
-        r = requests.post(self.token_uri, data=self.get_form(code), headers=self.get_headers())
-
-        print_exchange(r)
-
-        if r.status_code != 200:
-            raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': r.text.encode('utf8') })
-
-        content_type, _ = split_mime_header(r.headers['content-type'])
+        response = requests.post(self.token_uri, data=self.get_form(code), headers=self.get_headers())
+        print_exchange(response)
+        if response.status_code != 200:
+            raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': response.text.encode('utf8') })
+        content_type, _ = split_mime_header(response.headers['content-type'])
         if content_type == 'application/json':
-            data = r.json()
+            data = response.json()
             return data['access_token']
         elif content_type == 'application/x-www-form-urlencoded' or content_type == 'text/plain':
-            data = urlparse.parse_qs(r.content)
+            data = urlparse.parse_qs(response.content)
             return data['access_token'][0]
         else:
             raise xhttp.HTTPException(xhttp.status.NOT_IMPLEMENTED, { 
@@ -292,7 +289,6 @@ class DropboxCode(OauthCode, Dropbox):
     pass
 
 class LinkedinCode(OauthCode, Linkedin):
-    pass
                                            
 class RedditCode(OauthCode, Reddit):
     def get_authorization(self):
