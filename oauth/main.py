@@ -75,7 +75,7 @@ class Github(object):
 
     authorize_uri = 'https://github.com/login/oauth/authorize'
     token_uri     = 'https://github.com/login/oauth/access_token'
-    api_base_uri  = 'https://api.github.com'
+    api_base_uri  = 'https://api.github.com/'
 
     callback_uri  = 'https://dev.j0057.nl/oauth/github/code/'
     redirect_uri  = 'https://dev.j0057.nl/oauth/index.xhtml'
@@ -104,6 +104,71 @@ class Live(object):
     api_base_uri  = 'https://apis.live.net/v5.0/'
 
     callback_uri  = 'https://dev.j0057.nl/oauth/live/code/'
+    redirect_uri  = 'https://dev.j0057.nl/oauth/index.xhtml'
+
+class Google(object):
+    key_fmt       = 'google_{0}'
+
+    client_id     = GOOGLE_CLIENT_ID
+    client_secret = GOOGLE_CLIENT_SECRET
+
+    authorize_uri = 'https://accounts.google.com/o/oauth2/auth'
+    token_uri     = 'https://accounts.google.com/o/oauth2/token'
+    api_base_uri  = 'https://www.googleapis.com/'
+
+    callback_uri  = 'https://dev.j0057.nl/oauth/google/code/'
+    redirect_uri  = 'https://dev.j0057.nl/oauth/index.html'
+
+class Dropbox(object):
+    key_fmt       = 'dropbox_{0}'
+
+    client_id     = DROPBOX_CLIENT_ID
+    client_secret = DROPBOX_CLIENT_SECRET
+
+    authorize_uri = 'https://www.dropbox.com/1/oauth2/authorize'
+    token_uri     = 'https://api.dropbox.com/1/oauth2/token'
+    api_base_uri  = 'https://api.dropbox.com/'
+
+    callback_uri  = 'https://dev.j0057.nl/oauth/dropbox/code/'
+    redirect_uri  = 'https://dev.j0057.nl/oauth/index.xhtml'
+
+class Linkedin(object):
+    key_fmt       = 'linkedin_{0}'
+
+    client_id     = LINKEDIN_CLIENT_ID
+    client_secret = LINKEDIN_CLIENT_SECRET
+
+    authorize_uri = 'https://www.linkedin.com/uas/oauth2/authorization'
+    token_uri     = 'https://www.linkedin.com/uas/oauth2/accessToken'
+    api_base_uri  = 'https://api.linkedin.com/'
+
+    callback_uri  = 'https://dev.j0057.nl/oauth/linkedin/code/'
+    redirect_uri  = 'https://dev.j0057.nl/oauth/index.xhtml'
+
+class Reddit(object):
+    key_fmt       = 'reddit_{0}'
+
+    client_id     = REDDIT_CLIENT_ID
+    client_secret = REDDIT_CLIENT_SECRET
+
+    authorize_uri = 'https://ssl.reddit.com/api/v1/authorize'
+    token_uri     = 'https://ssl.reddit.com/api/v1/access_token'
+    api_base_uri  = 'https://oauth.reddit.com/'
+
+    callback_uri  = 'https://dev.j0057.nl/oauth/reddit/code/'
+    redirect_uri  = 'https://dev.j0057.nl/oauth/index.xhtml'
+
+class J0057Todo(object):
+    key_fmt       = 'j0057_todo_{0}'
+
+    client_id     = J0057_TODO_CLIENT_ID
+    client_secret = J0057_TODO_CLIENT_SECRET
+
+    authorize_uri = 'http://dev2.j0057.nl/todo/authorize/'
+    token_uri     = 'http://dev2.j0057.nl/todo/access_token/'
+    api_base_uri  = 'http://dev2.j0057.nl/todo/'
+
+    callback_uri  = 'https://dev.j0057.nl/oauth/j0057-todo/code/'
     redirect_uri  = 'https://dev.j0057.nl/oauth/index.xhtml'
 
 #
@@ -138,45 +203,23 @@ class FacebookInit(OauthInit, Facebook):
 class LiveInit(OauthInit, Live):
     pass
 
-class GoogleInit(OauthInit):
-    key_fmt = 'google_{0}'
-    client_id = GOOGLE_CLIENT_ID
-    client_secret = GOOGLE_CLIENT_SECRET
-    authorize_uri = 'https://accounts.google.com/o/oauth2/auth'
-    callback_uri = 'https://dev.j0057.nl/oauth/google/code/'
-
+class GoogleInit(OauthInit, Google):
     def get_scope(self, request):
         scopes = request['x-get']['scope'] or ''
         return ' '.join(scope if scope in ['openid', 'email'] else 'https://www.googleapis.com/auth/' + scope
                         for scope in scopes.split())
 
-class DropboxInit(OauthInit):
-    key_fmt = 'dropbox_{0}'
-    client_id = DROPBOX_CLIENT_ID
-    client_secret = DROPBOX_CLIENT_SECRET
-    authorize_uri = 'https://www.dropbox.com/1/oauth2/authorize'
-    callback_uri = 'https://dev.j0057.nl/oauth/dropbox/code/'
+class DropboxInit(OauthInit, Dropbox):
+    pass
 
-class LinkedinInit(OauthInit):
-    key_fmt = 'linkedin_{0}'
-    client_id = LINKEDIN_CLIENT_ID
-    client_secret = LINKEDIN_CLIENT_SECRET
-    authorize_uri = 'https://www.linkedin.com/uas/oauth2/authorization'
-    callback_uri = 'https://dev.j0057.nl/oauth/linkedin/code/'
+class LinkedinInit(OauthInit, Linkedin):
+    pass
 
-class RedditInit(OauthInit):
-    key_fmt = 'reddit_{0}'
-    client_id = REDDIT_CLIENT_ID
-    client_secret = REDDIT_CLIENT_SECRET
-    authorize_uri = 'https://ssl.reddit.com/api/v1/authorize'
-    callback_uri = 'https://dev.j0057.nl/oauth/reddit/code/'
+class RedditInit(OauthInit, Reddit):
+    pass
 
-class J0057TodoInit(OauthInit):
-    key_fmt = 'j0057_todo_{0}'
-    client_id = J0057_TODO_CLIENT_ID
-    client_secret = J0057_TODO_CLIENT_SECRET
-    authorize_uri = 'http://dev2.j0057.nl/todo/authorize/'
-    callback_uri = 'https://dev.j0057.nl/oauth/j0057-todo/code/'
+class J0057TodoInit(OauthInit, J0057Todo):
+    pass
 
 #
 # OauthCode
@@ -242,45 +285,22 @@ class FacebookCode(OauthCode, Facebook):
 class LiveCode(OauthCode, Live):
     pass
 
-class GoogleCode(OauthCode):
-    def __init__(self):
-        super(GoogleCode, self).__init__('google_{0}', GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
-                                         'https://accounts.google.com/o/oauth2/token',
-                                         'https://dev.j0057.nl/oauth/google/code/',
-                                         'https://dev.j0057.nl/oauth/index.xhtml')
+class GoogleCode(OauthCode, Google):
+    pass
 
-class DropboxCode(OauthCode):
-    def __init__(self):
-        super(DropboxCode, self).__init__('dropbox_{0}', DROPBOX_CLIENT_ID, DROPBOX_CLIENT_SECRET,
-                                           'https://api.dropbox.com/1/oauth2/token',
-                                           'https://dev.j0057.nl/oauth/dropbox/code/',
-                                           'https://dev.j0057.nl/oauth/index.xhtml')
+class DropboxCode(OauthCode, Dropbox):
+    pass
 
-class LinkedinCode(OauthCode):
-    def __init__(self):
-        super(LinkedinCode, self).__init__('linkedin_{0}', LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET,
-                                           'https://www.linkedin.com/uas/oauth2/accessToken',
-                                           'https://dev.j0057.nl/oauth/linkedin/code/',
-                                           'https://dev.j0057.nl/oauth/index.xhtml')
+class LinkedinCode(OauthCode, Linkedin):
+    pass
                                            
-class RedditCode(OauthCode):
-    def __init__(self):
-        super(RedditCode, self).__init__('reddit_{0}', REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET,
-                                         'https://ssl.reddit.com/api/v1/access_token',
-                                         'https://dev.j0057.nl/oauth/reddit/code/',
-                                         'https://dev.j0057.nl/oauth/index.xhtml')
-
+class RedditCode(OauthCode, Reddit):
     def get_authorization(self):
         auth = 'Basic ' + '{0}:{1}'.format(self.client_id, self.client_secret).encode('base64')[:-1]
         return { 'authorization': auth }
 
-class J0057TodoCode(OauthCode):
-    def __init__(self):
-        super(J0057TodoCode, self).__init__('j0057_todo_{0}',
-                                            J0057_TODO_CLIENT_ID, J0057_TODO_CLIENT_SECRET,
-                                            'http://dev2.j0057.nl/todo/access_token/',
-                                            'https://dev.j0057.nl/oauth/j0057-todo/code/',
-                                            'https://dev.j0057.nl/oauth/index.xhtml')
+class J0057TodoCode(OauthCode, J0057Todo):
+    pass
 
 #
 # OauthApi
@@ -315,29 +335,25 @@ class FacebookApi(OauthApi, Facebook):
 class LiveApi(OauthApi, Live):
     pass
 
-class GoogleApi(OauthApi):
-    def __init__(self):
-        super(GoogleApi, self).__init__('google_{0}', 'https://www.googleapis.com/')
+class GoogleApi(OauthApi, Google):
+    pass
 
-class DropboxApi(OauthApi):
-    def __init__(self):
-        super(DropboxApi, self).__init__('dropbox_{0}', 'https://api.dropbox.com/')
-        
-    def GET(self, request, path): # FIXME: path gets unquoted by xhttp ... 
+class DropboxApi(OauthApi, Dropbox):
+    def GET(self, request, path): 
         path = '/'.join(urllib.quote(part) for part in path.split('/'))
         return super(DropboxApi, self).GET(request, path)
         
-class DropboxContentApi(OauthApi):
-    def __init__(self):
-        super(DropboxContentApi, self).__init__('dropbox_{0}', 'https://api-content.dropbox.com/')
+class DropboxContentApi(OauthApi, Dropbox):
+    api_base_uri = 'https://api-content.dropbox.com'
 
-class LinkedinApi(OauthApi):
-    def __init__(self):
-        super(LinkedinApi, self).__init__('linkedin_{0}', 'https://api.linkedin.com/', 'oauth2_access_token')
+class LinkedinApi(OauthApi, Linkedin):
+    access_token = 'oauth2_access_token'
 
-class RedditApi(OauthApi):
-    def __init__(self):
-        super(RedditApi, self).__init__('reddit_{0}', 'https://oauth.reddit.com/')
+class RedditApi(OauthApi, Reddit):
+    pass
+
+class J0057TodoApi(OauthApi, J0057Todo):
+    pass
 
 #
 # Sessions
