@@ -42,20 +42,20 @@ load_keys()
 #
 
 def print_exchange(r):
-    print()
-    print('>', r.request.method, r.request.url)
+    print
+    print '>', r.request.method, r.request.url 
     for k in sorted(k.title() for k in r.request.headers.keys()):
-        print('>', k.title(), ':', r.request.headers[k])
-    print('>')
-    print('>', r.request.body)
-    print()
-    print('<', r.status_code, r.reason)
+        print '>', k.title(), ':', r.request.headers[k] 
+    print '>' 
+    print '>', r.request.body 
+    print  
+    print '<', r.status_code, r.reason 
     for k in sorted(k.title() for k in r.headers.keys()):
-        print('<', k.title(), ':', r.headers[k])
-    print('<')
+        print '<', k.title(), ':', r.headers[k] 
+    print '<' 
     for line in re.split(r'[\r\n]+', r.text):
-        print('<', line)
-    print()
+        print '<', line 
+    print  
 
 def split_mime_header(header_val):
     parts = re.split(r';\s*', header_val)
@@ -94,7 +94,7 @@ class Facebook(object):
     redirect_uri  = 'https://dev.j0057.nl/oauth/index.xhtml'
     
 class Live(object):
-    key_format    = 'live_{0}'
+    key_fmt       = 'live_{0}'
     
     client_id     = LIVE_CLIENT_ID
     client_secret = LIVE_CLIENT_SECRET
@@ -117,7 +117,7 @@ class Google(object):
     api_base_uri  = 'https://www.googleapis.com/'
 
     callback_uri  = 'https://dev.j0057.nl/oauth/google/code/'
-    redirect_uri  = 'https://dev.j0057.nl/oauth/index.html'
+    redirect_uri  = 'https://dev.j0057.nl/oauth/index.xhtml'
 
 class Dropbox(object):
     key_fmt       = 'dropbox_{0}'
@@ -319,7 +319,7 @@ class OauthApi(xhttp.Resource):
             params.update({ self.access_token: token })
         else:
             headers.update({ 'authorization': 'Bearer {0}'.format(token) })
-        response = requests.get(self.base_uri + path, params=params, headers=headers)
+        response = requests.get(self.api_base_uri + path, params=params, headers=headers)
         print_exchange(response)
         return {
             'x-status': response.status_code,
