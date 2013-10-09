@@ -289,6 +289,7 @@ class DropboxCode(OauthCode, Dropbox):
     pass
 
 class LinkedinCode(OauthCode, Linkedin):
+    pass
                                            
 class RedditCode(OauthCode, Reddit):
     def get_authorization(self):
@@ -395,7 +396,7 @@ class SessionCheck(xhttp.Resource):
             return {
                 'x-status': xhttp.status.OK,
                 'x-content': json.dumps({
-                    'session': bool(session),
+                    'session': session_id in SESSIONS,
                     'tokens': {
                         'github': 'github_token' in session,
                         'facebook': 'facebook_token' in session,
@@ -404,7 +405,8 @@ class SessionCheck(xhttp.Resource):
                         'dropbox': 'dropbox_token' in session,
                         'linkedin': 'linkedin_token' in session,
                         'reddit': 'reddit_token' in session,
-                    }
+                    },
+                    'request': { k: str(v) for (k, v) in request.items() }
                 }),
                 'content-type': 'application/json'
             }

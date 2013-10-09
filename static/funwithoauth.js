@@ -18,7 +18,7 @@ var xml = function(node) {
     if (node instanceof Array) {
         var result = document.createElement(node[0]);
         for (var i = 1; i < node.length; i++)
-            if (typeof node[i] != 'string' && !(node[i] instanceof Array))
+            if (typeof node[i] == 'object' && !(node[i] instanceof Array))
                 for (var attrName in node[i])
                     result.setAttribute(attrName, node[i][attrName]);
             else
@@ -26,7 +26,7 @@ var xml = function(node) {
         return result;
     }
     else
-        return document.createTextNode(node);
+        return document.createTextNode(node.toString());
 };
 
 var empty = function(node) {
@@ -80,6 +80,22 @@ document.addEventListener('DOMContentLoaded', function(e) {
                     var img = xml(['a', {href: 'https://github.com/' + user.login},
                         ['img', {src: user.avatar_url, title: user.login, width: 80, height: 80}]]);
                     document.querySelector('#github_followers_result').appendChild(img);
+                });
+        });
+    });
+
+    document.querySelector('#github_repos').addEventListener('click', function(e) {
+        e.preventDefault();
+        request('GET', e.target.href, function(xhr) {
+            console.log(JSON.parse(xhr.response));
+            JSON.parse(xhr.response)
+                .map(function(repo) {
+                    var p = xml(['div', 
+                        ['a', {href:repo.html_url}, repo.name],
+                        ': ', repo.watchers, ' stars, ',
+                        ' ', repo.forks, ' forks',
+                        ' ', repo.open_issues, ' issues']);
+                    document.querySelector('#github_repos_result').appendChild(p);
                 });
         });
     });
