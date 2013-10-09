@@ -307,7 +307,8 @@ class J0057TodoCode(OauthCode, J0057Todo):
 #
 
 class OauthApi(xhttp.Resource):
-    access_token = None
+    def set_token(self, headers, params, token):
+        headers.update({ 'authorization': 'Bearer {0}'.format(token) })
 
     @xhttp.cookie({ 'session_id': '^(.+)$' })
     @xhttp.session('session_id', SESSIONS)
@@ -315,10 +316,7 @@ class OauthApi(xhttp.Resource):
         token = request['x-session'].get(self.key_fmt.format('token'), '')
         params = { k: v[0] for (k, v) in urlparse.parse_qs(request['x-query-string']).items() }
         headers = { 'accept': 'application/json' }
-        if self.access_token:
-            params.update({ self.access_token: token })
-        else:
-            headers.update({ 'authorization': 'Bearer {0}'.format(token) })
+        self.set_token(headers, params, token)
         response = requests.get(self.api_base_uri + path, params=params, headers=headers)
         print_exchange(response)
         return {
@@ -347,7 +345,8 @@ class DropboxContentApi(OauthApi, Dropbox):
     api_base_uri = 'https://api-content.dropbox.com'
 
 class LinkedinApi(OauthApi, Linkedin):
-    access_token = 'oauth2_access_token'
+    def set_token(self, headers, params, token):
+        params.update({ 'oauth2_access_token': token })
 
 class RedditApi(OauthApi, Reddit):
     pass
