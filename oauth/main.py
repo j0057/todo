@@ -244,21 +244,25 @@ class OauthCode(xhttp.Resource):
     def get_authorization(self):
         return {}
 
-    def get_token(self, code):
+    def parse_token(self, response, content_type):
+        if content_type == 'application/json':
+            json = response.json()
+            return json['access_token']
+
+    def request_token(self, code):
+        # post request for getting access token
         response = requests.post(self.token_uri, data=self.get_form(code), headers=self.get_headers())
         print_exchange(response)
         if response.status_code != 200:
             raise xhttp.HTTPException(xhttp.status.BAD_REQUEST, { 'x-detail': response.text.encode('utf8') })
+
+        # get access code from response
         content_type, _ = split_mime_header(response.headers['content-type'])
-        if content_type == 'application/json':
-            data = response.json()
-            return data['access_token']
-        elif content_type == 'application/x-www-form-urlencoded' or content_type == 'text/plain':
-            data = urlparse.parse_qs(response.content)
-            return data['access_token'][0]
-        else:
-            raise xhttp.HTTPException(xhttp.status.NOT_IMPLEMENTED, { 
+        access_token = self.parse_token(response, content_type)
+        if not access_token:
+            raise xhttp.HTTPException(xhttp.status.NOT_IMPLEMENTED, {
                 'x-detail': "Don't know how to handle content type {0}".format(content_type) })
+        return access_token
 
     @xhttp.get({ 'code': r'^.+$', 'state': r'^[-_0-9a-zA-Z]+$',
                  'authuser?': '.*', 'prompt?': '.*', 'session_state?': '.*' })
@@ -267,7 +271,7 @@ class OauthCode(xhttp.Resource):
     def GET(self, request):
         if request['x-get']['state'] != request['x-session'].pop(self.key_fmt.format('nonce')):
             raise xhttp.HTTPException(xhttp.BAD_REQUEST, { 'x-detail': 'Bad state {0}'.format(state) })
-        request['x-session'][self.key_fmt.format('token')] = self.get_token(request['x-get']['code'])
+        request['x-session'][self.key_fmt.format('token')] = self.request_token(request['x-get']['code'])
         return { 
             'x-status': xhttp.status.SEE_OTHER,
             'location': self.redirect_uri
@@ -277,7 +281,12 @@ class GithubCode(OauthCode, Github):
     pass
 
 class FacebookCode(OauthCode, Facebook):
-    pass
+    def parse_token(self, response, content_type):
+        if content_type in ['application/x-www-form-urlencoded', 'text/plain']:
+            form = urlparse.parse_qs(response.content)
+            return form['access_token'][0]
+        else:
+            return super(FacebookCode, self).parse_token(response, content_type)
 
 class LiveCode(OauthCode, Live):
     pass
