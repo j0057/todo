@@ -1,6 +1,7 @@
 
 ENV ?= env
 ENV_VERSION ?= python2.7
+PYTHON_OPTS ?= -B 
 SITE_PACKAGES = $(ENV)/lib/$(ENV_VERSION)/site-packages
 
 TARGET = /srv/$(NAME)
@@ -26,10 +27,10 @@ PKG_BASE ?= $(shell readlink -f ..)
 #
 
 test: runtime-test
-	cd $(ENV) ; bin/python -m $(MAIN)
+	cd $(ENV) ; bin/python $(PYTHON_OPTS) -m $(MAIN)
 
 run: runtime-live
-	cd $(ENV) ; bin/python -m $(MAIN)
+	cd $(ENV) ; bin/python $(PYTHON_OPTS) -m $(MAIN)
 
 #
 # deploy
@@ -77,8 +78,13 @@ undeploy-pkg-%:
 link-pkgs: $(addprefix $(ENV)/.pkglink-,$(PKG))
 
 $(ENV)/.pkglink-%:
+ifeq (${shell test -d $(PKG_BASE)/$*/$* && echo 1 || echo 0},1)
 	ln -snf $(PKG_BASE)/$*/$* $(SITE_PACKAGES)/$*
+else
+	ln -snf $(PKG_BASE)/$*/$*.py $(SITE_PACKAGES)/$*.py
+endif
 	@touch $@
+#test -f $(PKG_BASE)/$*/$*.py && ln -snf $(PKG_BASE)/$*/$*.py $(SITE_PACKAGES)/$*.py || ln -snf $(PKG_BASE)/$*/$* $(SITE_PACKAGES)/$*
 
 unlink-pkgs: $(addprefix unlink-pkg-,$(PKG))
 
@@ -139,7 +145,7 @@ really-clean: clean
 # unit testing
 
 unit-test: runtime-test
-	cd tests ; ../$(ENV)/bin/python -m unittest discover
+	cd tests ; ../$(ENV)/bin/python $(PYTHON_OPTS) -m unittest discover
 
 coverage: runtime-test
 	rm -rf tests/htmlcov
