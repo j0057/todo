@@ -78,13 +78,13 @@ undeploy-pkg-%:
 link-pkgs: $(addprefix $(ENV)/.pkglink-,$(PKG))
 
 $(ENV)/.pkglink-%:
-ifeq (${shell test -d $(PKG_BASE)/$*/$* && echo 1 || echo 0},1)
+	@IS_PACKAGE=${shell test -d $(PKG_BASE)/$*/$* && echo 1 || echo 0}
+ifeq ($(IS_PACKAGE),1)
 	ln -snf $(PKG_BASE)/$*/$* $(SITE_PACKAGES)/$*
 else
 	ln -snf $(PKG_BASE)/$*/$*.py $(SITE_PACKAGES)/$*.py
 endif
 	@touch $@
-#test -f $(PKG_BASE)/$*/$*.py && ln -snf $(PKG_BASE)/$*/$*.py $(SITE_PACKAGES)/$*.py || ln -snf $(PKG_BASE)/$*/$* $(SITE_PACKAGES)/$*
 
 unlink-pkgs: $(addprefix unlink-pkg-,$(PKG))
 
