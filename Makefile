@@ -88,6 +88,7 @@ else
 	ln -snf $(PKG_BASE)/$*/$*.py $(SITE_PACKAGES)/$*.py
 endif
 	@touch $@
+#test -f $(PKG_BASE)/$*/$*.py && ln -snf $(PKG_BASE)/$*/$*.py $(SITE_PACKAGES)/$*.py || ln -snf $(PKG_BASE)/$*/$* $(SITE_PACKAGES)/$*
 
 unlink-pkgs: $(addprefix unlink-pkg-,$(PKG))
 
@@ -157,7 +158,7 @@ unit-test: runtime-test
 coverage: runtime-test
 	rm -rf tests/$(COVERAGE_OUTPUT_DIR)
 	rm -f tests/$(COVERAGE_FILE)
-	cd tests ; ../$(ENV)/bin/python $(PYTHON_OPTS) ../$(ENV)/bin/coverage run --branch -m unittest discover || true
+	cd tests ; ../$(ENV)/bin/python $(PYTHON_OPTS) ../$(ENV)/bin/coverage run --branch -m unittest discover -v || true
 	cd tests ; ../$(ENV)/bin/python $(PYTHON_OPTS) ../$(ENV)/bin/coverage html
 
 continuous:
