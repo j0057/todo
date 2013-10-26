@@ -4,6 +4,9 @@ ENV_VERSION ?= python2.7
 PYTHON_OPTS ?= -B 
 SITE_PACKAGES = $(ENV)/lib/$(ENV_VERSION)/site-packages
 
+export COVERAGE_FILE ?= .coverage
+export COVERAGE_OUTPUT_DIR ?= htmlcov
+
 TARGET = /srv/$(NAME)
 TARGET_USER ?= www-data
 TARGET_GROUP ?= www-data
@@ -138,20 +141,24 @@ unlink-dir-%:
 
 clean:
 	rm -rf $(ENV)
+	rm -rf tests/$(COVERAGE_OUTPUT_DIR)
+	rm -f tests/$(COVERAGE_FILE)
 
 really-clean: clean
 	rm -rf $(PIP_CACHE)
 
+#
 # unit testing
+#
 
 unit-test: runtime-test
 	cd tests ; ../$(ENV)/bin/python $(PYTHON_OPTS) -m unittest discover
 
 coverage: runtime-test
-	rm -rf tests/htmlcov
-	rm -f tests/.coverage
-	cd tests ; ../$(ENV)/bin/coverage run --branch -m unittest discover || true
-	cd tests ; ../$(ENV)/bin/coverage html
+	rm -rf tests/$(COVERAGE_OUTPUT_DIR)
+	rm -f tests/$(COVERAGE_FILE)
+	cd tests ; ../$(ENV)/bin/python $(PYTHON_OPTS) ../$(ENV)/bin/coverage run --branch -m unittest discover || true
+	cd tests ; ../$(ENV)/bin/python $(PYTHON_OPTS) ../$(ENV)/bin/coverage html
 
 continuous:
 	inotifywait -r . -q -m -e CLOSE_WRITE | grep --line-buffered '^.*\.py$$' | while read line; do clear; date; echo $$line; echo; make coverage; done
