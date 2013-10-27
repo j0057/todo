@@ -1,0 +1,10 @@
+*.pyc
+__pycache__
+env
+env3
+.coverage
+.coverage3
+htmlcov
+htmlcov3
+.cache
+*.swp

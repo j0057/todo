@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 
-import httplib
 import re
-import urllib
+import sys
+
+if sys.version_info[0] == 3:
+    from urllib.parse import unquote
+elif sys.version_info[0] == 2:
+    from urllib import unquote
 
 import xhttp
 
@@ -47,6 +51,7 @@ def hello_world_2(req):
 
 # xhttp resource
 class HelloWorld(xhttp.Resource):
+    @xhttp.accept_charset
     @xhttp.accept
     def GET(self, req):
         greeting = { 
@@ -56,7 +61,10 @@ class HelloWorld(xhttp.Resource):
             "text/plain"            : lambda m: m["message"],
             "text/html"             : lambda m: ["p", m["message"]],
             "application/json"      : lambda m: m,
-            "application/xhtml+xml" : lambda m: ["p", ("xmlns", "http://www.w3.org/1999/xhtml"), m["message"], req["x-path"]],
+            "application/xhtml+xml" : lambda m: ["p", ("xmlns", "http://www.w3.org/1999/xhtml"), 
+                                        m["message"], 
+                                        ["br"],
+                                        req["x-path-info"]],
             "application/xml"       : lambda m: ["message", m["message"]] 
         }
         return {
@@ -64,7 +72,6 @@ class HelloWorld(xhttp.Resource):
             "x-content"      : greeting,
             "x-content-view" : greeting_view
         }
-
 
 # wsgi 
 class HelloWorldApp_1(xhttp.WSGIAdapter, HelloWorld):
@@ -82,11 +89,13 @@ class HelloWorldApp_3(HelloWorld):
 class TestRouter(xhttp.Router):
     def __init__(self):
         super(TestRouter, self).__init__(
-            (r"^/test/$",           hello_world_2),
-            (r"^/env/(.*)$",        env_2),
-            (r"^/hello-world/$",    HelloWorld()),
-            (r"^/hw/$",             HelloWorld()),
-            (r"^/debug/(.*)$",      self.debug)
+            (r"^/$",                            xhttp.Redirector("/xhttptest/")),
+            (r"^/xhttptest/$",                  xhttp.Redirector("/xhttptest/test/")),
+            (r"^/xhttptest/test/$",             hello_world_2),
+            (r"^/xhttptest/env/(.*)$",          env_2),
+            (r"^/xhttptest/hello-world/$",      HelloWorld()),
+            (r"^/xhttptest/hw/$",               HelloWorld()),
+            (r"^/xhttptest/debug/(.*)$",        self.debug)
         )
 
     def debug(self, req, virt_path):
@@ -102,43 +111,16 @@ class TestRouter(xhttp.Router):
             + dump_dict(res) \
             + "\n\n"
         return {
-            "x-status": httplib.OK,
+            "x-status": xhttp.status.OK,
             "x-content": [content],
             "content-type": "text/plain",
             "content-length": len(content)
         }
 
-app = xhttp.xhttp_app(TestRouter())
+app = TestRouter()
+app = xhttp.catcher(app)
+app = xhttp.xhttp_app(app)
 
 if __name__ == "__main__":
-    def run_server(app):
-        def fix_wsgiref(app):
-            def fixed_app(request, start_response):
-                if 'REQUEST_URI' not in request:
-                    request['REQUEST_URI'] = request['PATH_INFO']
-                    if request['QUERY_STRING']:
-                        request['REQUEST_URI'] += '?'
-                        request['REQUEST_URI'] += request['QUERY_STRING']
-                import os
-                request['DOCUMENT_ROOT'] = os.getcwd()
-                return app(request, start_response)
-            return fixed_app
-
-        app = fix_wsgiref(app)
-
-        print 'Serving on port 8000'
-        import wsgiref.simple_server
-        httpd = wsgiref.simple_server.make_server('', 8000, app)
-        httpd.serve_forever()
-
-    run_server(app)
-
-    #m = xhttp.qlist("application/xml+xhtml;q=0.9, text/html")
-    #m = xhttp.qlist("text/html;q=0.9,application/xhtml+xml,application/xml;q=0.9,text/*;q=0.8,*/*;q=0.1,image/*;q=0.2")
-    #print m
-    #print m.negotiate_mime(["foo/bar"])
-    #print m.negotiate_mime(["image/png"])
-    #print m.negotiate_mime(["image/png", "foo/bar"])
-    #print m.negotiate_mime(["image/png", "foo/bar", "text/plain"])
-    #print m.negotiate_mime(["image/png", "foo/bar", "text/plain", "text/html"])
+    xhttp.run_server(app)
 
