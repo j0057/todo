@@ -1,15 +1,22 @@
 
-ENV ?= env
-ENV_VERSION ?= python2.7
-PYTHON_OPTS ?= -B 
-SITE_PACKAGES = $(ENV)/lib/$(ENV_VERSION)/site-packages
+PY_VERSION ?= python2.7
+PY_OPTS ?= -B 
 
-export COVERAGE_FILE ?= .coverage
-export COVERAGE_OUTPUT_DIR ?= htmlcov
+TAG = $(subst .,,$(subst python,,$(PY_VERSION)))
+
+ENV = env$(TAG)
+
+COVERAGE_FILE       = .coverage$(TAG)
+COVERAGE_OUTPUT_DIR = htmlcov$(TAG)
+
+export COVERAGE_FILE
+export COVERAGE_OUTPUT_DIR
 
 TARGET = /srv/$(NAME)
 TARGET_USER ?= www-data
 TARGET_GROUP ?= www-data
+
+SITE_PACKAGES = $(ENV)/lib/$(PY_VERSION)/site-packages
 
 ifeq ($(shell id -n -u),root)
     SUDO =
@@ -19,7 +26,7 @@ endif
 
 QUIET ?= --quiet
 
-PIP_CACHE = .cache
+PIP_CACHE = .cache$(TAG)
 
 PKG_BASE ?= $(shell readlink -f ..)
 
@@ -30,10 +37,10 @@ PKG_BASE ?= $(shell readlink -f ..)
 #
 
 test: runtime-test
-	cd $(ENV) ; bin/python $(PYTHON_OPTS) -m $(MAIN)
+	cd $(ENV) ; bin/python $(PY_OPTS) -m $(MAIN)
 
 run: runtime-live
-	cd $(ENV) ; bin/python $(PYTHON_OPTS) -m $(MAIN)
+	cd $(ENV) ; bin/python $(PY_OPTS) -m $(MAIN)
 
 #
 # deploy
@@ -55,8 +62,8 @@ runtime-live: $(ENV) $(ENV)/.$(PIP_REQ) unlink-pkgs unlink-code unlink-data depl
 runtime-test: $(ENV) $(ENV)/.$(PIP_REQ) undeploy-pkgs undeploy-code undeploy-data link-pkgs link-code link-data
 
 $(ENV): 
-	virtualenv --python=$(ENV_VERSION) $(ENV) $(QUIET)
-	$(ENV)/bin/pip install --upgrade --download-cache $(PIP_CACHE) 'distribute>=0.6.30' $(QUIET)
+	virtualenv --python=$(PY_VERSION) $(ENV) $(QUIET)
+	#$(ENV)/bin/pip install --upgrade --download-cache $(PIP_CACHE) 'distribute>=0.6.30' $(QUIET)
 
 $(ENV)/.$(PIP_REQ): $(PIP_REQ)
 	$(ENV)/bin/pip install --upgrade --download-cache $(PIP_CACHE) --requirement $(PIP_REQ) $(QUIET)
@@ -88,6 +95,7 @@ else
 	ln -snf $(PKG_BASE)/$*/$*.py $(SITE_PACKAGES)/$*.py
 endif
 	@touch $@
+#test -f $(PKG_BASE)/$*/$*.py && ln -snf $(PKG_BASE)/$*/$*.py $(SITE_PACKAGES)/$*.py || ln -snf $(PKG_BASE)/$*/$* $(SITE_PACKAGES)/$*
 
 unlink-pkgs: $(addprefix unlink-pkg-,$(PKG))
 
@@ -152,14 +160,18 @@ really-clean: clean
 #
 
 unit-test: runtime-test
-	cd tests ; ../$(ENV)/bin/python $(PYTHON_OPTS) -m unittest discover
+	cd tests ; ../$(ENV)/bin/python $(PY_OPTS) -m unittest discover -v
 
 coverage: runtime-test
 	rm -rf tests/$(COVERAGE_OUTPUT_DIR)
 	rm -f tests/$(COVERAGE_FILE)
-	cd tests ; ../$(ENV)/bin/python $(PYTHON_OPTS) ../$(ENV)/bin/coverage run --branch -m unittest discover || true
-	cd tests ; ../$(ENV)/bin/python $(PYTHON_OPTS) ../$(ENV)/bin/coverage html
+	cd tests ; ../$(ENV)/bin/python $(PY_OPTS) ../$(ENV)/bin/coverage run --branch -m unittest discover -v || true
+	cd tests ; ../$(ENV)/bin/python $(PY_OPTS) ../$(ENV)/bin/coverage html
 
-continuous:
-	inotifywait -r . -q -m -e CLOSE_WRITE | grep --line-buffered '^.*\.py$$' | while read line; do clear; date; echo $$line; echo; make coverage; done
+continuous-%:
+	inotifywait -r . -q -m -e CLOSE_WRITE | grep --line-buffered '^.*\.py$$' | while read line; do clear; date; echo $$line; echo; make $*; done
 
+continuous: continuous-coverage
+
+profile:
+	cd tests ; ../$(ENV)/bin/python $(PY_OPTS) profile.py
