@@ -1,8 +1,10 @@
 *.pyc
 *.zip
-env
+env2*
+env3*
+.cache2*
+.cache3*
 dist
-.cache
-*.swp
-
+MANIFEST
 tests
+*.swp
