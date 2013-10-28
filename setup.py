@@ -5,7 +5,8 @@ setup(
     author_email='j.j.molenaar@gmail.com',
     name='mp3',
     packages=['mp3'],
-    version='0.1.0'
+    version='0.1.0',
+    url='http://github.com/j0057/mp3'
 )
 
 
