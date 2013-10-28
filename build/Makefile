@@ -87,9 +87,8 @@ undeploy-pkg-%:
 
 link-pkgs: $(addprefix $(ENV)/.pkglink-,$(PKG))
 
-$(ENV)/.pkglink-%:
-	@IS_PACKAGE=${shell test -d $(PKG_BASE)/$*/$* && echo 1 || echo 0}
-ifeq ($(IS_PACKAGE),1)
+$(ENV)/.pkglink-%: 
+ifeq (${shell test -d $(PKG_BASE)/$*/$* && echo 1 || echo 0},1)
 	ln -snf $(PKG_BASE)/$*/$* $(SITE_PACKAGES)/$*
 else
 	ln -snf $(PKG_BASE)/$*/$*.py $(SITE_PACKAGES)/$*.py
