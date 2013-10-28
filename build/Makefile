@@ -150,6 +150,8 @@ clean:
 	rm -rf $(ENV)
 	rm -rf tests/$(COVERAGE_OUTPUT_DIR)
 	rm -f tests/$(COVERAGE_FILE)
+	rm -f MANIFEST
+	rm -rf dist
 
 really-clean: clean
 	rm -rf $(PIP_CACHE)
