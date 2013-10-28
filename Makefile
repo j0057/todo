@@ -63,7 +63,6 @@ runtime-test: $(ENV) $(ENV)/.$(PIP_REQ) undeploy-pkgs undeploy-code undeploy-dat
 
 $(ENV): 
 	virtualenv --python=$(PY_VERSION) $(ENV) $(QUIET)
-	#$(ENV)/bin/pip install --upgrade --download-cache $(PIP_CACHE) 'distribute>=0.6.30' $(QUIET)
 
 $(ENV)/.$(PIP_REQ): $(PIP_REQ)
 	$(ENV)/bin/pip install --upgrade --download-cache $(PIP_CACHE) --requirement $(PIP_REQ) $(QUIET)
@@ -76,7 +75,8 @@ $(ENV)/.$(PIP_REQ): $(PIP_REQ)
 deploy-pkgs: $(addprefix $(ENV)/.pkg-,$(PKG))
 
 $(ENV)/.pkg-%:
-	$(ENV)/bin/pip install --upgrade file://$(PKG_BASE)/$* $(QUIET)
+	cd $(PKG_BASE)/$* ; ./setup.py sdist $(QUIET)
+	$(ENV)/bin/pip install --upgrade $(PKG_BASE)/$*/dist/$*-$(shell $(PKG_BASE)/$*/setup.py --version).tar.gz
 	@touch $@
 
 undeploy-pkgs: $(addprefix undeploy-pkg-,$(PKG))
@@ -95,7 +95,6 @@ else
 	ln -snf $(PKG_BASE)/$*/$*.py $(SITE_PACKAGES)/$*.py
 endif
 	@touch $@
-#test -f $(PKG_BASE)/$*/$*.py && ln -snf $(PKG_BASE)/$*/$*.py $(SITE_PACKAGES)/$*.py || ln -snf $(PKG_BASE)/$*/$* $(SITE_PACKAGES)/$*
 
 unlink-pkgs: $(addprefix unlink-pkg-,$(PKG))
 
@@ -151,6 +150,8 @@ clean:
 	rm -rf $(ENV)
 	rm -rf tests/$(COVERAGE_OUTPUT_DIR)
 	rm -f tests/$(COVERAGE_FILE)
+	rm -f MANIFEST
+	rm -rf dist
 
 really-clean: clean
 	rm -rf $(PIP_CACHE)
