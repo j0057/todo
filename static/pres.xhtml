@@ -2,154 +2,229 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <title>OAuth2</title>
+
+        <style>
+            .slide { position: absolute; left: 5em; right: 5em; top: 1em; bottom: 1em; }
+            .slide { display: none; }
+            .centered { text-align: center; }
+            .vert-centered { vertical-align: middle }
+            body { font-size: 200%; }
+            #slide-0 { display: block; }
+        </style>
+        <script src="pres.js"/>
     </head>
+
     <body>
 
-        <svg xmlns="http://www.w3.org/2000/svg" width="1485" height="1321" xmlns:xlink="http://www.w3.org/1999/xlink">
-            <source>
-                <![CDATA[
-                Participant Browser
-                Participant j0057.nl
-                Participant github.com
-                Note over j0057.nl: Have from Github:\nCLIENT_ID\nCLIENT_SECRET
-                Browser -> j0057.nl: GET /index.html
-                j0057.nl -> Browser: 200 OK
-                Note left of j0057.nl: <a href="/oauth/github/authorize/">\nAuthorize Github API</a>
-                Browser -> j0057.nl: GET /oauth/github/authorize/
-                j0057.nl -> Browser: 302 Found
-                Note left of j0057.nl: Location:\nhttps://github.com/login/oauth/authorize\n?client_id=CLIENT_ID\n&redirect_uri=https://j0057.nl/oauth/github/callback/\n&scope=SCOPES\n&state=STATE
-                Browser -> github.com: GET /login/oauth/authorize
-                Note right of Browser: ?client_id=CLIENT_ID\n&redirect_uri=https://j0057.nl/oauth/github/callback/\n&scope=SCOPES\n&state=STATE
-                github.com -> github.com: Login
-                github.com -> github.com: Authorize j0057.nl
-                github.com -> Browser: 302 Found
-                Note left of github.com: Location: https://j0057.nl/oauth/github/callback/\n?code=CODE\n&state=STATE
-                Browser -> j0057.nl: GET /oauth/github/callback/
-                Note right of Browser: ?code=CODE\n&state=STATE
-                j0057.nl -> github.com: POST /login/oauth/access_token
-                Note right of j0057.nl: ?client_id=CLIENT_ID\n&redirect_uri=...\n&client_secret=CLIENT_SECRET\n&code=CODE
-                github.com -> j0057.nl: 200 OK
-                Note left of github.com: access_token=ACCESS_TOKEN\n&token_type=bearer
-                j0057.nl -> Browser: 200 OK
-                ]]>
-            </source>
-            <desc style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Created with Raphaël 2.1.0</desc>
-            <defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
-                <path stroke-linecap="round" d="M5,0 0,2.5 5,5z" id="raphael-marker-block" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
-                <marker id="raphael-marker-endblock55" markerHeight="5" markerWidth="5" orient="auto" refX="2.5" refY="2.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
-                    <use xlink:href="#raphael-marker-block" transform="rotate(180 2.5 2.5) scale(1,1)" stroke-width="1.0000" fill="#000" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></use>
-                </marker>
-            </defs>
-            <rect x="10" y="20" width="90" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="20" y="30" width="70" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="55" y="39" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Browser</tspan>
-            </text>
-            <rect x="10" y="1263.6875" width="90" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="20" y="1273.6875" width="70" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="55" y="1282.6875" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Browser</tspan>
-            </text>
-            <path fill="none" stroke="#000000" d="M55,58L55,1263.6875" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="585" y="20" width="100" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="595" y="30" width="80" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="635" y="39" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">j0057.nl</tspan>
-            </text>
-            <rect x="585" y="1263.6875" width="100" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="595" y="1273.6875" width="80" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="635" y="1282.6875" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">j0057.nl</tspan>
-            </text>
-            <path fill="none" stroke="#000000" d="M635,58L635,1263.6875" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="1115" y="20" width="120" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="1125" y="30" width="100" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="1175" y="39" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">github.com</tspan>
-            </text>
-            <rect x="1115" y="1263.6875" width="120" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="1125" y="1273.6875" width="100" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="1175" y="1282.6875" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">github.com</tspan>
-            </text>
-            <path fill="none" stroke="#000000" d="M1175,58L1175,1263.6875" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
-            <g id="foo">
-            <rect x="545" y="78" width="180" height="66.40625" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="550" y="83" width="170" height="56.40625" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="635" y="111.203125" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="-14.203125" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Have from Github:</tspan><tspan dy="19.2" x="635" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">CLIENT_ID</tspan><tspan dy="19.2" x="635" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">CLIENT_SECRET</tspan>
-            </text>
-            </g>
-            <rect x="270" y="160.40625" width="150" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="345" y="169.40625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">GET /index.html</tspan>
-            </text>
-            <path fill="none" stroke="#000000" d="M55,182.40625C55,182.40625,573.4309855103493,182.40625,630.0078044857219,182.40625" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="315" y="198.40625" width="60" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="345" y="207.40625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">200 OK</tspan>
-            </text>
-            <path fill="none" stroke="#000000" d="M635,220.40625C635,220.40625,116.56901448965073,220.40625,59.99219551427814,220.40625" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="255" y="240.40625" width="360" height="47.21875" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="260" y="245.40625" width="350" height="37.21875" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="435" y="264.015625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="-4.6015625" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&lt;a href="/oauth/github/authorize/"&gt;</tspan><tspan dy="19.2" x="435" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Authorize Github API&lt;/a&gt;</tspan>
-            </text>
-            <rect x="205" y="303.625" width="280" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="345" y="312.625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">GET /oauth/github/authorize/</tspan>
-            </text>
-            <path fill="none" stroke="#000000" d="M55,325.625C55,325.625,573.4309855103493,325.625,630.0078044857219,325.625" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="300" y="341.625" width="90" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="345" y="350.625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">302 Found</tspan>
-            </text>
-            <path fill="none" stroke="#000000" d="M635,363.625C635,363.625,116.56901448965073,363.625,59.99219551427814,363.625" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="75" y="383.625" width="540" height="124" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="80" y="388.609375" width="530" height="114.015625" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="345" y="445.625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="-43.0078125" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Location:</tspan><tspan dy="19.2" x="345" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">https://github.com/login/oauth/authorize</tspan><tspan dy="19.2" x="345" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">?client_id=CLIENT_ID</tspan><tspan dy="19.2" x="345" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;redirect_uri=https://j0057.nl/oauth/github/callback/</tspan><tspan dy="19.2" x="345" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;scope=SCOPES</tspan><tspan dy="19.2" x="345" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;state=STATE</tspan>
-            </text>
-            <rect x="485" y="523.625" width="260" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="615" y="532.625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">GET /login/oauth/authorize</tspan>
-            </text>
-            <path fill="none" stroke="#000000" d="M55,545.625C55,545.625,1089.208984375,545.625,1170.0065612792969,545.625" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="75" y="565.625" width="540" height="85.609375" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="80" y="570.625" width="530" height="75.609375" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="345" y="608.4296875" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="-23.796875" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">?client_id=CLIENT_ID</tspan><tspan dy="19.2" x="345" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;redirect_uri=https://j0057.nl/oauth/github/callback/</tspan><tspan dy="19.2" x="345" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;scope=SCOPES</tspan><tspan dy="19.2" x="345" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;state=STATE</tspan>
-            </text>
-            <rect x="1200" y="671.234375" width="50" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="1225" y="680.234375" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Login</tspan>
-            </text>
-            <path fill="none" stroke="#000000" d="M1175,666.234375L1195,666.234375" stroke-width="2" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="none" stroke="#000000" d="M1195,666.234375L1195,699.234375" stroke-width="2" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="none" stroke="#000000" d="M1195,699.234375C1195,699.234375,1185.9191131591797,699.234375,1179.9952533841133,699.234375" stroke-width="2" stroke-dasharray="0" marker-end="url(#raphael-marker-endblock55)" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="1200" y="709.234375" width="180" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="1290" y="718.234375" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Authorize j0057.nl</tspan>
-            </text>
-            <path fill="none" stroke="#000000" d="M1175,704.234375L1195,704.234375" stroke-width="2" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="none" stroke="#000000" d="M1195,704.234375L1195,737.234375" stroke-width="2" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="none" stroke="#000000" d="M1195,737.234375C1195,737.234375,1185.9191131591797,737.234375,1179.9952533841133,737.234375" stroke-width="2" stroke-dasharray="0" marker-end="url(#raphael-marker-endblock55)" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="570" y="743.234375" width="90" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="615" y="752.234375" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">302 Found</tspan>
-            </text>
-            <path fill="none" stroke="#000000" d="M1175,765.234375C1175,765.234375,140.791015625,765.234375,59.993438720703125,765.234375" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="655" y="785.234375" width="500" height="66.40625" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="660" y="790.234375" width="490" height="56.40625" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="905" y="818.4375" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="-14.203125" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Location: https://j0057.nl/oauth/github/callback/</tspan><tspan dy="19.2" x="905" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">?code=CODE</tspan><tspan dy="19.2" x="905" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;state=STATE</tspan>
-            </text>
-            <rect x="210" y="867.640625" width="270" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="345" y="876.640625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">GET /oauth/github/callback/</tspan>
-            </text>
-            <path fill="none" stroke="#000000" d="M55,889.640625C55,889.640625,573.4309855103493,889.640625,630.0078044857219,889.640625" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="75" y="909.640625" width="130" height="47.21875" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="80" y="914.640625" width="120" height="37.21875" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="140" y="933.25" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="-4.6015625" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">?code=CODE</tspan><tspan dy="19.2" x="140" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;state=STATE</tspan>
-            </text>
-            <rect x="755" y="972.859375" width="300" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="905" y="981.859375" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">POST /login/oauth/access_token</tspan>
-            </text>
-            <path fill="none" stroke="#000000" d="M635,994.859375C635,994.859375,1115.560531616211,994.859375,1169.9990293383598,994.859375" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="655" y="1014.859375" width="290" height="85.609375" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="660" y="1019.859375" width="280" height="75.609375" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="800" y="1057.6640625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="-23.796875" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">?client_id=CLIENT_ID</tspan><tspan dy="19.2" x="800" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;redirect_uri=...</tspan><tspan dy="19.2" x="800" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;client_secret=CLIENT_SECRET</tspan><tspan dy="19.2" x="800" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;code=CODE</tspan>
-            </text>
-            <rect x="875" y="1116.46875" width="60" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="905" y="1125.46875" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">200 OK</tspan>
-            </text>
-            <path fill="none" stroke="#000000" d="M1175,1138.46875C1175,1138.46875,694.4394683837891,1138.46875,640.0009706616402,1138.46875" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="895" y="1158.46875" width="260" height="47.21875" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="900" y="1163.46875" width="250" height="37.21875" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="1025" y="1182.078125" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="-4.6015625" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">access_token=ACCESS_TOKEN</tspan><tspan dy="19.2" x="1025" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;token_type=bearer</tspan>
-            </text>
-            <rect x="315" y="1221.6875" width="60" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
-            <text x="345" y="1230.6875" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
-                <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">200 OK</tspan>
-            </text>
-            <path fill="none" stroke="#000000" d="M635,1243.6875C635,1243.6875,116.56901448965073,1243.6875,59.99219551427814,1243.6875" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
-        </svg>
+        <div class="slide" id="slide-0">
+            <h1 class="centered">Fun with OAuth</h1>
 
+            <div class="centered">
+                <img src="schoolmaster.png"/>
+            </div>
 
+            <div class="centered" style="position: absolute; bottom: 1em; width: 100%;">
+                <h6>Powered by</h6>
+                <img src="html5.png"/>
+                <img src="pompeï.png"/>
+                <img src="css3.png"/> 
+            </div>
+        </div>
+
+        <div class="slide" id="slide-1">
+            <h1 class="centered">In this episode</h1>
+            <ul>
+                <li>Waarom?</li>
+                <li>Autorisatie vs. authenticatie</li>
+                <li>Oauth 1</li>
+                <li>Oauth 2</li>
+                <li>Services</li>
+                <li>Protocol</li>
+                <li>Rollen</li>
+                <li>Flows</li>
+                <li>Prototype</li>
+                <li>Python</li>
+                <li>FunWithOauth2 app</li>
+                <li>Todo app</li>
+                <li>Demo time</li>
+            </ul>
+        </div>
+
+        <div class="slide" id="slide-3">
+            <h1 class="centered">Authenticatie vs Authorisatie</h1>
+            <dl>
+                <dt>Authenticatie</dt>
+                <dd>Wie ben ik?</dd>
+                <dt>Autorisatie</dt>
+                <dd>Wat mag ik?</dd>
+            </dl>
+        </div>
+
+        <div class="slide" id="slide-3">
+            <h1>Rollen</h1>
+            <ul>
+                <li>Resource owner / End-User</li>
+                <li>Client</li>
+                <li>Authorization Server</li>                
+                <li>Resource Server</li>
+            </ul>
+        </div>
+
+        <div class="slide" id="slide-2">
+            <h1>Welk probleem lost OAuth2 op?</h1>
+            <ul>
+                <li>Wachtwoorden zijn geheim</li>
+                <li>Wachtwoorden zijn onveilig</li>
+                <li>Scope</li>
+                <li>Autorisatie intrekken</li>
+            </ul>
+        </div>
+
+        <div class="slide" id="slideN">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1485" height="1321" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <source>
+                    <![CDATA[
+                    Participant Browser
+                    Participant j0057.nl
+                    Participant github.com
+                    Note over j0057.nl: Have from Github:\nCLIENT_ID\nCLIENT_SECRET
+                    Browser -> j0057.nl: GET /index.html
+                    j0057.nl -> Browser: 200 OK
+                    Note left of j0057.nl: <a href="/oauth/github/authorize/">\nAuthorize Github API</a>
+                    Browser -> j0057.nl: GET /oauth/github/authorize/
+                    j0057.nl -> Browser: 302 Found
+                    Note left of j0057.nl: Location:\nhttps://github.com/login/oauth/authorize\n?client_id=CLIENT_ID\n&redirect_uri=https://j0057.nl/oauth/github/callback/\n&scope=SCOPES\n&state=STATE
+                    Browser -> github.com: GET /login/oauth/authorize
+                    Note right of Browser: ?client_id=CLIENT_ID\n&redirect_uri=https://j0057.nl/oauth/github/callback/\n&scope=SCOPES\n&state=STATE
+                    github.com -> github.com: Login
+                    github.com -> github.com: Authorize j0057.nl
+                    github.com -> Browser: 302 Found
+                    Note left of github.com: Location: https://j0057.nl/oauth/github/callback/\n?code=CODE\n&state=STATE
+                    Browser -> j0057.nl: GET /oauth/github/callback/
+                    Note right of Browser: ?code=CODE\n&state=STATE
+                    j0057.nl -> github.com: POST /login/oauth/access_token
+                    Note right of j0057.nl: ?client_id=CLIENT_ID\n&redirect_uri=...\n&client_secret=CLIENT_SECRET\n&code=CODE
+                    github.com -> j0057.nl: 200 OK
+                    Note left of github.com: access_token=ACCESS_TOKEN\n&token_type=bearer
+                    j0057.nl -> Browser: 200 OK
+                    ]]>
+                </source>
+                <desc style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Created with Raphaël 2.1.0</desc>
+                <defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+                    <path stroke-linecap="round" d="M5,0 0,2.5 5,5z" id="raphael-marker-block" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+                    <marker id="raphael-marker-endblock55" markerHeight="5" markerWidth="5" orient="auto" refX="2.5" refY="2.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+                        <use xlink:href="#raphael-marker-block" transform="rotate(180 2.5 2.5) scale(1,1)" stroke-width="1.0000" fill="#000" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></use>
+                    </marker>
+                </defs>
+                <rect x="10" y="20" width="90" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="20" y="30" width="70" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="55" y="39" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Browser</tspan>
+                </text>
+                <rect x="10" y="1263.6875" width="90" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="20" y="1273.6875" width="70" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="55" y="1282.6875" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Browser</tspan>
+                </text>
+                <path fill="none" stroke="#000000" d="M55,58L55,1263.6875" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="585" y="20" width="100" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="595" y="30" width="80" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="635" y="39" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">j0057.nl</tspan>
+                </text>
+                <rect x="585" y="1263.6875" width="100" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="595" y="1273.6875" width="80" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="635" y="1282.6875" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">j0057.nl</tspan>
+                </text>
+                <path fill="none" stroke="#000000" d="M635,58L635,1263.6875" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="1115" y="20" width="120" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="1125" y="30" width="100" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="1175" y="39" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">github.com</tspan>
+                </text>
+                <rect x="1115" y="1263.6875" width="120" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="1125" y="1273.6875" width="100" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="1175" y="1282.6875" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">github.com</tspan>
+                </text>
+                <path fill="none" stroke="#000000" d="M1175,58L1175,1263.6875" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+                <g id="foo">
+                <rect x="545" y="78" width="180" height="66.40625" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="550" y="83" width="170" height="56.40625" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="635" y="111.203125" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="-14.203125" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Have from Github:</tspan><tspan dy="19.2" x="635" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">CLIENT_ID</tspan><tspan dy="19.2" x="635" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">CLIENT_SECRET</tspan>
+                </text>
+                </g>
+                <rect x="270" y="160.40625" width="150" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="345" y="169.40625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">GET /index.html</tspan>
+                </text>
+                <path fill="none" stroke="#000000" d="M55,182.40625C55,182.40625,573.4309855103493,182.40625,630.0078044857219,182.40625" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="315" y="198.40625" width="60" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="345" y="207.40625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">200 OK</tspan>
+                </text>
+                <path fill="none" stroke="#000000" d="M635,220.40625C635,220.40625,116.56901448965073,220.40625,59.99219551427814,220.40625" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="255" y="240.40625" width="360" height="47.21875" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="260" y="245.40625" width="350" height="37.21875" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="435" y="264.015625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="-4.6015625" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&lt;a href="/oauth/github/authorize/"&gt;</tspan><tspan dy="19.2" x="435" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Authorize Github API&lt;/a&gt;</tspan>
+                </text>
+                <rect x="205" y="303.625" width="280" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="345" y="312.625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">GET /oauth/github/authorize/</tspan>
+                </text>
+                <path fill="none" stroke="#000000" d="M55,325.625C55,325.625,573.4309855103493,325.625,630.0078044857219,325.625" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="300" y="341.625" width="90" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="345" y="350.625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">302 Found</tspan>
+                </text>
+                <path fill="none" stroke="#000000" d="M635,363.625C635,363.625,116.56901448965073,363.625,59.99219551427814,363.625" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="75" y="383.625" width="540" height="124" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="80" y="388.609375" width="530" height="114.015625" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="345" y="445.625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="-43.0078125" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Location:</tspan><tspan dy="19.2" x="345" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">https://github.com/login/oauth/authorize</tspan><tspan dy="19.2" x="345" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">?client_id=CLIENT_ID</tspan><tspan dy="19.2" x="345" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;redirect_uri=https://j0057.nl/oauth/github/callback/</tspan><tspan dy="19.2" x="345" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;scope=SCOPES</tspan><tspan dy="19.2" x="345" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;state=STATE</tspan>
+                </text>
+                <rect x="485" y="523.625" width="260" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="615" y="532.625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">GET /login/oauth/authorize</tspan>
+                </text>
+                <path fill="none" stroke="#000000" d="M55,545.625C55,545.625,1089.208984375,545.625,1170.0065612792969,545.625" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="75" y="565.625" width="540" height="85.609375" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="80" y="570.625" width="530" height="75.609375" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="345" y="608.4296875" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="-23.796875" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">?client_id=CLIENT_ID</tspan><tspan dy="19.2" x="345" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;redirect_uri=https://j0057.nl/oauth/github/callback/</tspan><tspan dy="19.2" x="345" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;scope=SCOPES</tspan><tspan dy="19.2" x="345" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;state=STATE</tspan>
+                </text>
+                <rect x="1200" y="671.234375" width="50" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="1225" y="680.234375" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Login</tspan>
+                </text>
+                <path fill="none" stroke="#000000" d="M1175,666.234375L1195,666.234375" stroke-width="2" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="none" stroke="#000000" d="M1195,666.234375L1195,699.234375" stroke-width="2" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="none" stroke="#000000" d="M1195,699.234375C1195,699.234375,1185.9191131591797,699.234375,1179.9952533841133,699.234375" stroke-width="2" stroke-dasharray="0" marker-end="url(#raphael-marker-endblock55)" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="1200" y="709.234375" width="180" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="1290" y="718.234375" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Authorize j0057.nl</tspan>
+                </text>
+                <path fill="none" stroke="#000000" d="M1175,704.234375L1195,704.234375" stroke-width="2" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="none" stroke="#000000" d="M1195,704.234375L1195,737.234375" stroke-width="2" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="none" stroke="#000000" d="M1195,737.234375C1195,737.234375,1185.9191131591797,737.234375,1179.9952533841133,737.234375" stroke-width="2" stroke-dasharray="0" marker-end="url(#raphael-marker-endblock55)" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="570" y="743.234375" width="90" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="615" y="752.234375" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">302 Found</tspan>
+                </text>
+                <path fill="none" stroke="#000000" d="M1175,765.234375C1175,765.234375,140.791015625,765.234375,59.993438720703125,765.234375" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="655" y="785.234375" width="500" height="66.40625" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="660" y="790.234375" width="490" height="56.40625" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="905" y="818.4375" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="-14.203125" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Location: https://j0057.nl/oauth/github/callback/</tspan><tspan dy="19.2" x="905" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">?code=CODE</tspan><tspan dy="19.2" x="905" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;state=STATE</tspan>
+                </text>
+                <rect x="210" y="867.640625" width="270" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="345" y="876.640625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">GET /oauth/github/callback/</tspan>
+                </text>
+                <path fill="none" stroke="#000000" d="M55,889.640625C55,889.640625,573.4309855103493,889.640625,630.0078044857219,889.640625" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="75" y="909.640625" width="130" height="47.21875" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="80" y="914.640625" width="120" height="37.21875" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="140" y="933.25" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="-4.6015625" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">?code=CODE</tspan><tspan dy="19.2" x="140" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;state=STATE</tspan>
+                </text>
+                <rect x="755" y="972.859375" width="300" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="905" y="981.859375" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">POST /login/oauth/access_token</tspan>
+                </text>
+                <path fill="none" stroke="#000000" d="M635,994.859375C635,994.859375,1115.560531616211,994.859375,1169.9990293383598,994.859375" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="655" y="1014.859375" width="290" height="85.609375" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="660" y="1019.859375" width="280" height="75.609375" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="800" y="1057.6640625" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="-23.796875" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">?client_id=CLIENT_ID</tspan><tspan dy="19.2" x="800" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;redirect_uri=...</tspan><tspan dy="19.2" x="800" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;client_secret=CLIENT_SECRET</tspan><tspan dy="19.2" x="800" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;code=CODE</tspan>
+                </text>
+                <rect x="875" y="1116.46875" width="60" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="905" y="1125.46875" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">200 OK</tspan>
+                </text>
+                <path fill="none" stroke="#000000" d="M1175,1138.46875C1175,1138.46875,694.4394683837891,1138.46875,640.0009706616402,1138.46875" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><rect x="895" y="1158.46875" width="260" height="47.21875" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect><rect x="900" y="1163.46875" width="250" height="37.21875" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="1025" y="1182.078125" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="-4.6015625" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">access_token=ACCESS_TOKEN</tspan><tspan dy="19.2" x="1025" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">&amp;token_type=bearer</tspan>
+                </text>
+                <rect x="315" y="1221.6875" width="60" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></rect>
+                <text x="345" y="1230.6875" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="16px" font-family="Andale Mono, monospace" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;">
+                    <tspan dy="5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">200 OK</tspan>
+                </text>
+                <path fill="none" stroke="#000000" d="M635,1243.6875C635,1243.6875,116.56901448965073,1243.6875,59.99219551427814,1243.6875" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+            </svg>
+        </div>
     </body>
 </html>

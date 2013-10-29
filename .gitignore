@@ -1,6 +1,10 @@
-env
+env2*
+env3*
+.cache2*
+.cache3*
 *.pyc
-.cache
-*.swp
 keys.json
 log
+*.swp
+dist
+MANIFEST

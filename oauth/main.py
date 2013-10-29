@@ -432,6 +432,7 @@ class OauthRouter(xhttp.Router):
             
             (r'^/oauth/(.*\.xhtml)$',           xhttp.FileServer('static', 'application/xhtml+xml')),
             (r'^/oauth/(.*\.js)$',              xhttp.FileServer('static', 'application/javascript')),
+            (r'^/oauth/(.*\.png)$',             xhttp.FileServer('static', 'image/png')),
             
             (r'^/oauth/google/init/$',          GoogleInit()),
             (r'^/oauth/google/code/$',          GoogleCode()),

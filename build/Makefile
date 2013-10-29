@@ -75,7 +75,7 @@ $(ENV)/.$(PIP_REQ): $(PIP_REQ)
 deploy-pkgs: $(addprefix $(ENV)/.pkg-,$(PKG))
 
 $(ENV)/.pkg-%:
-	cd $(PKG_BASE)/$* ; ./setup.py sdist $(QUIET)
+	cd $(PKG_BASE)/$* ; ./setup.py sdist 2>&1 >/dev/null
 	$(ENV)/bin/pip install --upgrade $(PKG_BASE)/$*/dist/$*-$(shell $(PKG_BASE)/$*/setup.py --version).tar.gz
 	@touch $@
 
@@ -87,18 +87,14 @@ undeploy-pkg-%:
 
 link-pkgs: $(addprefix $(ENV)/.pkglink-,$(PKG))
 
-$(ENV)/.pkglink-%: 
-ifeq (${shell test -d $(PKG_BASE)/$*/$* && echo 1 || echo 0},1)
-	ln -snf $(PKG_BASE)/$*/$* $(SITE_PACKAGES)/$*
-else
-	ln -snf $(PKG_BASE)/$*/$*.py $(SITE_PACKAGES)/$*.py
-endif
+$(ENV)/.pkglink-%:
+	@test -d $(PKG_BASE)/$*/$* && ln -snfv $(PKG_BASE)/$*/$* $(SITE_PACKAGES)/$* || ln -snfv $(PKG_BASE)/$*/$*.py $(SITE_PACKAGES)/$*.py
 	@touch $@
 
 unlink-pkgs: $(addprefix unlink-pkg-,$(PKG))
 
 unlink-pkg-%:
-	@test -L $(SITE_PACKAGES)/$* && rm $(SITE_PACKAGES)/$* || true
+	@rm -vf $(SITE_PACAKAGES)/$*
 	@rm -f $(ENV)/.pkglink-$*
 
 #
@@ -121,7 +117,7 @@ deploy-data: $(addprefix $(ENV)/.data-,$(STATIC_DIRS))
 
 undeploy-data: $(addprefix undeploy-dir-,$(STATIC_DIRS))
 
-$(ENV)/.data-%: $*
+$(ENV)/.data-%: 
 	cp -r $* $(ENV)
 	@touch $@
 

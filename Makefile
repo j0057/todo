@@ -3,7 +3,7 @@ NAME = oauth
 PIP_NAME = oauth
 PIP_REQ = requirements.txt
 
-PKG = xmlist xhttp
+PKG = xmlist xhttp core
 
 STATIC_DIRS = conf static 
 
