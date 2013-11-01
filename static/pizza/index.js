@@ -6,6 +6,9 @@
         var hash = {};
 
         var states = {
+            1: function(slide, state) {
+                $q("#title-pizza").className = state == 1 ? 'revealed' : "hidden";
+            },
             3: function(slide, state) {
                 $qa("dt", $qa(".slide")[slide]).map(function(dt, i) {
                     dt.style.display = i < state ? "block" : "none";
@@ -15,8 +18,15 @@
                 });
             },
             6: function(slide, state) {
-                $qa("g", $qa(".slide")[slide]).map(function(g, i) {
-                    g.style.display = i < state ? "block" : "none";
+                var popups = [4, 8, 12, 18, 21, 24, 27, 31, 34, 37, 40];
+                $qa("img, g", $qa(".slide")[slide]).map(function(elem, i) {
+                    var elemState = Number(elem.getAttribute("data-state"));
+                    if (popups.indexOf(elemState) >= 0) {
+                        elem.className = elemState == state ? "revealed" : "hidden";
+                    }
+                    else {
+                        elem.style.display = elemState <= state ? "block" : "none";
+                    }
                 });
             }
         };

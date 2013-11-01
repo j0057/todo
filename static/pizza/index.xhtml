@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>OAuth2</title>
+
+        <style>
+            .slide { 
+                position: absolute; 
+                left: 5em; 
+                right: 5em; 
+                top: 1em; 
+                bottom: 1em; 
+                overflow-y: hidden; }
+
+            .slide { 
+                display: none; }
+
+            .centered { 
+                text-align: center; }
+
+            .vert-centered { 
+                vertical-align: middle }
+
+            #slide-flowchart .hidden { 
+                max-width: 0%;
+                max-height: 0%;
+                transition: max-width 0.2s, max-height 0.2s; }
+
+            #slide-flowchart .revealed { 
+                max-width: 100%; 
+                max-height: 100%; 
+                transition: max-width 0.4s, max-height 0.4s; }
+
+            #slide-title .hidden {
+                position: relative;
+                bottom: -150px; }
+
+            #slide-title .revealed {
+                position: relative;
+                bottom: 0px;
+                transition: bottom 1s }
+                
+        </style>
+        <script src="index.js"/>
+    </head>
+
+    <body>
+
+        <div class="slide">
+        </div>
+
+        <div class="slide" id="slide-title" data-states="2">
+            <h1 class="centered">Fun with OAuth</h1>
+
+            <div class="centered">
+                <img src="schoolmaster.png"/>
+            </div>
+
+            <div class="centered" style="position: absolute; bottom: 1em; width: 100%;">
+                <h6>Powered by</h6>
+                <img src="html5.png"/>
+                <img src="pompeï.png" class="hidden" id="title-pizza"/>
+                <img src="css3.png"/> 
+            </div>
+        </div>
+
+        <div class="slide">
+            <h1 class="centered">In this episode</h1>
+            <ul>
+                <li>Waarom?</li>
+                <li>Autorisatie vs. authenticatie</li>
+                <li>Oauth 1</li>
+                <li>Oauth 2</li>
+                <li>Services</li>
+                <li>Protocol</li>
+                <li>Rollen</li>
+                <li>Flows</li>
+                <li>Prototype</li>
+                <li>Python</li>
+                <li>FunWithOauth2 app</li>
+                <li>Todo app</li>
+                <li>Demo time</li>
+            </ul>
+        </div>
+
+        <div class="slide" data-states="2">
+            <h1 class="centered">Authenticatie vs Authorisatie</h1>
+            <dl>
+                <dt>Authenticatie</dt>
+                <dd>Wie ben ik?</dd>
+                <dt>Autorisatie</dt>
+                <dd>Wat mag ik?</dd>
+            </dl>
+        </div>
+
+        <div class="slide">
+            <h1>Rollen</h1>
+            <ul>
+                <li>Resource owner / End-User</li>
+                <li>Client</li>
+                <li>Authorization Server</li>                
+                <li>Resource Server</li>
+            </ul>
+        </div>
+
+        <div class="slide">
+            <h1>Welk probleem lost OAuth2 op?</h1>
+            <ul>
+                <li>Wachtwoorden zijn geheim</li>
+                <li>Wachtwoorden zijn onveilig</li>
+                <li>Scope</li>
+                <li>Autorisatie intrekken</li>
+            </ul>
+        </div>
+
+        <div class="slide" id="slide-flowchart" data-states="41">
+            <h1 class="centered">Authorization code flow</h1>
+            <div class="centered">
+                <img src="github-register-app.png" data-state="4" class="hidden"
+                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 898px; height: 888px;"/>
+
+                <img src="github-authorize-link.png" data-state="8" class="hidden"
+                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 420px; height: 38px;"/>
+
+                <img src="github-authorize-redirect.png" data-state="12" class="hidden"
+                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 862px; height: 229px;"/>
+
+                <img src="github-code-redirect.png" data-state="18" class="hidden"
+                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 849px; height: 168px;"/>
+
+                <img src="github-code.png" data-state="21" class="hidden"
+                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 886px; height: 116px;"/>
+
+                <img src="github-access-token.png" data-state="24" class="hidden"
+                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 759px; height: 241px;"/>
+
+                <img src="github-access-token-response.png" data-state="27" class="hidden"
+                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 575px; height: 227px;"/>
+
+                <img src="github-api-1.png" data-state="31" class="hidden"
+                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 879px; height: 208px;"/>
+
+                <img src="github-api-2.png" data-state="34" class="hidden"
+                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 652px; height: 108px;"/>
+
+                <img src="github-api-2-response.png" data-state="37" class="hidden"
+                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 428px; height: 262px;"/>
+
+                <img src="github-api-1-response.png" data-state="40" class="hidden"
+                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 423px; height: 259px;"/>
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="935" height="744" xmlns:xlink="http://www.w3.org/1999/xlink"
+                     style="margin-left: 228px;">
+                    <source><![CDATA[
+                        Browser->j0057.nl: GET /
+                        j0057.nl->Browser: 200 OK
+                        Browser->j0057.nl: GET /oauth/github/init/
+                        j0057.nl->Browser: 303 See Other
+                        Browser->github.com: GET /login/oauth/authorize
+                        github.com->github.com: Login
+                        github.com->github.com: Authorize j0057.nl
+                        github.com->Browser: 302 Found
+                        Browser->j0057.nl: GET /oauth/github/code/
+                        j0057.nl->github.com: POST /login/oauth/access_token
+                        github.com->j0057.nl: 200 OK
+                        j0057.nl->Browser: 200 OK
+                        Browser->j0057.nl: GET /oauth/github/user
+                        j0057.nl->github.com: GET /user
+                        github.com->j0057.nl: 200 OK
+                        j0057.nl->Browser: 200 OK
+                    ]]></source>
+                    <desc style="">Created with Raphaël 2.1.0</desc>
+                    <defs style="">
+                        <path stroke-linecap="round" d="M5,0 0,2.5 5,5z" id="raphael-marker-block" style=""></path>
+                        <marker id="raphael-marker-endblock55" markerHeight="5" markerWidth="5" orient="auto" refX="2.5" refY="2.5" style="">
+                            <use xlink:href="#raphael-marker-block" transform="rotate(180 2.5 2.5) scale(1,1)" stroke-width="1.0000" fill="#000" stroke="none" style=""></use>
+                        </marker>
+                    </defs>
+                    <g data-state="1">
+                        <rect x="10" y="20" width="90" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style=""></rect>
+                        <rect x="20" y="30" width="70" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="55" y="39" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="16px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">Browser</tspan>
+                        </text>
+                        <rect x="10" y="686" width="90" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style=""></rect>
+                        <rect x="20" y="696" width="70" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="55" y="705" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="16px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">Browser</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M55,58L55,686" stroke-width="2" style=""></path>
+                    </g>
+                    <g data-state="2">
+                        <rect x="255" y="20" width="100" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style=""></rect>
+                        <rect x="265" y="30" width="80" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="305" y="39" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="16px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">j0057.nl</tspan>
+                        </text>
+                        <rect x="255" y="686" width="100" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style=""></rect>
+                        <rect x="265" y="696" width="80" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="305" y="705" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="16px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">j0057.nl</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M305,58L305,686" stroke-width="2" style=""></path>
+                    </g>
+                    <g data-state="3">
+                        <rect x="565" y="20" width="120" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style=""></rect>
+                        <rect x="575" y="30" width="100" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="625" y="39" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="16px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">github.com</tspan>
+                        </text>
+                        <rect x="565" y="686" width="120" height="38" r="0" rx="0" ry="0" fill="none" stroke="#000000" stroke-width="2" style=""></rect>
+                        <rect x="575" y="696" width="100" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="625" y="705" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 16px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="16px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">github.com</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M625,58L625,686" stroke-width="2" style=""></path>
+                    </g>
+                    <g data-state="6">
+                        <rect x="155" y="74" width="50" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="180" y="83" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 15px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="15px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">GET /</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M55,96C55,96,264.77115631103516,96,300.00615522265434,96" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style=""></path>
+                    </g>
+                    <g data-state="7">
+                        <rect x="150" y="112" width="60" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="180" y="121" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 15px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="15px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">200 OK</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M305,134C305,134,95.22884368896484,134,59.99384477734566,134" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style=""></path>
+                    </g>
+                    <g data-state="10">
+                        <rect x="65" y="150" width="230" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="180" y="159" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 15px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="15px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">GET /oauth/github/init/</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M55,172C55,172,264.77115631103516,172,300.00615522265434,172" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style=""></path>
+                    </g>
+                    <g data-state="11">
+                        <rect x="115" y="188" width="130" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="180" y="197" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 15px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="15px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">303 See Other</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M305,210C305,210,95.22884368896484,210,59.99384477734566,210" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style=""></path>
+                    </g>
+                    <g data-state="14">
+                        <rect x="210" y="226" width="260" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="340" y="235" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 15px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="15px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">GET /login/oauth/authorize</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M55,248C55,248,563.9663888514042,248,620.007365748861,248" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style=""></path>
+                    </g>
+                    <g data-state="15">
+                        <rect x="650" y="268" width="50" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="675" y="277" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 15px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="15px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">Login</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M625,263L645,263" stroke-width="2" stroke-dasharray="0" style=""></path>
+                        <path fill="none" stroke="#000000" d="M645,263L645,296" stroke-width="2" stroke-dasharray="0" style=""></path>
+                        <path fill="none" stroke="#000000" d="M645,296C645,296,635.9191131591797,296,629.9952533841133,296" stroke-width="2" stroke-dasharray="0" marker-end="url(#raphael-marker-endblock55)" style=""></path>
+                    </g>
+                    <g data-state="16">
+                        <rect x="650" y="306" width="180" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="740" y="315" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 15px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="15px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">Authorize j0057.nl</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M625,301L645,301" stroke-width="2" stroke-dasharray="0" style=""></path>
+                        <path fill="none" stroke="#000000" d="M645,301L645,334" stroke-width="2" stroke-dasharray="0" style=""></path>
+                        <path fill="none" stroke="#000000" d="M645,334C645,334,635.9191131591797,334,629.9952533841133,334" stroke-width="2" stroke-dasharray="0" marker-end="url(#raphael-marker-endblock55)" style=""></path>
+                    </g>
+                    <g data-state="17">
+                        <rect x="295" y="340" width="90" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="340" y="349" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 15px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="15px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">302 Found</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M625,362C625,362,116.03361114859581,362,59.99263425113895,362" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style=""></path>
+                    </g>
+                    <g data-state="20">
+                        <rect x="65" y="378" width="230" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="180" y="387" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 15px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="15px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">GET /oauth/github/code/</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M55,400C55,400,264.77115631103516,400,300.00615522265434,400" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style=""></path>
+                    </g>
+                    <g data-state="23">
+                        <rect x="315" y="416" width="300" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="465" y="425" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 15px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="15px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">POST /login/oauth/access_token</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M305,438C305,438,579.4073677062988,438,620.0057233776897,438" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style=""></path>
+                    </g>
+                    <g data-state="26">
+                        <rect x="435" y="454" width="60" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="465" y="463" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 15px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="15px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">200 OK</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M625,476C625,476,350.5926322937012,476,309.9942766223103,476" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style=""></path>
+                    </g>
+                    <g data-state="29">
+                        <rect x="150" y="492" width="60" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="180" y="501" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 15px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="15px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">200 OK</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M305,514C305,514,95.22884368896484,514,59.99384477734566,514" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style=""></path>
+                    </g>
+                    <g data-state="30">
+                        <rect x="70" y="530" width="220" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="180" y="539" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 15px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="15px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">GET /oauth/github/api/user</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M55,552C55,552,264.77115631103516,552,300.00615522265434,552" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style=""></path>
+                    </g>
+                    <g data-state="33">
+                        <rect x="420" y="568" width="90" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="465" y="577" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 15px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="15px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">GET /user</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M305,590C305,590,579.4073677062988,590,620.0057233776897,590" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style=""></path>
+                    </g>
+                    <g data-state="36">
+                        <rect x="435" y="606" width="60" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="465" y="615" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 15px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="15px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">200 OK</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M625,628C625,628,350.5926322937012,628,309.9942766223103,628" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style=""></path>
+                    </g>
+                    <g data-state="39">
+                        <rect x="150" y="644" width="60" height="18" r="0" rx="0" ry="0" fill="#ffffff" stroke="none" style=""></rect>
+                        <text x="180" y="653" text-anchor="middle" font="10px &quot;Arial&quot;" stroke="none" fill="#000000" style="text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-size: 15px; line-height: normal; font-family: 'Andale Mono', monospace;" font-size="15px" font-family="Andale Mono, monospace">
+                            <tspan style="" dy="5.515625">200 OK</tspan>
+                        </text>
+                        <path fill="none" stroke="#000000" d="M305,666C305,666,95.22884368896484,666,59.99384477734566,666" stroke-width="2" marker-end="url(#raphael-marker-endblock55)" stroke-dasharray="0" style=""></path>
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </body>
+</html>
