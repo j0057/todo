@@ -2,45 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <title>OAuth2</title>
-
-        <style>
-            .slide { 
-                position: absolute; 
-                left: 5em; 
-                right: 5em; 
-                top: 1em; 
-                bottom: 1em; 
-                overflow-y: hidden; }
-
-            .slide { 
-                display: none; }
-
-            .centered { 
-                text-align: center; }
-
-            .vert-centered { 
-                vertical-align: middle }
-
-            #slide-flowchart .hidden { 
-                max-width: 0%;
-                max-height: 0%;
-                transition: max-width 0.2s, max-height 0.2s; }
-
-            #slide-flowchart .revealed { 
-                max-width: 100%; 
-                max-height: 100%; 
-                transition: max-width 0.4s, max-height 0.4s; }
-
-            #slide-title .hidden {
-                position: relative;
-                bottom: -150px; }
-
-            #slide-title .revealed {
-                position: relative;
-                bottom: 0px;
-                transition: bottom 1s }
-                
-        </style>
+        <link rel="stylesheet" href="index.css"/>
         <script src="index.js"/>
     </head>
 
@@ -49,7 +11,7 @@
         <div class="slide">
         </div>
 
-        <div class="slide" id="slide-title" data-states="2">
+        <div class="slide" id="slide-title" data-states="1">
             <h1 class="centered">Fun with OAuth</h1>
 
             <div class="centered">
@@ -65,7 +27,7 @@
         </div>
 
         <div class="slide">
-            <h1 class="centered">In this episode</h1>
+            <h1>In this episode</h1>
             <ul>
                 <li>Waarom?</li>
                 <li>Autorisatie vs. authenticatie</li>
@@ -83,17 +45,23 @@
             </ul>
         </div>
 
-        <div class="slide" data-states="2">
-            <h1 class="centered">Authenticatie vs Authorisatie</h1>
-            <dl>
-                <dt>Authenticatie</dt>
-                <dd>Wie ben ik?</dd>
-                <dt>Autorisatie</dt>
-                <dd>Wat mag ik?</dd>
-            </dl>
+        <div class="slide" data-states="6">
+            <h1>Wie &amp; wat</h1>
+            <ul>
+                <li>OAuth2 wordt gebruikt door Facebook, LinkedIn, DropBox, Office365, Google, etc</li>
+                <li>
+                    Gebruiker autoriseert derde partij om API aan te roepen
+                    <ul>
+                        <li>Zonder zijn wachtwoord aan derde partij te geven</li>
+                        <li>Zonder het wachtwoord bij derde partij te bewaren</li>
+                        <li>Derde partij kan niet de hele API aanroepen</li>
+                        <li>Gebruiker kan autorisatie weer intrekken</li>
+                    </ul>
+                </li>
+            </ul>
         </div>
 
-        <div class="slide">
+        <div class="slide" data-states="4">
             <h1>Rollen</h1>
             <ul>
                 <li>Resource owner / End-User</li>
@@ -103,51 +71,30 @@
             </ul>
         </div>
 
-        <div class="slide">
-            <h1>Welk probleem lost OAuth2 op?</h1>
-            <ul>
-                <li>Wachtwoorden zijn geheim</li>
-                <li>Wachtwoorden zijn onveilig</li>
-                <li>Scope</li>
-                <li>Autorisatie intrekken</li>
-            </ul>
-        </div>
-
         <div class="slide" id="slide-flowchart" data-states="41">
             <h1 class="centered">Authorization code flow</h1>
             <div class="centered">
-                <img src="github-register-app.png" data-state="4" class="hidden"
-                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 898px; height: 888px;"/>
+                <img src="github-register-app.png" data-state="4" class="hidden popup"/>
 
-                <img src="github-authorize-link.png" data-state="8" class="hidden"
-                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 420px; height: 38px;"/>
+                <img src="github-authorize-link.png" data-state="8" class="hidden popup"/>
 
-                <img src="github-authorize-redirect.png" data-state="12" class="hidden"
-                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 862px; height: 229px;"/>
+                <img src="github-authorize-redirect.png" data-state="12" class="hidden popup"/>
 
-                <img src="github-code-redirect.png" data-state="18" class="hidden"
-                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 849px; height: 168px;"/>
+                <img src="github-code-redirect.png" data-state="18" class="hidden popup"/>
 
-                <img src="github-code.png" data-state="21" class="hidden"
-                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 886px; height: 116px;"/>
+                <img src="github-code.png" data-state="21" class="hidden popup"/>
 
-                <img src="github-access-token.png" data-state="24" class="hidden"
-                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 759px; height: 241px;"/>
+                <img src="github-access-token.png" data-state="24" class="hidden popup"/>
 
-                <img src="github-access-token-response.png" data-state="27" class="hidden"
-                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 575px; height: 227px;"/>
+                <img src="github-access-token-response.png" data-state="27" class="hidden popup"/>
 
-                <img src="github-api-1.png" data-state="31" class="hidden"
-                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 879px; height: 208px;"/>
+                <img src="github-api-1.png" data-state="31" class="hidden popup"/>
 
-                <img src="github-api-2.png" data-state="34" class="hidden"
-                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 652px; height: 108px;"/>
+                <img src="github-api-2.png" data-state="34" class="hidden popup"/>
 
-                <img src="github-api-2-response.png" data-state="37" class="hidden"
-                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 428px; height: 262px;"/>
+                <img src="github-api-2-response.png" data-state="37" class="hidden popup"/>
 
-                <img src="github-api-1-response.png" data-state="40" class="hidden"
-                     style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 423px; height: 259px;"/>
+                <img src="github-api-1-response.png" data-state="40" class="hidden popup"/>
 
                 <svg xmlns="http://www.w3.org/2000/svg" width="935" height="744" xmlns:xlink="http://www.w3.org/1999/xlink"
                      style="margin-left: 228px;">
@@ -334,5 +281,26 @@
                 </svg>
             </div>
         </div>
+
+        <div class="slide">
+            <h1>POC's</h1>
+            <ul>
+                <li>Gemaakt in Python</li>
+                <li>oauth: OAuth2 API's aanroepen van verschillende websites</li>
+                <li>todo: Een simpele web app met een OAuth API</li>
+            </ul>
+        </div>
+
+        <div class="slide">
+        <h1>Python</h1>
+        <ul>
+            <li>In Nederland bedachte taal</li>
+            <li>Cross-platform</li>
+            <li>Leesbaarheid/significante whitespace</li>
+            <li>Batteries included</li>
+            <li>Dynamisch, sterk getypeerd</li>
+            <li>Function decorators</li>
+            <li>Metaclasses</li>
+        </ul>
     </body>
 </html>

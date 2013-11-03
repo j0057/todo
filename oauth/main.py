@@ -429,10 +429,12 @@ class OauthRouter(xhttp.Router):
         super(OauthRouter, self).__init__(
             (r'^/$',                            xhttp.Redirector('/oauth/')),
             (r'^/oauth/$',                      xhttp.Redirector('index.xhtml')),
+            (r'^/oauth/pizza/$',                xhttp.Redirector('index.xhtml')),
             
-            (r'^/oauth/(.*\.xhtml)$',           xhttp.FileServer('static', 'application/xhtml+xml')),
+            (r'^/oauth/(.*\.xhtml)$',           xhttp.FileServer('static', 'application/xhtml+xml; charset=UTF-8')),
             (r'^/oauth/(.*\.js)$',              xhttp.FileServer('static', 'application/javascript')),
             (r'^/oauth/(.*\.png)$',             xhttp.FileServer('static', 'image/png')),
+            (r'^/oauth/(.*\.css)$',             xhttp.FileServer('static', 'text/css')),
             
             (r'^/oauth/google/init/$',          GoogleInit()),
             (r'^/oauth/google/code/$',          GoogleCode()),

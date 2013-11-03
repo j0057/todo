@@ -10,19 +10,21 @@
                 $q("#title-pizza").className = state == 1 ? 'revealed' : "hidden";
             },
             3: function(slide, state) {
-                $qa("dt", $qa(".slide")[slide]).map(function(dt, i) {
-                    dt.style.display = i < state ? "block" : "none";
-                });
-                $qa("dd", $qa(".slide")[slide]).map(function(dd, i) {
-                    dd.style.display = i < state ? "block" : "none";
+                $qa("li", $qa(".slide")[slide]).map(function(li, i) {
+                    li.style.display = i < state ? null : "none";
                 });
             },
-            6: function(slide, state) {
+            4: function(slide, state) {
+                $qa("li", $qa(".slide")[slide]).map(function(li, i) {
+                    li.style.display = i < state ? null : "none";
+                });
+            },
+            5: function(slide, state) {
                 var popups = [4, 8, 12, 18, 21, 24, 27, 31, 34, 37, 40];
                 $qa("img, g", $qa(".slide")[slide]).map(function(elem, i) {
                     var elemState = Number(elem.getAttribute("data-state"));
                     if (popups.indexOf(elemState) >= 0) {
-                        elem.className = elemState == state ? "revealed" : "hidden";
+                        elem.className = elemState == state ? "revealed popup" : "hidden popup";
                     }
                     else {
                         elem.style.display = elemState <= state ? "block" : "none";

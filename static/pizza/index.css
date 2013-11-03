@@ -1,0 +1,45 @@
+body {
+    font-size: 200%;
+    line-height: 1.8em; }
+
+.slide { 
+    position: absolute; 
+    left: 5em; 
+    right: 5em; 
+    top: 1em; 
+    bottom: 1em; 
+    overflow-y: hidden; }
+
+.slide { 
+    display: none; }
+
+.centered { 
+    text-align: center; }
+
+.vert-centered { 
+    vertical-align: middle }
+
+#slide-title .hidden {
+    position: relative;
+    bottom: -150px;
+    transition: bottom 1s; }
+
+#slide-title .revealed {
+    position: relative;
+    bottom: 0px;
+    transition: bottom 1s }
+
+#slide-flowchart .popup {
+    position: absolute;
+    left: 0;
+    bottom: 0; }
+
+#slide-flowchart .hidden { 
+    max-width: 0%;
+    max-height: 0%;
+    transition: max-width 0.2s, max-height 0.2s; }
+
+#slide-flowchart .revealed { 
+    max-width: 100%; 
+    max-height: 100%; 
+    transition: max-width 0.4s, max-height 0.4s; }
