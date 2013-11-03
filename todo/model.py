@@ -18,10 +18,19 @@ class print_args(xhttp.decorator):
         print self.func.__name__, ':', result
         return result
 
+class ChattyObject(object):
+    class __metaclass__(type):
+        def __new__(cls, name, bases, attrs):
+            attrs.update({ k: print_args(v) 
+                           for (k, v) in attrs.items() 
+                           if not k.startswith('__')
+                           if callable(v) })
+            return super(cls, cls).__new__(cls, name, bases, attrs)
+
 class OAuthException(Exception):
     pass
 
-class Model(object):
+class Model(ChattyObject):
     def __init__(self, user_cookie=None, app_cookie=None):
         self.db = data.Database()
         if user_cookie:
@@ -41,7 +50,6 @@ class Model(object):
                 .first()
         return self._session
 
-    @print_args    
     def validate_session(self):
         if self.session is None:
             return False
@@ -49,14 +57,12 @@ class Model(object):
             return False
         return True
 
-    @print_args
     def create_user_session(self):
         session = data.Session(cookie=random())
         self.db.add(session)
         self.db.commit()
         return session.cookie
 
-    @print_args
     def create_user(self, username, password1, password2):
         if password1 != password2:
             raise Exception("Passwords do not match")
@@ -65,7 +71,6 @@ class Model(object):
         self.db.commit()
         return user
 
-    @print_args
     def login(self, username, password):
         user = self.db \
             .query(data.User) \
@@ -77,25 +82,21 @@ class Model(object):
             return True
         return False
 
-    @print_args
     def create_task(self, description):
         task = data.Task(description=description)
         self.session.user.tasks.append(task)
         self.db.commit()
         return task.task_id
 
-    @print_args
     def get_tasks(self):
         return self.session.user.tasks
 
-    @print_args
     def get_task(self, task_id):
         for task in self.session.user.tasks:
             if task.task_id == task_id:
                 return task
         return None
 
-    @print_args
     def update_task(self, task_id, is_done, description):
         try:
             for task in self.session.user.tasks:
@@ -106,7 +107,6 @@ class Model(object):
         finally:
             self.db.commit()
 
-    @print_args
     def delete_task(self, task_id):
         for (i, task) in enumerate(self.session.user.tasks):
             if task.task_id == task_id:
@@ -114,7 +114,6 @@ class Model(object):
                 break
         self.db.commit()
 
-    @print_args
     def create_app(self, name, redirect_uri, client_id=None, client_secret=None):
         app = data.App(
             name=name, 
@@ -126,11 +125,9 @@ class Model(object):
         self.db.commit()
         return app
 
-    @print_args
     def find_app(self, client_id):
         return self.db.query(data.App).filter_by(client_id=client_id).first()
 
-    @print_args
     def find_app_session(self, client_id, redirect_uri):
         for session in self.session.user.sessions:
             if not session.app:
@@ -144,7 +141,6 @@ class Model(object):
             return session
         return None
 
-    @print_args
     def create_app_session(self, client_id, redirect_uri):
         app = self.db.query(data.App).filter_by(client_id=client_id).one()
         if app.redirect_uri != redirect_uri:
@@ -157,7 +153,6 @@ class Model(object):
         self.db.commit()
         return session
 
-    @print_args
     def get_access_token(self, client_id, client_secret, code, redirect_uri):
         app = self.db.query(data.App).filter_by(client_id=client_id).first()
         if app is None:
@@ -174,13 +169,11 @@ class Model(object):
                 return session
         return None # wrong code
 
-    @print_args
     def generate_csrf_token(self):
         self.session.csrf_token = random()
         self.db.commit()
         return self.session.csrf_token
 
-    @print_args
     def validate_csrf_token(self, csrf_token):
         try:
             return self.session.csrf_token and self.session.csrf_token == csrf_token
