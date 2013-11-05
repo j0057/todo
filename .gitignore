@@ -1,6 +1,9 @@
-env
+env2*
+env3*
+.cache2*
+.cache3*
 *.pyc
-.cache
+__pycache__
 *.swp
 db.dat
 cookies.txt

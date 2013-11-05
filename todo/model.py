@@ -82,6 +82,14 @@ class Model(ChattyObject):
             return True
         return False
 
+    def get_user_name(self):
+        return self.session.user.name
+
+    def get_task_stats(self):
+        todo = len([ task for task in self.session.user.tasks if not task.is_done ])
+        done = len([ task for task in self.session.user.tasks if task.is_done ])
+        return (todo, done)
+
     def create_task(self, description):
         task = data.Task(description=description)
         self.session.user.tasks.append(task)
@@ -184,15 +192,25 @@ class Model(ChattyObject):
 if __name__ == '__main__':
     cb = 'https://dev.j0057.nl/oauth/j0057-todo/code/'
     db = data.Database()
+
     model = Model()
-    model.cookie = model.create_user_session()
     model.create_user('joost', 'foo', 'foo')
     model.create_user('foo', 'bar', 'bar')
-    model.login('joost', 'foo')
+
+    model.cookie = model.create_user_session()
+    assert model.login('joost', 'foo')
     app = model.create_app('dev.j0057.nl', cb, 'test-id', 'test-secret')
-    model.find_app_session(app.client_id, cb)
+    print model.find_app_session(app.client_id, cb)
     session1 = model.create_app_session(app.client_id, cb)
     print 'code:', session1.code
     session2 = model.get_access_token(app.client_id, app.client_secret, session1.code, cb)
     print 'access_token:', session2.cookie
+
+    model = Model()
+    model.cookie = model.create_user_session()
+    assert model.login('foo', 'bar')
+    print model.create_task('pizza')
+    print model.create_task('presentatie')
+    print model.create_task('demo')
+    print model.create_task('code')
 

@@ -17,7 +17,7 @@ data:
 clean-model: remove-db model
 
 remove-db:
-	rm -vf env/db.dat
+	rm -vf $(ENV)/db.dat
 
 model:
 	cd $(ENV) ; bin/python -i -m todo.model

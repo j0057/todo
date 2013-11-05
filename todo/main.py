@@ -44,6 +44,24 @@ class Login(xhttp.Resource):
             'x-content': 'OK'
         }
 
+class Me(xhttp.Resource):
+    @check_session
+    def GET(self, request):
+        (todo, done) = request['model'].get_task_stats()
+        username = request['model'].get_user_name()
+        return {
+            'x-status': xhttp.status.OK,
+            'x-content': json.dumps({
+                'username': username,
+                'tasks': {
+                    'todo': todo,
+                    'done': done,
+                    'total': todo + done 
+                } 
+            }),
+            'content-type': 'application/json'
+        }
+
 class Tasks(xhttp.Resource):
     @check_session
     def GET(self, request):
@@ -243,6 +261,7 @@ class TodoRouter(xhttp.Router):
             (r'^/todo/([a-z]+\.js)$',           xhttp.FileServer('static', 'application/javascript')),
             (r'^/todo/signup/$',                Signup()),
             (r'^/todo/login/$',                 Login()),
+            (r'^/todo/me',                      Me()),
             (r'^/todo/tasks/$',                 Tasks()),
             (r'^/todo/tasks/([0-9]+)$',         Task()),
             (r'^/todo/authorize/',              Authorize()),
