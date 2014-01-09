@@ -1,9 +1,10 @@
-env2*
-env3*
-.cache2*
-.cache3*
 *.pyc
-__pycache__
+env27
+.coverage27
+htmlcov27
+*.egg-info
+Makefile.in
+MANIFEST.in
 *.swp
 db.dat
 cookies.txt
